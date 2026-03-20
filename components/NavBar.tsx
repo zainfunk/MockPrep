@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function NavBar() {
+  const { isSignedIn, isLoaded } = useAuth();
   const [isDark, setIsDark] = useState(true);
 
   // Read initial preference from localStorage on mount
@@ -90,6 +92,25 @@ export default function NavBar() {
             </svg>
           )}
         </button>
+
+        {/* Auth */}
+        {isLoaded && (
+          isSignedIn ? (
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: 'w-8 h-8',
+                },
+              }}
+            />
+          ) : (
+            <SignInButton mode="modal">
+              <button className="text-sm bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+          )
+        )}
       </div>
     </nav>
   );

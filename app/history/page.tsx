@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth, SignInButton } from '@clerk/nextjs';
 
 interface SessionRecord {
   id: string;
@@ -134,6 +135,7 @@ function SessionCard({ session }: { session: SessionRecord }) {
 }
 
 export default function HistoryPage() {
+  const { isSignedIn, isLoaded: authLoaded } = useAuth();
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -165,6 +167,23 @@ export default function HistoryPage() {
 
   return (
     <main className="min-h-screen bg-gray-950 text-gray-100">
+      {/* Sign-in banner for unauthenticated users */}
+      {authLoaded && !isSignedIn && (
+        <div className="bg-blue-950/60 border-b border-blue-700/40">
+          <div className="max-w-3xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
+            <p className="text-sm text-blue-200">
+              <span className="font-medium">Sign in to save your session history across devices.</span>
+              {' '}Your local history is visible below.
+            </p>
+            <SignInButton mode="modal">
+              <button className="shrink-0 text-sm bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-3xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
