@@ -95,15 +95,15 @@ function InterviewPreview() {
         style={{ background: 'radial-gradient(ellipse at 60% 40%, rgba(59,130,246,0.18) 0%, transparent 70%)' }}
       />
       {/* Card */}
-      <div className="relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
         {/* Title bar */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 bg-gray-950/60">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/60">
           <div className="flex gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-700" />
           </div>
-          <span className="text-gray-500 text-xs ml-2">Two Sum · Easy · 38:14 remaining</span>
+          <span className="text-gray-400 dark:text-gray-500 text-xs ml-2">Two Sum · Easy · 38:14 remaining</span>
         </div>
 
         {/* Chat messages */}
@@ -111,29 +111,29 @@ function InterviewPreview() {
           {/* AI message */}
           <div className="flex gap-3">
             <div className="w-6 h-6 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-blue-400 text-xs font-bold">AI</span>
+              <span className="text-blue-500 dark:text-blue-400 text-xs font-bold">AI</span>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-300 leading-relaxed max-w-xs">
+            <div className="bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-700 dark:text-gray-300 leading-relaxed max-w-xs">
               Good start. Before writing code, what data structure are you thinking of using, and why?
             </div>
           </div>
 
           {/* User message */}
           <div className="flex gap-3 justify-end">
-            <div className="bg-blue-600/20 border border-blue-500/25 rounded-xl rounded-tr-sm px-3.5 py-2.5 text-gray-200 leading-relaxed max-w-xs">
+            <div className="bg-blue-600/20 border border-blue-500/25 rounded-xl rounded-tr-sm px-3.5 py-2.5 text-gray-800 dark:text-gray-200 leading-relaxed max-w-xs">
               I&apos;d use a hash map to store each number and its index as I iterate.
             </div>
-            <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-gray-300 text-xs font-bold">U</span>
+            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0 mt-0.5">
+              <span className="text-gray-600 dark:text-gray-300 text-xs font-bold">U</span>
             </div>
           </div>
 
           {/* AI follow-up */}
           <div className="flex gap-3">
             <div className="w-6 h-6 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-blue-400 text-xs font-bold">AI</span>
+              <span className="text-blue-500 dark:text-blue-400 text-xs font-bold">AI</span>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-300 leading-relaxed max-w-xs">
+            <div className="bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-700 dark:text-gray-300 leading-relaxed max-w-xs">
               Correct. What&apos;s the time and space complexity of that approach?
             </div>
           </div>
@@ -147,20 +147,20 @@ function InterviewPreview() {
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
-            <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center shrink-0">
-              <span className="text-gray-300 text-xs font-bold">U</span>
+            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
+              <span className="text-gray-600 dark:text-gray-300 text-xs font-bold">U</span>
             </div>
           </div>
         </div>
 
         {/* Score strip at bottom */}
-        <div className="border-t border-gray-800 px-4 py-3 bg-gray-950/40 flex items-center justify-between">
-          <span className="text-gray-500 text-xs">Session score</span>
+        <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-3 bg-gray-50 dark:bg-gray-950/40 flex items-center justify-between">
+          <span className="text-gray-400 dark:text-gray-500 text-xs">Session score</span>
           <div className="flex gap-3">
             {[['Comm', '8'], ['Logic', '7'], ['Code', '9']].map(([label, val]) => (
               <div key={label} className="flex flex-col items-center">
-                <span className="text-white text-sm font-bold">{val}<span className="text-gray-600 text-xs">/10</span></span>
-                <span className="text-gray-600 text-[10px]">{label}</span>
+                <span className="text-gray-900 dark:text-white text-sm font-bold">{val}<span className="text-gray-400 dark:text-gray-600 text-xs">/10</span></span>
+                <span className="text-gray-400 dark:text-gray-600 text-[10px]">{label}</span>
               </div>
             ))}
           </div>
@@ -174,12 +174,12 @@ function InterviewPreview() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="bg-gray-900/50 border border-gray-800 hover:border-gray-600 rounded-2xl p-6 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(59,130,246,0.08)]">
-      <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+    <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 rounded-2xl p-6 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(59,130,246,0.08)]">
+      <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-500 dark:text-blue-400">
         {icon}
       </div>
-      <h3 className="text-white font-semibold">{title}</h3>
-      <p className="text-gray-500 text-sm leading-relaxed">{description}</p>
+      <h3 className="text-gray-900 dark:text-white font-semibold">{title}</h3>
+      <p className="text-gray-500 dark:text-gray-500 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -188,7 +188,7 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode; titl
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gray-950 text-gray-100">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
@@ -211,7 +211,7 @@ export default function LandingPage() {
                 AI-Powered Mock Interviews
               </div>
 
-              <h1 className="text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight mb-6">
+              <h1 className="text-5xl xl:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight mb-6">
                 Interview prep that
                 <br />
                 <span style={{
@@ -223,7 +223,7 @@ export default function LandingPage() {
                 </span>
               </h1>
 
-              <p className="text-gray-400 text-lg leading-relaxed mb-10 max-w-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-10 max-w-lg">
                 Practice with an AI interviewer that asks follow-up questions, adapts to your answers, and gives you honest feedback, not just a pass or fail.
               </p>
 
@@ -238,10 +238,10 @@ export default function LandingPage() {
               </div>
 
               {/* Inline stats */}
-              <div className="flex gap-8 mt-12 pt-10 border-t border-gray-800">
+              <div className="flex gap-8 mt-12 pt-10 border-t border-gray-200 dark:border-gray-800">
                 {[['20+', 'Problems'], ['3', 'Difficulty levels'], ['45m', 'Timed sessions']].map(([val, label]) => (
                   <div key={label}>
-                    <div className="text-2xl font-bold text-white">{val}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{val}</div>
                     <div className="text-gray-500 text-sm mt-0.5">{label}</div>
                   </div>
                 ))}
@@ -255,19 +255,19 @@ export default function LandingPage() {
       </section>
 
       {/* ── VS COMPARISON ─────────────────────────────────────────────────── */}
-      <section className="border-t border-gray-800/60">
+      <section className="border-t border-gray-200/60 dark:border-gray-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-14">
-            <h2 className="text-3xl font-bold text-white mb-3">Not just another practice tool</h2>
-            <p className="text-gray-400 text-lg max-w-xl">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Not just another practice tool</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-xl">
               There&rsquo;s a gap between solving problems alone and performing in a real interview. MockPrep closes it.
             </p>
           </AnimateIn>
 
           <AnimateIn delay={100}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-7">
-              <p className="text-gray-600 text-xs font-semibold uppercase tracking-widest mb-5">Traditional Practice</p>
+            <div className="bg-gray-100 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 rounded-2xl p-7">
+              <p className="text-gray-400 dark:text-gray-600 text-xs font-semibold uppercase tracking-widest mb-5">Traditional Practice</p>
               <ul className="space-y-3.5">
                 {[
                   'Solve problems in silence with no one to talk to',
@@ -284,8 +284,8 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            <div className="bg-gray-900 border border-blue-500/25 rounded-2xl p-7 shadow-[0_0_40px_-8px_rgba(59,130,246,0.12)]">
-              <p className="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-5">MockPrep</p>
+            <div className="bg-white dark:bg-gray-900 border border-blue-500/25 rounded-2xl p-7 shadow-[0_0_40px_-8px_rgba(59,130,246,0.12)]">
+              <p className="text-blue-500 dark:text-blue-400 text-xs font-semibold uppercase tracking-widest mb-5">MockPrep</p>
               <ul className="space-y-3.5">
                 {[
                   'AI interviewer that asks follow-up questions in real time',
@@ -294,7 +294,7 @@ export default function LandingPage() {
                   'Replicates the pressure of a real 45-minute technical round',
                   'Session history so you can track improvement over time',
                 ].map((text) => (
-                  <li key={text} className="flex items-start gap-2.5 text-gray-200 text-sm">
+                  <li key={text} className="flex items-start gap-2.5 text-gray-700 dark:text-gray-200 text-sm">
                     <span className="text-blue-400 mt-0.5"><IconCheck /></span>
                     {text}
                   </li>
@@ -307,11 +307,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ──────────────────────────────────────────────────────── */}
-      <section className="border-t border-gray-800/60">
+      <section className="border-t border-gray-200/60 dark:border-gray-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-14">
-            <h2 className="text-3xl font-bold text-white mb-3">Everything you need to prepare</h2>
-            <p className="text-gray-400 text-lg max-w-xl">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Everything you need to prepare</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-xl">
               Built around the way real technical interviews actually work.
             </p>
           </AnimateIn>
@@ -330,22 +330,22 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section className="border-t border-gray-800/60 bg-gray-900/30">
+      <section className="border-t border-gray-200/60 dark:border-gray-800/60 bg-gray-100/60 dark:bg-gray-900/30">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn>
-            <h2 className="text-3xl font-bold text-white mb-14">How it works</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-14">How it works</h2>
           </AnimateIn>
 
           <AnimateIn delay={100}>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-800/60 rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-200 dark:bg-gray-800/60 rounded-2xl overflow-hidden">
             {[
               { step: '01', title: 'Pick a problem', desc: 'Filter by difficulty or category and choose a problem that matches where you want to focus.' },
               { step: '02', title: 'Interview live', desc: 'Walk the AI through your thinking out loud, write your solution in the editor, and respond to follow-up questions.' },
               { step: '03', title: 'Get your report', desc: 'Receive a scored breakdown of your performance with specific, actionable improvements to work on.' },
             ].map(({ step, title, desc }) => (
-              <div key={step} className="bg-gray-950 px-8 py-10">
+              <div key={step} className="bg-gray-50 dark:bg-gray-950 px-8 py-10">
                 <div className="text-5xl font-black text-blue-600/20 mb-5 leading-none">{step}</div>
-                <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
+                <h3 className="text-gray-900 dark:text-white font-semibold text-lg mb-2">{title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -355,14 +355,14 @@ export default function LandingPage() {
       </section>
 
       {/* ── BOTTOM CTA ────────────────────────────────────────────────────── */}
-      <section className="border-t border-gray-800/60">
+      <section className="border-t border-gray-200/60 dark:border-gray-800/60">
         <AnimateIn>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>
-            <h2 className="text-4xl font-extrabold text-white mb-3">
+            <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-3">
               Ready to find out where you stand?
             </h2>
-            <p className="text-gray-400 text-lg max-w-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-lg">
               Pick a problem and start your first session right now.
             </p>
           </div>
@@ -378,12 +378,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-800">
+      <footer className="border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-gray-600 text-sm font-semibold">MockPrep</span>
-          <div className="flex items-center gap-6 text-gray-600 text-sm">
-            <Link href="/problems" className="hover:text-gray-400 transition-colors">Problems</Link>
-            <Link href="/history" className="hover:text-gray-400 transition-colors">History</Link>
+          <span className="text-gray-400 dark:text-gray-600 text-sm font-semibold">MockPrep</span>
+          <div className="flex items-center gap-6 text-gray-400 dark:text-gray-600 text-sm">
+            <Link href="/problems" className="hover:text-gray-600 dark:hover:text-gray-400 transition-colors">Problems</Link>
+            <Link href="/history" className="hover:text-gray-600 dark:hover:text-gray-400 transition-colors">History</Link>
           </div>
         </div>
       </footer>
