@@ -1,0 +1,55 @@
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic();
+
+export async function POST(request: Request) {
+  const { messages, code, problemTitle, timeElapsed } = await request.json();
+
+  const conversationText = messages
+    .map((m: { role: string; content: string }) => `${m.role.toUpperCase()}: ${m.content}`)
+    .join('\n\n');
+
+  const minutesElapsed = Math.floor(timeElapsed / 60);
+  const secondsElapsed = timeElapsed % 60;
+
+  const prompt = `You are reviewing a mock technical interview session. Analyze the conversation and code below, then provide structured feedback.
+
+Problem: ${problemTitle}
+Time used: ${minutesElapsed}m ${secondsElapsed}s out of 45 minutes
+
+--- CONVERSATION ---
+${conversationText}
+
+--- FINAL CODE ---
+\`\`\`
+${code || '(No code written)'}
+\`\`\`
+
+Provide a JSON response with exactly this structure (no markdown, just raw JSON):
+{
+  "communicationScore": <1-10 integer>,
+  "communicationExplanation": "<2-3 sentence explanation>",
+  "problemSolvingScore": <1-10 integer>,
+  "problemSolvingExplanation": "<2-3 sentence explanation>",
+  "codeQualityScore": <1-10 integer>,
+  "codeQualityExplanation": "<2-3 sentence explanation>",
+  "timeManagement": "<1-2 sentence note about how they used their time>",
+  "topImprovements": ["<improvement 1>", "<improvement 2>", "<improvement 3>"],
+  "closingNote": "<1-2 sentence encouraging closing note>"
+}`;
+
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 1024,
+    messages: [{ role: 'user', content: prompt }],
+  });
+
+  const text = response.content[0].type === 'text' ? response.content[0].text : '';
+
+  try {
+    const feedback = JSON.parse(text);
+    return Response.json(feedback);
+  } catch {
+    return Response.json({ error: 'Failed to parse feedback' }, { status: 500 });
+  }
+}
