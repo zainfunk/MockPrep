@@ -1,9 +1,10 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// All routes are public by default.
-// Auth state is read client-side; /history shows a soft sign-in prompt
-// for unauthenticated users rather than a hard redirect.
-export default clerkMiddleware();
+const isProtectedRoute = createRouteMatcher(['/problems(.*)', '/interview(.*)']);
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) auth().protect();
+});
 
 export const config = {
   matcher: [
