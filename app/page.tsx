@@ -262,14 +262,14 @@ export default function LandingPage() {
       <section className="border-t border-gray-200/60 dark:border-gray-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Not just another practice tool</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">More than a regular practice tool</h2>
             <p className="text-gray-600 dark:text-gray-400 text-lg max-w-xl">
               There&rsquo;s a gap between solving problems alone and performing in a real interview. MockPrep closes it.
             </p>
           </AnimateIn>
 
           <AnimateIn delay={100}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-100 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 rounded-2xl p-7">
               <p className="text-gray-400 dark:text-gray-600 text-xs font-semibold uppercase tracking-widest mb-5">Traditional Practice</p>
               <ul className="space-y-3.5">
