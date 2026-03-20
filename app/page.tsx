@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AnimateIn from '@/components/AnimateIn';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -102,7 +103,7 @@ function InterviewPreview() {
             <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
             <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
           </div>
-          <span className="text-gray-500 text-xs ml-2">Two Sum — Easy · 38:14 remaining</span>
+          <span className="text-gray-500 text-xs ml-2">Two Sum · Easy · 38:14 remaining</span>
         </div>
 
         {/* Chat messages */}
@@ -113,7 +114,7 @@ function InterviewPreview() {
               <span className="text-blue-400 text-xs font-bold">AI</span>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-300 leading-relaxed max-w-xs">
-              Good start. Before writing code — what data structure are you thinking of using, and why?
+              Good start. Before writing code, what data structure are you thinking of using, and why?
             </div>
           </div>
 
@@ -173,8 +174,8 @@ function InterviewPreview() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="group bg-gray-900/50 border border-gray-800 hover:border-gray-700 rounded-2xl p-6 flex flex-col gap-3 transition-colors">
-      <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-600/15 transition-colors">
+    <div className="bg-gray-900/50 border border-gray-800 hover:border-gray-600 rounded-2xl p-6 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(59,130,246,0.08)]">
+      <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
         {icon}
       </div>
       <h3 className="text-white font-semibold">{title}</h3>
@@ -203,7 +204,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-            {/* Left — text */}
+            {/* Left - text */}
             <div>
               <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-medium px-3.5 py-1.5 rounded-full mb-8">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
@@ -223,20 +224,20 @@ export default function LandingPage() {
               </h1>
 
               <p className="text-gray-400 text-lg leading-relaxed mb-10 max-w-lg">
-                Practice with an AI interviewer that asks follow-up questions, adapts to your answers, and gives you honest feedback — not just a pass or fail.
+                Practice with an AI interviewer that asks follow-up questions, adapts to your answers, and gives you honest feedback, not just a pass or fail.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/problems"
-                  className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors"
+                  className="btn-glow inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-7 py-3.5 rounded-xl"
                 >
                   Start Practicing
                   <IconArrow />
                 </Link>
                 <Link
                   href="/history"
-                  className="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-medium px-7 py-3.5 rounded-xl transition-colors"
+                  className="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-medium px-7 py-3.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
                 >
                   View History
                 </Link>
@@ -253,7 +254,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right — preview */}
+            {/* Right - preview */}
             <InterviewPreview />
           </div>
         </div>
@@ -262,19 +263,20 @@ export default function LandingPage() {
       {/* ── VS COMPARISON ─────────────────────────────────────────────────── */}
       <section className="border-t border-gray-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
-          <div className="mb-14">
+          <AnimateIn className="mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">Not just another practice tool</h2>
             <p className="text-gray-400 text-lg max-w-xl">
               There&rsquo;s a gap between solving problems alone and performing in a real interview. MockPrep closes it.
             </p>
-          </div>
+          </AnimateIn>
 
+          <AnimateIn delay={100}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
             <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-7">
               <p className="text-gray-600 text-xs font-semibold uppercase tracking-widest mb-5">Traditional Practice</p>
               <ul className="space-y-3.5">
                 {[
-                  'Solve problems in silence — no one to talk to',
+                  'Solve problems in silence with no one to talk to',
                   'No feedback until you look up the answer',
                   'Pass/fail verdict with no explanation',
                   'Never tested on communication',
@@ -293,7 +295,7 @@ export default function LandingPage() {
               <ul className="space-y-3.5">
                 {[
                   'AI interviewer that asks follow-up questions in real time',
-                  'Socratic hints when you\'re stuck — not just the answer',
+                  'Socratic hints when you\'re stuck, not just the answer',
                   'Scored feedback on communication, logic, and code quality',
                   'Replicates the pressure of a real 45-minute technical round',
                   'Session history so you can track improvement over time',
@@ -306,59 +308,41 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
+          </AnimateIn>
         </div>
       </section>
 
       {/* ── FEATURES ──────────────────────────────────────────────────────── */}
       <section className="border-t border-gray-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
-          <div className="mb-14">
+          <AnimateIn className="mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">Everything you need to prepare</h2>
             <p className="text-gray-400 text-lg max-w-xl">
               Built around the way real technical interviews actually work.
             </p>
-          </div>
+          </AnimateIn>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FeatureCard
-              icon={<IconChat />}
-              title="Live AI Interviewer"
-              description="Back-and-forth conversation. The AI probes your reasoning, challenges assumptions, and guides you with hints — just like a human interviewer."
-            />
-            <FeatureCard
-              icon={<IconBarChart />}
-              title="Honest Scored Feedback"
-              description="Every session ends with a detailed report scoring communication, problem-solving, and code quality on a 1–10 scale with written explanations."
-            />
-            <FeatureCard
-              icon={<IconClock />}
-              title="Timed 45-Minute Sessions"
-              description="Practice under real interview time constraints. A live countdown keeps you on pace and your time management is reflected in your final score."
-            />
-            <FeatureCard
-              icon={<IconCode />}
-              title="Full Code Editor"
-              description="Write real code in Python, JavaScript, Java, or C++ inside a Monaco editor with syntax highlighting and a resizable split-pane layout."
-            />
-            <FeatureCard
-              icon={<IconLayers />}
-              title="20 Curated Problems"
-              description="Easy, medium, and hard problems spanning Arrays, Trees, Dynamic Programming, Graphs, and more — the topics that show up most in real interviews."
-            />
-            <FeatureCard
-              icon={<IconBarChart />}
-              title="Session History"
-              description="Every completed session is saved so you can review scores, re-read feedback, and see exactly where you've improved over time."
-            />
-          </div>
+          <AnimateIn delay={100}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <FeatureCard icon={<IconChat />} title="Live AI Interviewer" description="Back-and-forth conversation. The AI probes your reasoning, challenges assumptions, and guides you with hints, just like a human interviewer." />
+              <FeatureCard icon={<IconBarChart />} title="Honest Scored Feedback" description="Every session ends with a detailed report scoring communication, problem-solving, and code quality on a 1–10 scale with written explanations." />
+              <FeatureCard icon={<IconClock />} title="Timed 45-Minute Sessions" description="Practice under real interview time constraints. A live countdown keeps you on pace and your time management is reflected in your final score." />
+              <FeatureCard icon={<IconCode />} title="Full Code Editor" description="Write real code in Python, JavaScript, Java, or C++ inside a Monaco editor with syntax highlighting and a resizable split-pane layout." />
+              <FeatureCard icon={<IconLayers />} title="20 Curated Problems" description="Easy, medium, and hard problems spanning Arrays, Trees, Dynamic Programming, Graphs, and more. Covers the topics that show up most in real interviews." />
+              <FeatureCard icon={<IconBarChart />} title="Session History" description="Every completed session is saved so you can review scores, re-read feedback, and see exactly where you've improved over time." />
+            </div>
+          </AnimateIn>
         </div>
       </section>
 
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
       <section className="border-t border-gray-800/60 bg-gray-900/30">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
-          <h2 className="text-3xl font-bold text-white mb-14">How it works</h2>
+          <AnimateIn>
+            <h2 className="text-3xl font-bold text-white mb-14">How it works</h2>
+          </AnimateIn>
 
+          <AnimateIn delay={100}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-800/60 rounded-2xl overflow-hidden">
             {[
               { step: '01', title: 'Pick a problem', desc: 'Filter by difficulty or category and choose a problem that matches where you want to focus.' },
@@ -372,11 +356,13 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+          </AnimateIn>
         </div>
       </section>
 
       {/* ── BOTTOM CTA ────────────────────────────────────────────────────── */}
       <section className="border-t border-gray-800/60">
+        <AnimateIn>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>
             <h2 className="text-4xl font-extrabold text-white mb-3">
@@ -388,12 +374,13 @@ export default function LandingPage() {
           </div>
           <Link
             href="/problems"
-            className="shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl text-base transition-colors"
+            className="btn-glow shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl text-base"
           >
             Start Practicing
             <IconArrow />
           </Link>
         </div>
+        </AnimateIn>
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}

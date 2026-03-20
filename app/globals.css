@@ -47,3 +47,57 @@ main,
 .page-content {
   animation: fadeIn 0.15s ease-out forwards;
 }
+
+/* ── Glow buttons ── */
+.btn-glow {
+  transition: box-shadow 0.25s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+@media (hover: hover) {
+  .btn-glow:hover {
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.55), 0 0 40px rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+  }
+}
+
+.btn-secondary {
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+@media (hover: hover) {
+  .btn-secondary:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* ── Feature cards ── */
+.feature-card {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+@media (hover: hover) {
+  .feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 28px rgba(59, 130, 246, 0.09), 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba(75, 85, 99, 1);
+    background-color: rgba(17, 24, 39, 0.8);
+  }
+}
+
+/* ── Nav links ── */
+.nav-link {
+  transition: color 0.15s ease;
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #60a5fa;
+  transition: width 0.2s ease;
+}
+@media (hover: hover) {
+  .nav-link:hover::after {
+    width: 100%;
+  }
+}

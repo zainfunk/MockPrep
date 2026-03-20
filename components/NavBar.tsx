@@ -37,13 +37,13 @@ export default function NavBar() {
       <div className="flex items-center gap-4">
         <Link
           href="/problems"
-          className="text-sm text-gray-300 hover:text-white transition-colors"
+          className="nav-link text-sm text-gray-300 hover:text-white transition-colors"
         >
           Practice
         </Link>
         <Link
           href="/history"
-          className="text-sm text-gray-300 hover:text-white transition-colors"
+          className="nav-link text-sm text-gray-300 hover:text-white transition-colors"
         >
           History
         </Link>
