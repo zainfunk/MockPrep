@@ -10,7 +10,7 @@ export default function NavBar() {
 
   useEffect(() => {
     const saved = localStorage.getItem('theme');
-    const dark = saved ? saved === 'dark' : true;
+    const dark = saved ? saved === 'dark' : false;
     setIsDark(dark);
     document.documentElement.classList.toggle('dark', dark);
   }, []);
