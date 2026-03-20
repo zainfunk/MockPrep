@@ -214,15 +214,16 @@ export default function LandingPage() {
                 AI-Powered Mock Interviews
               </div>
 
-              <h1 className="text-5xl xl:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight mb-6">
-                Interview prep that
+              <h1 className="text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight mb-6">
+                Interactive interview practice
                 <br />
+                for{' '}
                 <span style={{
                   background: 'linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}>
-                  talks back.
+                  real technical roles.
                 </span>
               </h1>
 
