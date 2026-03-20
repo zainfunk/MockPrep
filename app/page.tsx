@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
-// ── Inline SVG icons ─────────────────────────────────────────────────────────
+// ── Icons ─────────────────────────────────────────────────────────────────────
 
 function IconChat() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
@@ -13,7 +13,7 @@ function IconChat() {
 
 function IconCode() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="16 18 22 12 16 6" />
       <polyline points="8 6 2 12 8 18" />
@@ -23,7 +23,7 @@ function IconCode() {
 
 function IconBarChart() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="20" x2="18" y2="10" />
       <line x1="12" y1="20" x2="12" y2="4" />
@@ -34,7 +34,7 @@ function IconBarChart() {
 
 function IconClock() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
@@ -44,7 +44,7 @@ function IconClock() {
 
 function IconLayers() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="12 2 2 7 12 12 22 7 12 2" />
       <polyline points="2 17 12 22 22 17" />
@@ -53,9 +53,19 @@ function IconLayers() {
   );
 }
 
+function IconArrow() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
 function IconCheck() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12" />
     </svg>
@@ -64,7 +74,7 @@ function IconCheck() {
 
 function IconX() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
@@ -72,35 +82,103 @@ function IconX() {
   );
 }
 
-// ── Subcomponents ─────────────────────────────────────────────────────────────
+// ── Mock interview preview UI ──────────────────────────────────────────────────
 
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
+function InterviewPreview() {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col gap-4">
-      <div className="w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-500/20 flex items-center justify-center text-blue-400">
-        {icon}
-      </div>
-      <div>
-        <h3 className="text-white font-semibold text-lg mb-1.5">{title}</h3>
-        <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+    <div className="relative w-full max-w-md mx-auto lg:mx-0 lg:ml-auto">
+      {/* Glow behind card */}
+      <div
+        aria-hidden
+        className="absolute inset-0 rounded-2xl blur-2xl"
+        style={{ background: 'radial-gradient(ellipse at 60% 40%, rgba(59,130,246,0.18) 0%, transparent 70%)' }}
+      />
+      {/* Card */}
+      <div className="relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+        {/* Title bar */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 bg-gray-950/60">
+          <div className="flex gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-700" />
+          </div>
+          <span className="text-gray-500 text-xs ml-2">Two Sum — Easy · 38:14 remaining</span>
+        </div>
+
+        {/* Chat messages */}
+        <div className="p-4 space-y-4 text-sm">
+          {/* AI message */}
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+              <span className="text-blue-400 text-xs font-bold">AI</span>
+            </div>
+            <div className="bg-gray-800/60 border border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-300 leading-relaxed max-w-xs">
+              Good start. Before writing code — what data structure are you thinking of using, and why?
+            </div>
+          </div>
+
+          {/* User message */}
+          <div className="flex gap-3 justify-end">
+            <div className="bg-blue-600/20 border border-blue-500/25 rounded-xl rounded-tr-sm px-3.5 py-2.5 text-gray-200 leading-relaxed max-w-xs">
+              I&apos;d use a hash map to store each number and its index as I iterate.
+            </div>
+            <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center shrink-0 mt-0.5">
+              <span className="text-gray-300 text-xs font-bold">U</span>
+            </div>
+          </div>
+
+          {/* AI follow-up */}
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+              <span className="text-blue-400 text-xs font-bold">AI</span>
+            </div>
+            <div className="bg-gray-800/60 border border-gray-700/50 rounded-xl rounded-tl-sm px-3.5 py-2.5 text-gray-300 leading-relaxed max-w-xs">
+              Correct. What&apos;s the time and space complexity of that approach?
+            </div>
+          </div>
+
+          {/* Typing indicator */}
+          <div className="flex gap-3 justify-end items-end">
+            <div className="bg-blue-600/10 border border-blue-500/20 rounded-xl rounded-tr-sm px-4 py-3">
+              <div className="flex gap-1 items-center h-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+            <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center shrink-0">
+              <span className="text-gray-300 text-xs font-bold">U</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Score strip at bottom */}
+        <div className="border-t border-gray-800 px-4 py-3 bg-gray-950/40 flex items-center justify-between">
+          <span className="text-gray-500 text-xs">Session score</span>
+          <div className="flex gap-3">
+            {[['Comm', '8'], ['Logic', '7'], ['Code', '9']].map(([label, val]) => (
+              <div key={label} className="flex flex-col items-center">
+                <span className="text-white text-sm font-bold">{val}<span className="text-gray-600 text-xs">/10</span></span>
+                <span className="text-gray-600 text-[10px]">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatPill({ value, label }: { value: string; label: string }) {
+// ── Feature card ──────────────────────────────────────────────────────────────
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="flex flex-col items-center px-6 py-4">
-      <span className="text-3xl font-bold text-white mb-1">{value}</span>
-      <span className="text-gray-500 text-sm">{label}</span>
+    <div className="group bg-gray-900/50 border border-gray-800 hover:border-gray-700 rounded-2xl p-6 flex flex-col gap-3 transition-colors">
+      <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-600/15 transition-colors">
+        {icon}
+      </div>
+      <h3 className="text-white font-semibold">{title}</h3>
+      <p className="text-gray-500 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -113,203 +191,184 @@ export default function LandingPage() {
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        {/* subtle radial glow behind the headline */}
+        {/* Top radial glow */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 flex justify-center"
+          className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59,130,246,0.18) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 70% 55% at 50% -5%, rgba(59,130,246,0.14) 0%, transparent 65%)',
           }}
         />
 
-        <div className="relative max-w-4xl mx-auto px-6 pt-24 pb-20 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/25 text-blue-400 text-xs font-medium px-3.5 py-1.5 rounded-full mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
-            AI-Powered Mock Interviews
-          </div>
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-white leading-tight tracking-tight mb-6">
-            Start interviewing
-            <br />
-            <span
-              style={{
-                background: 'linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              with confidence.
-            </span>
-          </h1>
+            {/* Left — text */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-medium px-3.5 py-1.5 rounded-full mb-8">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
+                AI-Powered Mock Interviews
+              </div>
 
-          <p className="text-gray-400 text-xl leading-relaxed max-w-2xl mx-auto mb-10">
-            Practice with an AI interviewer that talks back, adapts to your answers,
-            and gives you the honest feedback that LeetCode never will.
-          </p>
+              <h1 className="text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight mb-6">
+                Interview prep that
+                <br />
+                <span style={{
+                  background: 'linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                  talks back.
+                </span>
+              </h1>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/problems"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-3.5 rounded-xl text-base transition-colors"
-            >
-              Browse Problems
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
-            <Link
-              href="/history"
-              className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium px-8 py-3.5 rounded-xl text-base transition-colors"
-            >
-              View History
-            </Link>
+              <p className="text-gray-400 text-lg leading-relaxed mb-10 max-w-lg">
+                Practice with an AI interviewer that asks follow-up questions, adapts to your answers, and gives you honest feedback — not just a pass or fail.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/problems"
+                  className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors"
+                >
+                  Start Practicing
+                  <IconArrow />
+                </Link>
+                <Link
+                  href="/history"
+                  className="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-medium px-7 py-3.5 rounded-xl transition-colors"
+                >
+                  View History
+                </Link>
+              </div>
+
+              {/* Inline stats */}
+              <div className="flex gap-8 mt-12 pt-10 border-t border-gray-800">
+                {[['20+', 'Problems'], ['3', 'Difficulty levels'], ['45m', 'Timed sessions']].map(([val, label]) => (
+                  <div key={label}>
+                    <div className="text-2xl font-bold text-white">{val}</div>
+                    <div className="text-gray-500 text-sm mt-0.5">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — preview */}
+            <InterviewPreview />
           </div>
         </div>
       </section>
 
-      {/* ── STATS BAR ─────────────────────────────────────────────────────── */}
-      <section className="border-y border-gray-800">
-        <div className="max-w-3xl mx-auto px-6 flex flex-wrap justify-center divide-x divide-gray-800">
-          <StatPill value="20" label="Practice Problems" />
-          <StatPill value="4" label="Languages" />
-          <StatPill value="8" label="Problem Categories" />
-          <StatPill value="45m" label="Timed Sessions" />
-        </div>
-      </section>
-
-      {/* ── WHY MOCKPREP ──────────────────────────────────────────────────── */}
-      <section className="max-w-5xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-white mb-3">
-            Not just another practice tool
-          </h2>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto">
-            There&rsquo;s a gap between solving problems alone and performing in a real
-            interview. MockPrep closes it.
-          </p>
-        </div>
-
-        {/* Comparison table */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Traditional */}
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6">
-            <p className="text-gray-500 text-xs font-semibold uppercase tracking-widest mb-4">
-              Traditional Practice
+      {/* ── VS COMPARISON ─────────────────────────────────────────────────── */}
+      <section className="border-t border-gray-800/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
+          <div className="mb-14">
+            <h2 className="text-3xl font-bold text-white mb-3">Not just another practice tool</h2>
+            <p className="text-gray-400 text-lg max-w-xl">
+              There&rsquo;s a gap between solving problems alone and performing in a real interview. MockPrep closes it.
             </p>
-            <ul className="space-y-3">
-              {[
-                'Solve problems in silence — no one to talk to',
-                'No feedback until you look up the answer',
-                'Pass/fail verdict with no explanation',
-                'Never tested on communication or clarity',
-                'Doesn\'t replicate interview pressure',
-              ].map((text) => (
-                <li key={text} className="flex items-start gap-2.5 text-gray-500 text-sm">
-                  <span className="text-red-500 mt-0.5"><IconX /></span>
-                  {text}
-                </li>
-              ))}
-            </ul>
           </div>
 
-          {/* MockPrep */}
-          <div className="bg-gray-900 border border-blue-500/30 rounded-2xl p-6 shadow-[0_0_30px_-5px_rgba(59,130,246,0.15)]">
-            <p className="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-4">
-              MockPrep
-            </p>
-            <ul className="space-y-3">
-              {[
-                'An AI interviewer that asks follow-up questions in real time',
-                'Socratic hints when you\'re stuck — not just the answer',
-                'Scored feedback across communication, problem-solving, and code quality',
-                'Replicate the pressure and pacing of a real 45-minute technical round',
-                'Session history so you can track improvement over time',
-              ].map((text) => (
-                <li key={text} className="flex items-start gap-2.5 text-gray-100 text-sm">
-                  <span className="text-blue-400 mt-0.5"><IconCheck /></span>
-                  {text}
-                </li>
-              ))}
-            </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-7">
+              <p className="text-gray-600 text-xs font-semibold uppercase tracking-widest mb-5">Traditional Practice</p>
+              <ul className="space-y-3.5">
+                {[
+                  'Solve problems in silence — no one to talk to',
+                  'No feedback until you look up the answer',
+                  'Pass/fail verdict with no explanation',
+                  'Never tested on communication',
+                  'Doesn\'t replicate real interview pressure',
+                ].map((text) => (
+                  <li key={text} className="flex items-start gap-2.5 text-gray-500 text-sm">
+                    <span className="text-red-500/70 mt-0.5"><IconX /></span>
+                    {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-gray-900 border border-blue-500/25 rounded-2xl p-7 shadow-[0_0_40px_-8px_rgba(59,130,246,0.12)]">
+              <p className="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-5">MockPrep</p>
+              <ul className="space-y-3.5">
+                {[
+                  'AI interviewer that asks follow-up questions in real time',
+                  'Socratic hints when you\'re stuck — not just the answer',
+                  'Scored feedback on communication, logic, and code quality',
+                  'Replicates the pressure of a real 45-minute technical round',
+                  'Session history so you can track improvement over time',
+                ].map((text) => (
+                  <li key={text} className="flex items-start gap-2.5 text-gray-200 text-sm">
+                    <span className="text-blue-400 mt-0.5"><IconCheck /></span>
+                    {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── FEATURES ──────────────────────────────────────────────────────── */}
-      <section className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-white mb-3">Everything you need to prepare</h2>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto">
-            Built around the way real technical interviews actually work.
-          </p>
-        </div>
+      <section className="border-t border-gray-800/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
+          <div className="mb-14">
+            <h2 className="text-3xl font-bold text-white mb-3">Everything you need to prepare</h2>
+            <p className="text-gray-400 text-lg max-w-xl">
+              Built around the way real technical interviews actually work.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <FeatureCard
-            icon={<IconChat />}
-            title="Live AI Interviewer"
-            description="Have a real back-and-forth conversation. The AI probes your reasoning, challenges your assumptions, and guides you with hints — just like a human interviewer would."
-          />
-          <FeatureCard
-            icon={<IconBarChart />}
-            title="Honest Scored Feedback"
-            description="Every session ends with a detailed report scoring your communication, problem-solving approach, and code quality on a 1–10 scale with written explanations."
-          />
-          <FeatureCard
-            icon={<IconClock />}
-            title="Timed 45-Minute Sessions"
-            description="Practice under the same time constraints as a real interview. A live countdown keeps you on pace and your time management is reflected in your final score."
-          />
-          <FeatureCard
-            icon={<IconCode />}
-            title="Full Code Editor"
-            description="Write real code in Python, JavaScript, Java, or C++ inside a Monaco editor with syntax highlighting, autocompletion, and a resizable split-pane layout."
-          />
-          <FeatureCard
-            icon={<IconLayers />}
-            title="20 Curated Problems"
-            description="7 easy, 8 medium, and 5 hard problems spanning Arrays, Strings, Trees, Dynamic Programming, Graphs, and more — covering the topics that show up most in real interviews."
-          />
-          <FeatureCard
-            icon={<IconBarChart />}
-            title="Session History"
-            description="Every completed session is saved locally so you can review your scores, re-read feedback, and see exactly where you've improved over time."
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FeatureCard
+              icon={<IconChat />}
+              title="Live AI Interviewer"
+              description="Back-and-forth conversation. The AI probes your reasoning, challenges assumptions, and guides you with hints — just like a human interviewer."
+            />
+            <FeatureCard
+              icon={<IconBarChart />}
+              title="Honest Scored Feedback"
+              description="Every session ends with a detailed report scoring communication, problem-solving, and code quality on a 1–10 scale with written explanations."
+            />
+            <FeatureCard
+              icon={<IconClock />}
+              title="Timed 45-Minute Sessions"
+              description="Practice under real interview time constraints. A live countdown keeps you on pace and your time management is reflected in your final score."
+            />
+            <FeatureCard
+              icon={<IconCode />}
+              title="Full Code Editor"
+              description="Write real code in Python, JavaScript, Java, or C++ inside a Monaco editor with syntax highlighting and a resizable split-pane layout."
+            />
+            <FeatureCard
+              icon={<IconLayers />}
+              title="20 Curated Problems"
+              description="Easy, medium, and hard problems spanning Arrays, Trees, Dynamic Programming, Graphs, and more — the topics that show up most in real interviews."
+            />
+            <FeatureCard
+              icon={<IconBarChart />}
+              title="Session History"
+              description="Every completed session is saved so you can review scores, re-read feedback, and see exactly where you've improved over time."
+            />
+          </div>
         </div>
       </section>
 
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section className="border-t border-gray-800 bg-gray-900/40">
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-white mb-3">How it works</h2>
-          </div>
+      <section className="border-t border-gray-800/60 bg-gray-900/30">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
+          <h2 className="text-3xl font-bold text-white mb-14">How it works</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-800/60 rounded-2xl overflow-hidden">
             {[
-              {
-                step: '01',
-                title: 'Pick a problem',
-                desc: 'Filter by difficulty or category and choose a problem that matches where you want to focus.',
-              },
-              {
-                step: '02',
-                title: 'Interview live',
-                desc: 'Walk the AI through your thinking out loud, write your solution in the editor, and respond to follow-up questions.',
-              },
-              {
-                step: '03',
-                title: 'Get your report',
-                desc: 'Receive a scored breakdown of your performance with specific, actionable improvements to work on.',
-              },
+              { step: '01', title: 'Pick a problem', desc: 'Filter by difficulty or category and choose a problem that matches where you want to focus.' },
+              { step: '02', title: 'Interview live', desc: 'Walk the AI through your thinking out loud, write your solution in the editor, and respond to follow-up questions.' },
+              { step: '03', title: 'Get your report', desc: 'Receive a scored breakdown of your performance with specific, actionable improvements to work on.' },
             ].map(({ step, title, desc }) => (
-              <div key={step} className="flex flex-col items-center text-center">
-                <div className="text-4xl font-black text-blue-600/30 mb-3 leading-none">{step}</div>
+              <div key={step} className="bg-gray-950 px-8 py-10">
+                <div className="text-5xl font-black text-blue-600/20 mb-5 leading-none">{step}</div>
                 <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -317,29 +376,29 @@ export default function LandingPage() {
       </section>
 
       {/* ── BOTTOM CTA ────────────────────────────────────────────────────── */}
-      <section className="max-w-3xl mx-auto px-6 py-24 text-center">
-        <h2 className="text-4xl font-extrabold text-white mb-4">
-          Ready to find out where you stand?
-        </h2>
-        <p className="text-gray-400 text-lg mb-10 max-w-lg mx-auto">
-          No sign-up. No setup. Pick a problem and start your first session right now.
-        </p>
-        <Link
-          href="/problems"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-10 py-4 rounded-xl text-lg transition-colors"
-        >
-          Start Practicing
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </Link>
+      <section className="border-t border-gray-800/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div>
+            <h2 className="text-4xl font-extrabold text-white mb-3">
+              Ready to find out where you stand?
+            </h2>
+            <p className="text-gray-400 text-lg max-w-lg">
+              Pick a problem and start your first session right now.
+            </p>
+          </div>
+          <Link
+            href="/problems"
+            className="shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl text-base transition-colors"
+          >
+            Start Practicing
+            <IconArrow />
+          </Link>
+        </div>
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-800 py-8">
-        <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="text-gray-600 text-sm font-semibold">MockPrep</span>
           <div className="flex items-center gap-6 text-gray-600 text-sm">
             <Link href="/problems" className="hover:text-gray-400 transition-colors">Problems</Link>
