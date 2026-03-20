@@ -34,10 +34,10 @@ export default function NavBar() {
       {/* Right side nav */}
       <div className="flex items-center gap-4">
         <Link
-          href="/"
+          href="/problems"
           className="text-sm text-gray-300 hover:text-white transition-colors"
         >
-          Home
+          Practice
         </Link>
         <Link
           href="/history"

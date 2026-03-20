@@ -170,7 +170,7 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <Link
-              href="/"
+              href="/problems"
               className="text-sm text-gray-500 hover:text-gray-300 transition-colors mb-2 inline-flex items-center gap-1"
             >
               <svg
@@ -221,7 +221,7 @@ export default function HistoryPage() {
               Complete your first interview to see your history here.
             </p>
             <Link
-              href="/"
+              href="/problems"
               className="inline-block mt-6 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors"
             >
               Browse Problems
