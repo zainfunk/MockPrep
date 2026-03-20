@@ -46,6 +46,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   }, [messages]);
 
   // Timer
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!sessionStarted || sessionEnded) return;
     const interval = setInterval(() => {
@@ -61,6 +62,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     }, 1000);
     return () => clearInterval(interval);
   }, [sessionStarted, sessionEnded]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -115,7 +117,8 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     [problem]
   );
 
-  // Start session with AI greeting
+  // Start session with AI greeting — intentionally runs once on mount
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (sessionStarted) return;
     setSessionStarted(true);
@@ -124,6 +127,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
       []
     );
   }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const handleSend = async () => {
     if (!input.trim() || isStreaming) return;
@@ -256,7 +260,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
                 <div className="bg-gray-800 rounded px-2 py-1 mt-1 font-mono text-xs text-gray-300">
                   <div>Input: {ex.input}</div>
                   <div>Output: {ex.output}</div>
-                  {ex.explanation && <div className="text-gray-500">// {ex.explanation}</div>}
+                  {ex.explanation && <div className="text-gray-500 italic">{ex.explanation}</div>}
                 </div>
               </div>
             ))}
