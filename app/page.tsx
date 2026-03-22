@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Space_Grotesk, JetBrains_Mono, Montserrat } from 'next/font/google';
 import AnimateIn from '@/components/AnimateIn';
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
@@ -8,6 +8,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500', '600'],
   variable: '--font-mono',
 });
+const montserrat = Montserrat({ subsets: ['latin'], weight: ['700', '800', '900'] });
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -88,9 +89,9 @@ function IconHistory() {
 function SectionLabel({ index, label }: { index: string; label: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
-      <span className="text-slate-600 text-xs font-mono">{'// '}{index}</span>
-      <div className="h-px w-6 bg-slate-700" />
-      <span className="text-slate-500 text-xs font-mono tracking-widest uppercase">{label}</span>
+      <span className="text-slate-400 dark:text-slate-600 text-xs font-mono">{'// '}{index}</span>
+      <div className="h-px w-6 bg-slate-300 dark:bg-slate-700" />
+      <span className="text-slate-400 dark:text-slate-500 text-xs font-mono tracking-widest uppercase">{label}</span>
     </div>
   );
 }
@@ -103,51 +104,51 @@ function InterviewPreview() {
       {/* Ambient glow */}
       <div
         aria-hidden
-        className="absolute -inset-6 rounded-2xl blur-3xl opacity-15 pointer-events-none"
+        className="absolute -inset-6 rounded-2xl blur-3xl opacity-15 dark:opacity-15 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.5) 0%, transparent 70%)' }}
       />
       {/* Window */}
-      <div className="relative bg-[#1E293B] border border-slate-700/50 rounded-lg overflow-hidden shadow-2xl">
+      <div className="relative bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-xl dark:shadow-2xl">
 
         {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-700/50 bg-[#0F172A]/80">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0F172A]/80">
           <div className="flex gap-1.5 items-center">
             <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-slate-500 text-xs font-mono">two_sum.py</span>
-            <span className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-mono px-2 py-0.5 rounded-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">two_sum.py</span>
+            <span className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/30 text-green-600 dark:text-green-400 text-[10px] font-mono px-2 py-0.5 rounded-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 animate-pulse" />
               LIVE
             </span>
           </div>
-          <span className="text-slate-500 text-xs font-mono">38:14</span>
+          <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">38:14</span>
         </div>
 
         {/* Chat */}
         <div className="p-5 space-y-4 text-sm">
           <div className="space-y-1.5">
-            <span className="text-green-400 text-xs font-mono">AI ▸</span>
-            <div className="ml-5 border-l-2 border-green-500/40 pl-3 py-2 text-slate-300 leading-relaxed">
+            <span className="text-green-600 dark:text-green-400 text-xs font-mono">AI ▸</span>
+            <div className="ml-5 border-l-2 border-green-500/40 pl-3 py-2 text-slate-600 dark:text-slate-300 leading-relaxed">
               Good start. Before writing code, what data structure are you thinking of using, and why?
             </div>
           </div>
           <div className="space-y-1.5">
-            <span className="text-blue-400 text-xs font-mono">YOU ▸</span>
-            <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-2 text-slate-200 leading-relaxed">
+            <span className="text-blue-600 dark:text-blue-400 text-xs font-mono">YOU ▸</span>
+            <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-2 text-slate-700 dark:text-slate-200 leading-relaxed">
               I&apos;d use a hash map to store each number and its index as I iterate.
             </div>
           </div>
           <div className="space-y-1.5">
-            <span className="text-green-400 text-xs font-mono">AI ▸</span>
-            <div className="ml-5 border-l-2 border-green-500/40 pl-3 py-2 text-slate-300 leading-relaxed">
+            <span className="text-green-600 dark:text-green-400 text-xs font-mono">AI ▸</span>
+            <div className="ml-5 border-l-2 border-green-500/40 pl-3 py-2 text-slate-600 dark:text-slate-300 leading-relaxed">
               Correct. What&apos;s the time and space complexity of that approach?
             </div>
           </div>
           <div className="space-y-1.5">
-            <span className="text-blue-400 text-xs font-mono">YOU ▸</span>
+            <span className="text-blue-600 dark:text-blue-400 text-xs font-mono">YOU ▸</span>
             <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-3 flex items-center">
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -159,14 +160,14 @@ function InterviewPreview() {
         </div>
 
         {/* Score strip */}
-        <div className="border-t border-slate-700/50 px-5 py-3 bg-[#0F172A]/70 flex items-center justify-between">
-          <span className="text-slate-600 text-[11px] font-mono">{'// session_score'}</span>
+        <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0F172A]/70 flex items-center justify-between">
+          <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">{'// session_score'}</span>
           <div className="flex gap-4">
             {[['comm', '8'], ['logic', '7'], ['code', '9']].map(([label, val]) => (
               <div key={label} className="flex items-baseline gap-1">
-                <span className="text-slate-600 text-[10px] font-mono">{label}:</span>
-                <span className="text-green-400 text-sm font-semibold font-mono">{val}</span>
-                <span className="text-slate-700 text-[10px] font-mono">/10</span>
+                <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">{label}:</span>
+                <span className="text-green-600 dark:text-green-400 text-sm font-semibold font-mono">{val}</span>
+                <span className="text-slate-300 dark:text-slate-700 text-[10px] font-mono">/10</span>
               </div>
             ))}
           </div>
@@ -181,12 +182,12 @@ function InterviewPreview() {
 type Accent = 'blue' | 'green' | 'amber' | 'violet' | 'cyan' | 'rose';
 
 const accents: Record<Accent, { leftBorder: string; iconWrap: string; iconText: string; tag: string }> = {
-  blue:   { leftBorder: 'border-l-blue-500/50',   iconWrap: 'bg-blue-500/10 border-blue-500/20',   iconText: 'text-blue-400',   tag: 'border-blue-500/25 text-blue-400/80' },
-  green:  { leftBorder: 'border-l-green-500/50',  iconWrap: 'bg-green-500/10 border-green-500/20', iconText: 'text-green-400',  tag: 'border-green-500/25 text-green-400/80' },
-  amber:  { leftBorder: 'border-l-amber-500/50',  iconWrap: 'bg-amber-500/10 border-amber-500/20', iconText: 'text-amber-400',  tag: 'border-amber-500/25 text-amber-400/80' },
-  violet: { leftBorder: 'border-l-violet-500/50', iconWrap: 'bg-violet-500/10 border-violet-500/20', iconText: 'text-violet-400', tag: 'border-violet-500/25 text-violet-400/80' },
-  cyan:   { leftBorder: 'border-l-cyan-500/50',   iconWrap: 'bg-cyan-500/10 border-cyan-500/20',   iconText: 'text-cyan-400',   tag: 'border-cyan-500/25 text-cyan-400/80' },
-  rose:   { leftBorder: 'border-l-rose-500/50',   iconWrap: 'bg-rose-500/10 border-rose-500/20',   iconText: 'text-rose-400',   tag: 'border-rose-500/25 text-rose-400/80' },
+  blue:   { leftBorder: 'border-l-blue-500/50',   iconWrap: 'bg-blue-500/10 border-blue-500/20',   iconText: 'text-blue-600 dark:text-blue-400',   tag: 'border-blue-500/25 text-blue-600/80 dark:text-blue-400/80' },
+  green:  { leftBorder: 'border-l-green-500/50',  iconWrap: 'bg-green-500/10 border-green-500/20', iconText: 'text-green-600 dark:text-green-400',  tag: 'border-green-500/25 text-green-600/80 dark:text-green-400/80' },
+  amber:  { leftBorder: 'border-l-amber-500/50',  iconWrap: 'bg-amber-500/10 border-amber-500/20', iconText: 'text-amber-600 dark:text-amber-400',  tag: 'border-amber-500/25 text-amber-600/80 dark:text-amber-400/80' },
+  violet: { leftBorder: 'border-l-violet-500/50', iconWrap: 'bg-violet-500/10 border-violet-500/20', iconText: 'text-violet-600 dark:text-violet-400', tag: 'border-violet-500/25 text-violet-600/80 dark:text-violet-400/80' },
+  cyan:   { leftBorder: 'border-l-cyan-500/50',   iconWrap: 'bg-cyan-500/10 border-cyan-500/20',   iconText: 'text-cyan-600 dark:text-cyan-400',   tag: 'border-cyan-500/25 text-cyan-600/80 dark:text-cyan-400/80' },
+  rose:   { leftBorder: 'border-l-rose-500/50',   iconWrap: 'bg-rose-500/10 border-rose-500/20',   iconText: 'text-rose-600 dark:text-rose-400',   tag: 'border-rose-500/25 text-rose-600/80 dark:text-rose-400/80' },
 };
 
 function FeatureCard({
@@ -206,7 +207,7 @@ function FeatureCard({
 }) {
   const a = accents[accent];
   return (
-    <div className={`h-full bg-[#1E293B] border border-slate-700/50 border-l-4 ${a.leftBorder} rounded-lg p-6 flex flex-col gap-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-600/70 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)]`}>
+    <div className={`h-full bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 border-l-4 ${a.leftBorder} rounded-lg p-6 flex flex-col gap-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)]`}>
       <div className="flex items-start justify-between">
         <div className={`w-9 h-9 rounded-md border flex items-center justify-center ${a.iconWrap} ${a.iconText}`}>
           {icon}
@@ -216,7 +217,7 @@ function FeatureCard({
         </span>
       </div>
       <div className="flex-1">
-        <h3 className="text-slate-100 font-semibold mb-2">{title}</h3>
+        <h3 className="text-slate-800 dark:text-slate-100 font-semibold mb-2">{title}</h3>
         <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
       </div>
       {extra && <div className="mt-auto pt-2">{extra}</div>}
@@ -228,46 +229,42 @@ function FeatureCard({
 
 export default function LandingPage() {
   return (
-    <main className={`${spaceGrotesk.className} ${jetbrainsMono.variable} min-h-screen bg-[#0F172A] text-slate-100`}>
+    <main className={`${spaceGrotesk.className} ${jetbrainsMono.variable} min-h-screen bg-slate-50 dark:bg-[#0F172A] text-slate-900 dark:text-slate-100`}>
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         {/* Dot grid */}
         <div aria-hidden className="pointer-events-none absolute inset-0 dot-grid" />
         {/* Bottom fade */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute bottom-0 left-0 right-0 h-32"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0F172A)' }}
-        />
+        <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 hero-fade" />
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-            {/* Left — text */}
+            {/* Left - text */}
             <div>
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 border border-green-500/30 bg-green-500/5 text-green-400 text-xs font-mono px-3 py-1.5 rounded-sm mb-8">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <div className="inline-flex items-center gap-2 border border-green-500/30 bg-green-500/5 text-green-700 dark:text-green-400 text-xs font-mono px-3 py-1.5 rounded-sm mb-8">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 animate-pulse" />
                 {'// AI-POWERED MOCK INTERVIEWS'}
               </div>
 
-              <h1 className="text-5xl xl:text-6xl font-bold text-slate-50 leading-tight tracking-tight mb-6">
+              <h1 className={`${montserrat.className} text-5xl xl:text-6xl font-extrabold text-slate-900 dark:text-slate-50 leading-tight tracking-tight mb-6`}>
                 Interview practice<br />
                 built for{' '}
-                <span className="text-amber-400">engineers</span>
+                <span className="text-amber-500 dark:text-amber-400">engineers</span>
                 <br />
-                <span className="text-blue-400">who ship.</span>
+                <span className="text-blue-600 dark:text-blue-400">who ship.</span>
               </h1>
 
-              <p className="text-slate-400 text-lg leading-relaxed mb-10 max-w-lg">
-                Practice with an AI interviewer that asks follow-up questions, adapts to your answers, and gives you honest feedback — not just a pass or fail. No payment required.
+              <p className="text-slate-500 dark:text-slate-400 text-lg leading-relaxed mb-10 max-w-lg">
+                Practice with an AI interviewer that asks follow-up questions, adapts to your answers, and gives you honest feedback. Not just a pass or fail. No payment required.
               </p>
 
               <div className="flex">
                 <Link
                   href="/problems"
-                  className="btn-glow-green inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-[#0F172A] font-bold px-10 py-4 rounded-lg text-lg cursor-pointer"
+                  className="btn-glow-green inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-white dark:text-[#0F172A] font-bold px-10 py-4 rounded-lg text-lg cursor-pointer"
                 >
                   Start Practicing
                   <IconArrow />
@@ -275,40 +272,40 @@ export default function LandingPage() {
               </div>
 
               {/* Stats */}
-              <div className="flex gap-10 mt-12 pt-10 border-t border-slate-800">
+              <div className="flex gap-10 mt-12 pt-10 border-t border-slate-200 dark:border-slate-800">
                 {[['20+', 'problems'], ['3', 'difficulty_levels'], ['45m', 'timed_sessions']].map(([val, label]) => (
                   <div key={label}>
-                    <div className="text-2xl font-bold text-slate-50 font-mono">{val}</div>
-                    <div className="text-slate-600 text-xs mt-0.5 font-mono">{label}</div>
+                    <div className="text-2xl font-bold text-slate-900 dark:text-slate-50 font-mono">{val}</div>
+                    <div className="text-slate-400 dark:text-slate-600 text-xs mt-0.5 font-mono">{label}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right — preview */}
+            {/* Right - preview */}
             <InterviewPreview />
           </div>
         </div>
       </section>
 
       {/* ── VS COMPARISON ─────────────────────────────────────────────────── */}
-      <section className="border-t border-slate-800/60">
+      <section className="border-t border-slate-200 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
             <SectionLabel index="001" label="Why MockPrep" />
-            <h2 className="text-3xl font-bold text-slate-50 mb-3">The gap between practice and performance</h2>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">The gap between practice and performance</h2>
             <p className="text-slate-500 text-lg max-w-xl">
-              Solving problems alone doesn&rsquo;t prepare you for the real pressure of a technical interview. MockPrep closes that gap.
+              Solving problems alone doesn't prepare you for the real pressure of a technical interview. MockPrep closes that gap.
             </p>
           </AnimateIn>
 
           <AnimateIn delay={100}>
-            <div className="grid grid-cols-1 md:grid-cols-2 border border-slate-700/50 rounded-lg overflow-hidden">
-              {/* Left — traditional */}
-              <div className="border-b md:border-b-0 md:border-r border-slate-700/50">
-                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-700/50 bg-slate-900/40">
-                  <span className="text-red-400/60 text-xs font-mono">---</span>
-                  <span className="text-slate-500 text-xs font-mono">traditional_practice.md</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden">
+              {/* Left - traditional */}
+              <div className="border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/50">
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
+                  <span className="text-red-400/70 text-xs font-mono">---</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">traditional_practice.md</span>
                 </div>
                 <ul className="p-6 space-y-3.5">
                   {[
@@ -319,18 +316,18 @@ export default function LandingPage() {
                     "Doesn't replicate real interview pressure",
                   ].map((text) => (
                     <li key={text} className="flex items-start gap-3 text-sm">
-                      <span className="text-red-400/60 shrink-0 mt-0.5 font-mono select-none">-</span>
-                      <span className="text-slate-500">{text}</span>
+                      <span className="text-red-400/70 shrink-0 mt-0.5 font-mono select-none">-</span>
+                      <span className="text-slate-400 dark:text-slate-500">{text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Right — MockPrep */}
+              {/* Right - MockPrep */}
               <div>
-                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-700/50 bg-slate-900/40">
-                  <span className="text-green-400/60 text-xs font-mono">+++</span>
-                  <span className="text-green-400/70 text-xs font-mono">mock_prep.md</span>
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
+                  <span className="text-green-500/70 text-xs font-mono">+++</span>
+                  <span className="text-green-600/80 dark:text-green-400/70 text-xs font-mono">mock_prep.md</span>
                 </div>
                 <ul className="p-6 space-y-3.5">
                   {[
@@ -341,8 +338,8 @@ export default function LandingPage() {
                     'Session history so you can track improvement over time',
                   ].map((text) => (
                     <li key={text} className="flex items-start gap-3 text-sm">
-                      <span className="text-green-400/60 shrink-0 mt-0.5 font-mono select-none">+</span>
-                      <span className="text-slate-200">{text}</span>
+                      <span className="text-green-500/70 shrink-0 mt-0.5 font-mono select-none">+</span>
+                      <span className="text-slate-700 dark:text-slate-200">{text}</span>
                     </li>
                   ))}
                 </ul>
@@ -353,11 +350,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ──────────────────────────────────────────────────────── */}
-      <section className="border-t border-slate-800/60">
+      <section className="border-t border-slate-200 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
             <SectionLabel index="002" label="Features" />
-            <h2 className="text-3xl font-bold text-slate-50 mb-3">Built around real interview mechanics</h2>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">Built around real interview mechanics</h2>
             <p className="text-slate-500 text-lg max-w-xl">
               Every feature exists because real technical interviews demand it.
             </p>
@@ -374,11 +371,11 @@ export default function LandingPage() {
                   icon={<IconChat />}
                   accent="blue"
                   title="Live AI Interviewer"
-                  description="Back-and-forth conversation. The AI probes your reasoning, challenges assumptions, and guides you with hints — just like a human interviewer in a real loop."
+                  description="Back-and-forth conversation. The AI probes your reasoning, challenges assumptions, and guides you with hints, just like a human interviewer in a real loop."
                   extra={
                     <div className="flex gap-2 flex-wrap">
                       {['socratic_method', 'follow_ups', 'adaptive_hints'].map(tag => (
-                        <span key={tag} className="text-[11px] font-mono border border-blue-500/20 text-blue-400/70 px-2 py-0.5 rounded-sm">{tag}</span>
+                        <span key={tag} className="text-[11px] font-mono border border-blue-500/20 text-blue-600/70 dark:text-blue-400/70 px-2 py-0.5 rounded-sm">{tag}</span>
                       ))}
                     </div>
                   }
@@ -410,13 +407,13 @@ export default function LandingPage() {
                   icon={<IconLayers />}
                   accent="cyan"
                   title="20 Curated Problems"
-                  description="Easy, medium, and hard problems spanning Arrays, Trees, Dynamic Programming, Graphs, and more — covering the topics that show up most in real interviews."
+                  description="Easy, medium, and hard problems spanning Arrays, Trees, Dynamic Programming, Graphs, and more. Covers the topics that show up most in real interviews."
                   extra={
                     <div className="flex gap-2">
                       {[
-                        { label: 'Easy', cls: 'border-green-500/25 text-green-400/80' },
-                        { label: 'Medium', cls: 'border-amber-500/25 text-amber-400/80' },
-                        { label: 'Hard', cls: 'border-red-500/25 text-red-400/80' },
+                        { label: 'Easy', cls: 'border-green-500/25 text-green-600/80 dark:text-green-400/80' },
+                        { label: 'Medium', cls: 'border-amber-500/25 text-amber-600/80 dark:text-amber-400/80' },
+                        { label: 'Hard', cls: 'border-red-500/25 text-red-600/80 dark:text-red-400/80' },
                       ].map(({ label, cls }) => (
                         <span key={label} className={`text-[11px] font-mono border px-2 py-0.5 rounded-sm ${cls}`}>{label}</span>
                       ))}
@@ -435,10 +432,10 @@ export default function LandingPage() {
                   description="Practice under real interview time constraints. A live countdown keeps you on pace, and your time management is reflected in your final score."
                   extra={
                     <div className="flex items-center gap-3">
-                      <div className="h-1 flex-1 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-1 flex-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div className="h-full w-[58%] bg-amber-500/50 rounded-full" />
                       </div>
-                      <span className="text-slate-600 text-[11px] font-mono shrink-0">26:14 / 45:00</span>
+                      <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono shrink-0">26:14 / 45:00</span>
                     </div>
                   }
                 />
@@ -458,15 +455,15 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section className="border-t border-slate-800/60 bg-[#1E293B]/20">
+      <section className="border-t border-slate-200 dark:border-slate-800/60 bg-slate-100/60 dark:bg-[#1E293B]/20">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
             <SectionLabel index="003" label="Workflow" />
-            <h2 className="text-3xl font-bold text-slate-50">How it works</h2>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50">How it works</h2>
           </AnimateIn>
 
           <AnimateIn delay={100}>
-            <div className="border border-slate-700/50 rounded-lg overflow-hidden">
+            <div className="border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden">
               {[
                 {
                   step: '01',
@@ -489,15 +486,15 @@ export default function LandingPage() {
               ].map(({ step, cmd, title, desc }, i) => (
                 <div
                   key={step}
-                  className={`flex items-start gap-8 px-8 py-10 bg-[#1E293B] ${i > 0 ? 'border-t border-slate-700/50' : ''}`}
+                  className={`flex items-start gap-8 px-8 py-10 bg-white dark:bg-[#1E293B] ${i > 0 ? 'border-t border-slate-200 dark:border-slate-700/50' : ''}`}
                 >
                   <div className="shrink-0 w-10 text-center">
-                    <div className="text-[10px] text-slate-600 font-mono mb-1">step</div>
-                    <div className="text-3xl font-bold text-slate-700/80 font-mono leading-none">{step}</div>
+                    <div className="text-[10px] text-slate-400 dark:text-slate-600 font-mono mb-1">step</div>
+                    <div className="text-3xl font-bold text-slate-200 dark:text-slate-700/80 font-mono leading-none">{step}</div>
                   </div>
                   <div>
-                    <div className="text-[11px] text-green-400/50 font-mono mb-2">$ mockprep {cmd}</div>
-                    <h3 className="text-slate-100 font-semibold text-lg mb-2">{title}</h3>
+                    <div className="text-[11px] text-green-600/60 dark:text-green-400/50 font-mono mb-2">$ mockprep {cmd}</div>
+                    <h3 className="text-slate-800 dark:text-slate-100 font-semibold text-lg mb-2">{title}</h3>
                     <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
                   </div>
                 </div>
@@ -508,12 +505,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── BOTTOM CTA ────────────────────────────────────────────────────── */}
-      <section className="border-t border-slate-800/60">
+      <section className="border-t border-slate-200 dark:border-slate-800/60">
         <AnimateIn>
           <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
             <div>
-              <div className="text-xs font-mono text-slate-600 mb-3">{'// ready when you are'}</div>
-              <h2 className="text-4xl font-extrabold text-slate-50 mb-3">
+              <div className="text-xs font-mono text-slate-400 dark:text-slate-600 mb-3">{'// ready when you are'}</div>
+              <h2 className="text-4xl font-extrabold text-slate-900 dark:text-slate-50 mb-3">
                 Find out where you stand.
               </h2>
               <p className="text-slate-500 text-lg max-w-lg">
@@ -522,7 +519,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/problems"
-              className="btn-glow-green shrink-0 inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-[#0F172A] font-bold px-8 py-4 rounded-lg text-base cursor-pointer"
+              className="btn-glow-green shrink-0 inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-white dark:text-[#0F172A] font-bold px-8 py-4 rounded-lg text-base cursor-pointer"
             >
               Start Practicing
               <IconArrow />
@@ -532,12 +529,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-slate-800">
+      <footer className="border-t border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-slate-600 text-sm font-mono font-semibold">MockPrep</span>
+          <span className="text-slate-400 dark:text-slate-600 text-sm font-mono font-semibold">MockPrep</span>
           <div className="flex items-center gap-6 text-sm font-mono">
-            <Link href="/problems" className="text-slate-600 hover:text-slate-400 transition-colors">problems</Link>
-            <Link href="/history" className="text-slate-600 hover:text-slate-400 transition-colors">history</Link>
+            <Link href="/problems" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">problems</Link>
+            <Link href="/history" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">history</Link>
           </div>
         </div>
       </footer>

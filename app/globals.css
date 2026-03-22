@@ -51,8 +51,19 @@ main,
 
 /* ── Dot grid background ── */
 .dot-grid {
-  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(100, 116, 139, 0.18) 1px, transparent 1px);
   background-size: 28px 28px;
+}
+.dark .dot-grid {
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+}
+
+/* ── Hero bottom fade ── */
+.hero-fade {
+  background: linear-gradient(to bottom, transparent, #f8fafc);
+}
+.dark .hero-fade {
+  background: linear-gradient(to bottom, transparent, #0F172A);
 }
 
 /* ── Glow buttons ── */

@@ -24,7 +24,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{
               __html: `
                 (function() {
-                  var theme = localStorage.getItem('theme') || 'light';
+                  var theme = localStorage.getItem('theme') || 'dark';
                   document.documentElement.classList.toggle('dark', theme === 'dark');
                 })();
               `,
