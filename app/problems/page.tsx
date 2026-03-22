@@ -247,7 +247,7 @@ function ProblemsPageInner() {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 aria-label="Filter by category"
-                className="appearance-none bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer"
+                className="w-44 appearance-none bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -386,7 +386,7 @@ function ProblemsPageInner() {
                 value={genaiCategory}
                 onChange={(e) => setGenaiCategory(e.target.value)}
                 aria-label="Filter by category"
-                className="appearance-none bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer"
+                className="w-44 appearance-none bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer"
               >
                 <option value="">All Categories</option>
                 {genaiCategories.map((cat) => (
