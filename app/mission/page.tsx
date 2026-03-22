@@ -40,12 +40,6 @@ export default function MissionPage() {
             engineers. MockPrep started as an attempt to close that gap.
           </p>
 
-          <div className="border-l-2 border-blue-500/50 pl-5 py-1">
-            <p className="text-slate-600 dark:text-slate-400 italic">
-              The interview has not kept up with the job. That is the whole problem.
-            </p>
-          </div>
-
           <p>
             That said, traditional coding problems are not dead. Data structures, algorithms,
             complexity tradeoffs. The ability to think clearly through a hard problem, explain your

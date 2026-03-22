@@ -2,14 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function NavBar() {
   const { isSignedIn, isLoaded } = useAuth();
-  const pathname = usePathname();
-  const isLanding = pathname === '/';
-  const isMission = pathname === '/mission';
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
@@ -50,7 +46,7 @@ export default function NavBar() {
         >
           Mission
         </Link>
-        {!isLanding && !isMission && (
+        {isSignedIn && (
           <Link
             href="/history"
             className="nav-link text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
