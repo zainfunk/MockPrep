@@ -92,7 +92,7 @@ Return a JSON object with exactly this structure (no markdown, raw JSON only):
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
+    max_tokens: 2048,
     messages: [{ role: 'user', content: prompt }],
   });
 
@@ -100,9 +100,10 @@ Return a JSON object with exactly this structure (no markdown, raw JSON only):
     response.content[0].type === 'text' ? response.content[0].text : '';
 
   try {
-    const feedback = JSON.parse(text);
+    const cleaned = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+    const feedback = JSON.parse(cleaned);
     return Response.json(feedback);
   } catch {
-    return Response.json({ error: 'Failed to parse feedback' }, { status: 500 });
+    return Response.json({ error: 'Failed to generate feedback. Please try again.' }, { status: 500 });
   }
 }

@@ -338,6 +338,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [outputOpen, setOutputOpen] = useState(false);
   const [feedback, setFeedback] = useState<GenAIFeedbackData | null>(null);
@@ -499,6 +500,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setLoadingFeedback(true);
+    setSubmitError(null);
 
     const lastAiCodeBlock = lastAiCodeBlockRef.current;
     const codeMatchesAI = lastAiCodeBlock !== null && code.trim() === lastAiCodeBlock;
@@ -523,6 +525,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       });
 
       const feedbackData: GenAIFeedbackData = await res.json();
+      if (!res.ok) throw new Error((feedbackData as { error?: string }).error ?? 'Failed to get feedback.');
 
       const record: GenAISessionRecord = {
         id: crypto.randomUUID(),
@@ -568,8 +571,8 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
 
       setSessionRecord(record);
       setFeedback(feedbackData);
-    } catch {
-      alert('Failed to get feedback. Please try again.');
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to get feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
       setLoadingFeedback(false);
@@ -601,6 +604,9 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
           <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             {promptCount} prompt{promptCount !== 1 ? 's' : ''} sent
           </span>
+          {submitError && (
+            <span className="text-red-400 text-xs">{submitError}</span>
+          )}
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || promptCount === 0}
