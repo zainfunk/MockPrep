@@ -9,6 +9,7 @@ export default function NavBar() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
   const isLanding = pathname === '/';
+  const isMission = pathname === '/mission';
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
@@ -44,12 +45,12 @@ export default function NavBar() {
           Practice
         </Link>
         <Link
-          href="/about"
+          href="/mission"
           className="nav-link text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
-          About
+          Mission
         </Link>
-        {!isLanding && (
+        {!isLanding && !isMission && (
           <Link
             href="/history"
             className="nav-link text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"

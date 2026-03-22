@@ -2,11 +2,11 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'About — MockPrep',
+  title: 'Mission — MockPrep',
   description: 'Why MockPrep exists, and what we think modern interview preparation should look like.',
 };
 
-export default function AboutPage() {
+export default function MissionPage() {
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
 
@@ -19,7 +19,7 @@ export default function AboutPage() {
         />
         <div className="relative max-w-2xl mx-auto px-6 lg:px-8 pt-12 pb-8">
           <div className="flex items-center gap-3 mb-4">
-            <span className="font-mono text-xs text-slate-500 dark:text-slate-600 tracking-widest">{'// ABOUT'}</span>
+            <span className="font-mono text-xs text-slate-500 dark:text-slate-600 tracking-widest">{'// MISSION'}</span>
             <div className="h-px w-10 bg-slate-300 dark:bg-slate-700" />
           </div>
           <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">The Idea</h1>
@@ -35,8 +35,8 @@ export default function AboutPage() {
 
           <p>
             Most interview preparation tools were built for a version of software engineering that is
-            becoming less and less complete. They are genuinely valuable — the fundamentals they test
-            still matter — but they were designed before AI became a daily part of the job for most
+            becoming less and less complete. They are genuinely valuable, and the fundamentals they test
+            still matter, but they were designed before AI became a daily part of the job for most
             engineers. MockPrep started as an attempt to close that gap.
           </p>
 
@@ -47,7 +47,7 @@ export default function AboutPage() {
           </div>
 
           <p>
-            That said — traditional coding problems are not dead. Data structures, algorithms,
+            That said, traditional coding problems are not dead. Data structures, algorithms,
             complexity tradeoffs. The ability to think clearly through a hard problem, explain your
             reasoning out loud, and handle edge cases under time pressure is still a real signal.
             It still reflects how someone thinks. That is why coding problems remain a core part of
@@ -58,18 +58,18 @@ export default function AboutPage() {
           <p>
             But there is a second dimension to modern software engineering that almost no interview
             platform actually tests: how well you work with AI tools. Not just whether you know how
-            to open a chat window — that bar is too low. We mean something more specific. Do you
+            to open a chat window. That bar is too low. We mean something more specific. Do you
             know how to prompt clearly enough to get useful output? Do you validate what the model
             gives you, or do you ship it? Can you spot when the AI missed an edge case? Can you
-            iterate toward a correct solution when the first attempt is wrong? That kind of judgment
-            — we are calling it GenAI fluency — is increasingly what separates engineers who thrive
+            iterate toward a correct solution when the first attempt is wrong? That kind of judgment,
+            what we are calling GenAI fluency, is increasingly what separates engineers who thrive
             in this environment from those who struggle.
           </p>
 
           <p>
             The GenAI fluency problems on this platform are designed specifically around that idea.
             Each one is a scenario where an AI will produce something plausible but incomplete.
-            The goal is not to test whether you can use AI — it is to test whether you can
+            The goal is not to test whether you can use AI. It is to test whether you can
             direct it, question it, and build something reliable on top of it.
           </p>
 
