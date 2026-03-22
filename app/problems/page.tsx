@@ -129,12 +129,6 @@ function ProblemsPageInner() {
       .sort((a, b) => DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
   }, [genaiDifficulty, genaiCategory]);
 
-  const counts = useMemo(() => ({
-    easy: problems.filter((p) => p.difficulty === 'easy').length,
-    medium: problems.filter((p) => p.difficulty === 'medium').length,
-    hard: problems.filter((p) => p.difficulty === 'hard').length,
-  }), []);
-
   const isFiltered = selectedDifficulty || selectedCategory;
 
   return (
@@ -162,24 +156,6 @@ function ProblemsPageInner() {
               </p>
             </div>
 
-            {/* Stat pills — only for coding tab */}
-            {activeTab === 'coding' && (
-              <div className="flex items-center gap-px bg-gray-200 dark:bg-gray-800/60 border border-gray-300 dark:border-gray-700/60 rounded-xl overflow-hidden shrink-0">
-                {(['easy', 'medium', 'hard'] as const).map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setSelectedDifficulty(selectedDifficulty === d ? '' : d)}
-                    aria-pressed={selectedDifficulty === d}
-                    className={`flex flex-col items-center px-5 py-3 transition-colors ${
-                      selectedDifficulty === d ? 'bg-gray-300 dark:bg-gray-700/80' : 'bg-white dark:bg-gray-900/60 hover:bg-gray-100 dark:hover:bg-gray-800/60'
-                    }`}
-                  >
-                    <span className={`text-xl font-bold ${DIFFICULTY[d].text}`}>{counts[d]}</span>
-                    <span className="text-gray-500 text-xs capitalize">{d}</span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>
