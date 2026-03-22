@@ -8,6 +8,19 @@ import type { Difficulty } from '@/lib/problems';
 import { genaiProblems } from '@/lib/genaiProblems';
 
 // Global difficulty score (0–100) per problem.
+const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
+  'find-duplicates-ai': 35,
+  'csv-report-ai': 42,
+  'json-flattener-ai': 48,
+  'text-chunker-ai': 44,
+  'lru-cache-ai': 72,
+  'trie-autocomplete-ai': 75,
+  'log-analyzer-ai': 78,
+  'session-analyzer-ai': 80,
+  'rate-limiter-ai': 82,
+  'expression-evaluator-ai': 88,
+};
+
 const DIFFICULTY_SCORE: Record<string, number> = {
   'palindrome-number': 12,
   'two-sum': 16,
@@ -329,16 +342,17 @@ function ProblemsPageInner() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {genaiProblems.map((problem) => {
+              const d = DIFFICULTY[problem.difficulty];
               const descSnippet = problem.description.split('\n')[0].slice(0, 110);
               return (
                 <Link
                   key={problem.id}
                   href={`/genai/${problem.id}`}
-                  className="group flex flex-col bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-purple-900/40 hover:border-purple-400/60 dark:hover:border-purple-600 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(168,85,247,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+                  className="group flex flex-col bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
                   aria-label={`Start GenAI session: ${problem.title}, ${problem.difficulty} difficulty`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <span className="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-700/40">
+                    <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${d.badge}`}>
                       {problem.difficulty}
                     </span>
                     <span className="text-gray-600 group-hover:text-purple-400 transition-colors mt-0.5">
@@ -358,8 +372,11 @@ function ProblemsPageInner() {
                     {descSnippet}{problem.description.length > 110 ? '...' : ''}
                   </p>
 
-                  <div className="mt-4 h-0.5 w-full bg-purple-100 dark:bg-purple-900/30 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-purple-500" style={{ width: '50%' }} />
+                  <div className="mt-4 h-0.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${d.bar}`}
+                      style={{ width: `${GENAI_DIFFICULTY_SCORE[problem.id] ?? 50}%` }}
+                    />
                   </div>
                 </Link>
               );
