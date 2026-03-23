@@ -10,10 +10,11 @@ export interface Problem {
   constraints: string[];
   hints: string[];
   starterCode: string;
+  companies?: string[];
 }
 
 export const problems: Problem[] = [
-  // ─── EASY (7) ───────────────────────────────────────────────────────────────
+  // ─── EASY ───────────────────────────────────────────────────────────────────
 
   {
     id: 'two-sum',
@@ -52,6 +53,7 @@ You can return the answer in any order.`,
       'A hash map can give you O(1) lookups.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'LinkedIn', 'Uber'],
   },
 
   {
@@ -97,6 +99,7 @@ An input string is valid if:
       'At the end, the stack must be empty for the string to be valid.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Meta', 'Microsoft', 'Amazon', 'Google', 'Netflix'],
   },
 
   {
@@ -129,6 +132,7 @@ An input string is valid if:
       'Can you do this both iteratively and recursively?',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Meta', 'Amazon', 'Microsoft', 'Google'],
   },
 
   {
@@ -163,6 +167,7 @@ Return the maximum profit you can achieve from this transaction. If you cannot a
       'At each step, the best profit is the current price minus the minimum price seen so far.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Google', 'Meta', 'Microsoft'],
   },
 
   {
@@ -196,6 +201,7 @@ Return the maximum profit you can achieve from this transaction. If you cannot a
       'If the current running sum becomes negative, it is better to start a new subarray from the next element.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Microsoft', 'Meta', 'Google'],
   },
 
   {
@@ -232,6 +238,7 @@ A palindrome reads the same forward and backward.`,
       'Try reversing only the second half of the number and comparing it to the first half.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Microsoft', 'Meta', 'Amazon'],
   },
 
   {
@@ -269,9 +276,74 @@ Return the head of the merged linked list.`,
       'After one list is exhausted, attach the remaining nodes of the other list.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Meta', 'Google', 'Microsoft'],
   },
 
-  // ─── MEDIUM (8) ─────────────────────────────────────────────────────────────
+  {
+    id: 'valid-anagram',
+    title: 'Valid Anagram',
+    difficulty: 'easy',
+    category: 'Strings',
+    description: `Given two strings \`s\` and \`t\`, return \`true\` if \`t\` is an anagram of \`s\`, and \`false\` otherwise.
+
+An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, using all the original letters exactly once.`,
+    examples: [
+      {
+        input: 's = "anagram", t = "nagaram"',
+        output: 'true',
+      },
+      {
+        input: 's = "rat", t = "car"',
+        output: 'false',
+      },
+    ],
+    constraints: [
+      '1 <= s.length, t.length <= 5 * 10^4',
+      's and t consist of lowercase English letters.',
+    ],
+    hints: [
+      'If the lengths differ, they cannot be anagrams.',
+      'Sorting both strings and comparing is a simple O(n log n) approach.',
+      'Use a hash map to count character frequencies in s, then decrement for each character in t — all counts should reach zero.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta'],
+  },
+
+  {
+    id: 'contains-duplicate',
+    title: 'Contains Duplicate',
+    difficulty: 'easy',
+    category: 'Arrays',
+    description: `Given an integer array \`nums\`, return \`true\` if any value appears **at least twice** in the array, and return \`false\` if every element is distinct.`,
+    examples: [
+      {
+        input: 'nums = [1,2,3,1]',
+        output: 'true',
+      },
+      {
+        input: 'nums = [1,2,3,4]',
+        output: 'false',
+      },
+      {
+        input: 'nums = [1,1,1,3,3,4,3,2,4,2]',
+        output: 'true',
+      },
+    ],
+    constraints: [
+      '1 <= nums.length <= 10^5',
+      '-10^9 <= nums[i] <= 10^9',
+    ],
+    hints: [
+      'A brute force approach compares every pair — O(n²). Can you do better?',
+      'Sorting first lets you find duplicates in O(n log n) by checking adjacent elements.',
+      'A hash set gives you O(n) time: insert each number and check if it was already there.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'LinkedIn'],
+  },
+
+  // ─── MEDIUM ──────────────────────────────────────────────────────────────────
 
   {
     id: 'longest-substring',
@@ -306,6 +378,7 @@ Return the head of the merged linked list.`,
       'When you find a duplicate, where should your window start?',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Netflix', 'Meta', 'Apple'],
   },
 
   {
@@ -344,6 +417,7 @@ Notice that the solution set must not contain duplicate triplets.`,
       'After sorting, skip duplicate values at each pointer position to avoid duplicate triplets.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Apple', 'LinkedIn'],
   },
 
   {
@@ -381,6 +455,7 @@ Note: You may not slant the container.`,
       'Moving the pointer at the shorter line inward is always the right greedy choice — why?',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta'],
   },
 
   {
@@ -410,6 +485,7 @@ Note: You may not slant the container.`,
       'There are 2n-1 possible centers for a string of length n — why?',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta'],
   },
 
   {
@@ -450,6 +526,7 @@ The word can be constructed from letters of sequentially adjacent cells, where a
       'Your base case is when you have matched all characters in the word.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Meta', 'Microsoft', 'Google'],
   },
 
   {
@@ -488,6 +565,7 @@ You may assume that you have an infinite number of each kind of coin.`,
       'For each amount, try subtracting each coin and take the minimum result.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Google', 'Microsoft', 'Meta', 'Apple'],
   },
 
   {
@@ -520,6 +598,7 @@ You may assume that you have an infinite number of each kind of coin.`,
       'Track how many nodes are at the current level so you know when one level ends and the next begins.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Meta', 'Microsoft', 'Google'],
   },
 
   {
@@ -553,9 +632,221 @@ You must write an algorithm that runs in \`O(n)\` time and without using the div
       'Can you do it with O(1) extra space by computing one pass left-to-right, then one pass right-to-left?',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Meta', 'Amazon', 'Google', 'Microsoft'],
   },
 
-  // ─── HARD (5) ───────────────────────────────────────────────────────────────
+  {
+    id: 'number-of-islands',
+    title: 'Number of Islands',
+    difficulty: 'medium',
+    category: 'Graphs',
+    description: `Given an \`m x n\` 2D binary grid \`grid\` which represents a map of \`'1'\`s (land) and \`'0'\`s (water), return the number of islands.
+
+An **island** is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.`,
+    examples: [
+      {
+        input: 'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]',
+        output: '1',
+      },
+      {
+        input: 'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]',
+        output: '3',
+      },
+    ],
+    constraints: [
+      'm == grid.length',
+      'n == grid[i].length',
+      '1 <= m, n <= 300',
+      "grid[i][j] is '0' or '1'.",
+    ],
+    hints: [
+      'Treat this as a graph problem where each land cell is a node connected to adjacent land cells.',
+      'DFS or BFS from each unvisited land cell marks the entire island — increment a counter each time you start a new search.',
+      'Modify the grid in-place (mark visited cells as \'0\') to avoid using extra space for a visited array.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Meta', 'Amazon', 'Uber', 'LinkedIn', 'Microsoft'],
+  },
+
+  {
+    id: 'group-anagrams',
+    title: 'Group Anagrams',
+    difficulty: 'medium',
+    category: 'Arrays & Hashing',
+    description: `Given an array of strings \`strs\`, group the anagrams together. You can return the answer in **any order**.
+
+An **anagram** is a word or phrase formed by rearranging the letters of a different word or phrase, using all the original letters exactly once.`,
+    examples: [
+      {
+        input: 'strs = ["eat","tea","tan","ate","nat","bat"]',
+        output: '[["bat"],["nat","tan"],["ate","eat","tea"]]',
+      },
+      {
+        input: 'strs = [""]',
+        output: '[[""]]',
+      },
+      {
+        input: 'strs = ["a"]',
+        output: '[["a"]]',
+      },
+    ],
+    constraints: [
+      '1 <= strs.length <= 10^4',
+      '0 <= strs[i].length <= 100',
+      'strs[i] consists of lowercase English letters.',
+    ],
+    hints: [
+      'Two strings are anagrams if and only if their sorted characters are identical.',
+      'Use a hash map where the key is the sorted version of each string.',
+      'All strings that map to the same sorted key belong to the same anagram group.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Apple'],
+  },
+
+  {
+    id: 'merge-intervals',
+    title: 'Merge Intervals',
+    difficulty: 'medium',
+    category: 'Arrays',
+    description: `Given an array of \`intervals\` where \`intervals[i] = [starti, endi]\`, merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.`,
+    examples: [
+      {
+        input: 'intervals = [[1,3],[2,6],[8,10],[15,18]]',
+        output: '[[1,6],[8,10],[15,18]]',
+        explanation: 'Since intervals [1,3] and [2,6] overlap, merge them into [1,6].',
+      },
+      {
+        input: 'intervals = [[1,4],[4,5]]',
+        output: '[[1,5]]',
+        explanation: 'Intervals [1,4] and [4,5] are considered overlapping.',
+      },
+    ],
+    constraints: [
+      '1 <= intervals.length <= 10^4',
+      'intervals[i].length == 2',
+      '0 <= starti <= endi <= 10^4',
+    ],
+    hints: [
+      'Sorting by start time makes it easy to process intervals in order.',
+      'After sorting, two intervals overlap if the start of the next is less than or equal to the end of the current.',
+      'When merging, extend the end of the current interval to the maximum of both ends.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Meta', 'Netflix', 'Airbnb'],
+  },
+
+  {
+    id: 'letter-combinations',
+    title: 'Letter Combinations of a Phone Number',
+    difficulty: 'medium',
+    category: 'Backtracking',
+    description: `Given a string containing digits from \`2-9\` inclusive, return all possible letter combinations that the number could represent. Return the answer in **any order**.
+
+A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+2 → abc, 3 → def, 4 → ghi, 5 → jkl, 6 → mno, 7 → pqrs, 8 → tuv, 9 → wxyz`,
+    examples: [
+      {
+        input: 'digits = "23"',
+        output: '["ad","ae","af","bd","be","bf","cd","ce","cf"]',
+      },
+      {
+        input: 'digits = ""',
+        output: '[]',
+      },
+      {
+        input: 'digits = "2"',
+        output: '["a","b","c"]',
+      },
+    ],
+    constraints: [
+      '0 <= digits.length <= 4',
+      "digits[i] is a digit in the range ['2', '9'].",
+    ],
+    hints: [
+      'Map each digit to its corresponding letters (the phone keypad mapping).',
+      'Use backtracking — at each step, choose one letter for the current digit and recurse on the remaining digits.',
+      'The base case is when you have processed all digits — add the current combination to the result.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Meta', 'Google', 'Amazon', 'Apple'],
+  },
+
+  {
+    id: 'house-robber',
+    title: 'House Robber',
+    difficulty: 'medium',
+    category: 'Dynamic Programming',
+    description: `You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and **it will automatically contact the police if two adjacent houses were broken into on the same night**.
+
+Given an integer array \`nums\` representing the amount of money of each house, return the maximum amount of money you can rob tonight **without alerting the police**.`,
+    examples: [
+      {
+        input: 'nums = [1,2,3,1]',
+        output: '4',
+        explanation: 'Rob house 1 (money = 1) and then rob house 3 (money = 3). Total = 1 + 3 = 4.',
+      },
+      {
+        input: 'nums = [2,7,9,3,1]',
+        output: '12',
+        explanation: 'Rob house 1, 3, and 5 (money = 2 + 9 + 1 = 12).',
+      },
+    ],
+    constraints: [
+      '1 <= nums.length <= 100',
+      '0 <= nums[i] <= 400',
+    ],
+    hints: [
+      'At each house you have two choices: rob it (and skip the previous) or skip it.',
+      'Define dp[i] as the max amount you can rob from the first i houses.',
+      'dp[i] = max(dp[i-2] + nums[i], dp[i-1]) — you only need the previous two values.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Apple'],
+  },
+
+  {
+    id: 'word-break',
+    title: 'Word Break',
+    difficulty: 'medium',
+    category: 'Dynamic Programming',
+    description: `Given a string \`s\` and a dictionary of strings \`wordDict\`, return \`true\` if \`s\` can be segmented into a space-separated sequence of one or more dictionary words.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.`,
+    examples: [
+      {
+        input: 's = "leetcode", wordDict = ["leet","code"]',
+        output: 'true',
+        explanation: 'Return true because "leetcode" can be segmented as "leet code".',
+      },
+      {
+        input: 's = "applepenapple", wordDict = ["apple","pen"]',
+        output: 'true',
+        explanation: 'Return true because "applepenapple" can be segmented as "apple pen apple".',
+      },
+      {
+        input: 's = "catsandog", wordDict = ["cats","dog","sand","and","cat"]',
+        output: 'false',
+      },
+    ],
+    constraints: [
+      '1 <= s.length <= 300',
+      '1 <= wordDict.length <= 1000',
+      '1 <= wordDict[i].length <= 20',
+      's and wordDict[i] consist of only lowercase English letters.',
+      'All the strings of wordDict are unique.',
+    ],
+    hints: [
+      'Define dp[i] as whether the substring s[0..i-1] can be segmented using the dictionary.',
+      'For each position i, check all j < i where dp[j] is true and s[j..i-1] is a dictionary word.',
+      'Convert wordDict to a set for O(1) lookups, and start with dp[0] = true (empty string is always valid).',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Apple'],
+  },
+
+  // ─── HARD ────────────────────────────────────────────────────────────────────
 
   {
     id: 'merge-k-sorted-lists',
@@ -596,6 +887,7 @@ Merge all the linked-lists into one sorted linked-list and return it.`,
       'Divide and conquer is another approach — merge lists pairwise.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Meta', 'Google', 'Amazon', 'Microsoft', 'Apple'],
   },
 
   {
@@ -627,6 +919,7 @@ Merge all the linked-lists into one sorted linked-list and return it.`,
       'A two-pointer approach lets you do it in O(1) extra space — can you figure out why it works?',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Amazon', 'Microsoft', 'Meta', 'Google'],
   },
 
   {
@@ -657,6 +950,7 @@ Each solution contains a distinct board configuration of the n-queens' placement
       'Two cells (r1, c1) and (r2, c2) are on the same diagonal if |r1-r2| == |c1-c2|.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Microsoft'],
   },
 
   {
@@ -702,6 +996,7 @@ Given two words, \`beginWord\` and \`endWord\`, and a dictionary \`wordList\`, r
       'To find neighbors efficiently, try replacing each character with every letter a-z and check if it is in the wordList set.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'LinkedIn', 'Amazon'],
   },
 
   {
@@ -738,5 +1033,73 @@ The overall run time complexity should be \`O(log (m+n))\`.`,
       'Binary search on the smaller array to find the correct partition point.',
     ],
     starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Apple'],
+  },
+
+  {
+    id: 'lru-cache',
+    title: 'LRU Cache',
+    difficulty: 'hard',
+    category: 'Design',
+    description: `Design a data structure that follows the constraints of a **Least Recently Used (LRU) cache**.
+
+Implement the \`LRUCache\` class:
+- \`LRUCache(int capacity)\` Initialize the LRU cache with **positive** size \`capacity\`.
+- \`int get(int key)\` Return the value of the \`key\` if the key exists, otherwise return \`-1\`.
+- \`void put(int key, int value)\` Update the value of the \`key\` if the \`key\` exists. Otherwise, add the \`key-value\` pair to the cache. If the number of keys exceeds the \`capacity\` from this operation, **evict** the least recently used key.
+
+The functions \`get\` and \`put\` must each run in \`O(1)\` average time complexity.`,
+    examples: [
+      {
+        input: '["LRUCache","put","put","get","put","get","put","get","get","get"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]',
+        output: '[null,null,null,1,null,-1,null,-1,3,4]',
+        explanation: 'LRUCache with capacity 2. After put(1,1), put(2,2), get(1)=1. After put(3,3), key 2 is evicted (LRU). get(2)=-1. After put(4,4), key 1 is evicted. get(1)=-1, get(3)=3, get(4)=4.',
+      },
+    ],
+    constraints: [
+      '1 <= capacity <= 3000',
+      '0 <= key <= 10^4',
+      '0 <= value <= 10^5',
+      'At most 2 * 10^5 calls will be made to get and put.',
+    ],
+    hints: [
+      'A hash map alone gives O(1) access but cannot track usage order.',
+      'A doubly linked list maintains order and supports O(1) insertion and removal with node references.',
+      'Combine both: the hash map stores key → node, the linked list orders nodes by recency. On every get/put, move the accessed node to the front.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Meta', 'Netflix', 'Microsoft', 'LinkedIn'],
+  },
+
+  {
+    id: 'serialize-deserialize-bt',
+    title: 'Serialize and Deserialize Binary Tree',
+    difficulty: 'hard',
+    category: 'Trees',
+    description: `Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
+
+Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.`,
+    examples: [
+      {
+        input: 'root = [1,2,3,null,null,4,5]',
+        output: '[1,2,3,null,null,4,5]',
+        explanation: 'The tree is serialized to a string, then deserialized back to the original tree.',
+      },
+      {
+        input: 'root = []',
+        output: '[]',
+      },
+    ],
+    constraints: [
+      'The number of nodes in the tree is in the range [0, 10^4].',
+      '-1000 <= Node.val <= 1000',
+    ],
+    hints: [
+      'Preorder DFS traversal works well — serialize left subtree before right, using a null marker for missing nodes.',
+      'During deserialization, consume the serialized tokens in the same preorder sequence to rebuild the tree.',
+      'BFS (level-order) is another valid approach — encode each level including null placeholders.',
+    ],
+    starterCode: 'def solution():\n    pass',
+    companies: ['Google', 'Amazon', 'Meta', 'Netflix', 'LinkedIn'],
   },
 ];

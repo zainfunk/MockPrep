@@ -24,23 +24,33 @@ const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
 };
 
 const DIFFICULTY_SCORE: Record<string, number> = {
+  'contains-duplicate': 10,
   'palindrome-number': 12,
+  'valid-anagram': 14,
   'two-sum': 16,
   'best-time-to-buy-sell-stock': 20,
   'valid-parentheses': 24,
   'maximum-subarray': 27,
   'reverse-linked-list': 29,
   'merge-two-sorted-lists': 32,
+  'letter-combinations': 35,
+  'house-robber': 40,
   'longest-substring': 42,
   'binary-tree-level-order-traversal': 45,
+  'word-break': 46,
   'container-with-most-water': 48,
+  'group-anagrams': 49,
   'product-of-array-except-self': 51,
+  'merge-intervals': 53,
   '3sum': 54,
+  'number-of-islands': 56,
   'coin-change': 57,
   'longest-palindromic-substring': 60,
   'word-search': 63,
   'merge-k-sorted-lists': 70,
+  'lru-cache': 75,
   'trapping-rain-water': 77,
+  'serialize-deserialize-bt': 80,
   'word-ladder': 82,
   'n-queens': 88,
   'median-of-two-sorted-arrays': 95,
@@ -105,12 +115,19 @@ function ProblemsPageInner() {
   const [activeTab, setActiveTab] = useState<'coding' | 'genai'>(initialTab);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'' | Difficulty>('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [showCompanyTags, setShowCompanyTags] = useState(false);
   const [genaiDifficulty, setGenaiDifficulty] = useState<'' | Difficulty>('');
   const [genaiCategory, setGenaiCategory] = useState('');
   const [modalProblem, setModalProblem] = useState<ModalProblem | null>(null);
 
   const categories = useMemo(() => {
     const set = new Set(problems.map((p) => p.category));
+    return Array.from(set).sort();
+  }, []);
+
+  const companies = useMemo(() => {
+    const set = new Set(problems.flatMap((p) => p.companies ?? []));
     return Array.from(set).sort();
   }, []);
 
@@ -125,9 +142,10 @@ function ProblemsPageInner() {
     return problems.filter((p) => {
       if (selectedDifficulty && p.difficulty !== selectedDifficulty) return false;
       if (selectedCategory && p.category !== selectedCategory) return false;
+      if (selectedCompany && !p.companies?.includes(selectedCompany)) return false;
       return true;
     });
-  }, [selectedDifficulty, selectedCategory]);
+  }, [selectedDifficulty, selectedCategory, selectedCompany]);
 
   const filteredGenai = useMemo(() => {
     return genaiProblems
@@ -139,7 +157,7 @@ function ProblemsPageInner() {
       .sort((a, b) => DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
   }, [genaiDifficulty, genaiCategory]);
 
-  const isFiltered = selectedDifficulty || selectedCategory;
+  const isFiltered = selectedDifficulty || selectedCategory || selectedCompany;
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -244,12 +262,61 @@ function ProblemsPageInner() {
               </svg>
             </div>
 
-            <div className="group relative flex items-center gap-1 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-default ml-auto" aria-label="Bar length indicates relative difficulty across all problems">
-              <InfoIcon />
-              <span className="text-xs hidden sm:block">Difficulty bars</span>
-              <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 text-center leading-relaxed shadow-xl">
-                Bar length shows relative difficulty across the full problem set, not just within a tier.
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-200 dark:border-t-slate-700" />
+            <div className="relative">
+              <select
+                value={selectedCompany}
+                onChange={(e) => setSelectedCompany(e.target.value)}
+                disabled={!showCompanyTags}
+                aria-label="Filter by company"
+                className={`w-44 appearance-none border text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none transition-colors ${
+                  showCompanyTags
+                    ? 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-500 cursor-pointer'
+                    : 'bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                }`}
+              >
+                <option value="">All Companies</option>
+                {companies.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <svg xmlns="http://www.w3.org/2000/svg" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => { setShowCompanyTags((v) => { if (v) setSelectedCompany(''); return !v; }); }}
+              aria-pressed={showCompanyTags}
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all duration-200 cursor-pointer ${
+                showCompanyTags
+                  ? 'bg-blue-600 border-blue-500 text-white'
+                  : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 3l-4 4-4-4"/>
+              </svg>
+              Companies
+            </button>
+
+            <div className="flex items-center gap-3 ml-auto">
+              <div className="group relative flex items-center gap-1 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-default" aria-label="Bar length indicates relative difficulty across all problems">
+                <InfoIcon />
+                <span className="text-xs hidden sm:block">Difficulty bars</span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 text-center leading-relaxed shadow-xl">
+                  Bar length shows relative difficulty across the full problem set, not just within a tier.
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-200 dark:border-t-slate-700" />
+                </div>
+              </div>
+
+              <div className="group relative flex items-center gap-1 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-default" aria-label="Company tags disclaimer">
+                <InfoIcon />
+                <span className="text-xs hidden sm:block">Company tags</span>
+                <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 text-center leading-relaxed shadow-xl">
+                  Company tags are based on publicly reported interview experiences and do not imply affiliation or endorsement.
+                  <div className="absolute top-full right-4 border-4 border-transparent border-t-slate-200 dark:border-t-slate-700" />
+                </div>
               </div>
             </div>
 
@@ -259,7 +326,7 @@ function ProblemsPageInner() {
                   {filtered.length} of {problems.length}
                 </span>
                 <button
-                  onClick={() => { setSelectedDifficulty(''); setSelectedCategory(''); }}
+                  onClick={() => { setSelectedDifficulty(''); setSelectedCategory(''); setSelectedCompany(''); }}
                   className="text-xs text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                 >
                   Clear
@@ -321,9 +388,22 @@ function ProblemsPageInner() {
                       {problem.title}
                     </h2>
 
-                    <span className="inline-block text-xs text-slate-500 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-md px-2 py-0.5 mb-3 w-fit">
+                    <span className={`inline-block text-xs text-slate-500 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-md px-2 py-0.5 w-fit ${showCompanyTags && problem.companies?.length ? 'mb-2' : 'mb-3'}`}>
                       {problem.category}
                     </span>
+
+                    {showCompanyTags && problem.companies && problem.companies.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {problem.companies.slice(0, 3).map((c) => (
+                          <span key={c} className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/40 rounded px-1.5 py-0.5">
+                            {c}
+                          </span>
+                        ))}
+                        {problem.companies.length > 3 && (
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 px-0.5">+{problem.companies.length - 3}</span>
+                        )}
+                      </div>
+                    )}
 
                     <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mt-auto">
                       {descSnippet}{problem.description.length > 110 ? '...' : ''}
