@@ -288,74 +288,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── VS COMPARISON ─────────────────────────────────────────────────── */}
-      <section className="border-t border-slate-200 dark:border-slate-800/60">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
-          <AnimateIn className="mb-12">
-            <SectionLabel index="001" label="Why MockPrep" />
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">The gap between practice and performance</h2>
-            <p className="text-slate-500 text-lg max-w-xl">
-              Most platforms only test what you know. MockPrep tests how you think, how you communicate, and how well you work with AI — because all three matter now.
-            </p>
-          </AnimateIn>
-
-          <AnimateIn delay={100}>
-            <div className="grid grid-cols-1 md:grid-cols-2 border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden">
-              {/* Left - traditional */}
-              <div className="border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/50">
-                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
-                  <span className="text-red-400/70 text-xs font-mono">---</span>
-                  <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">traditional_practice.md</span>
-                </div>
-                <ul className="p-6 space-y-3.5">
-                  {[
-                    'Solve problems in silence with no one to talk to',
-                    'No feedback until you look up the answer',
-                    'Pass/fail verdict with no explanation',
-                    'Never tested on communication or reasoning',
-                    "Doesn't replicate real interview pressure",
-                    'Zero coverage of AI collaboration skills',
-                  ].map((text) => (
-                    <li key={text} className="flex items-start gap-3 text-sm">
-                      <span className="text-red-400/70 shrink-0 mt-0.5 font-mono select-none">-</span>
-                      <span className="text-slate-400 dark:text-slate-500">{text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Right - MockPrep */}
-              <div>
-                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
-                  <span className="text-green-500/70 text-xs font-mono">+++</span>
-                  <span className="text-green-600/80 dark:text-green-400/70 text-xs font-mono">mock_prep.md</span>
-                </div>
-                <ul className="p-6 space-y-3.5">
-                  {[
-                    'AI interviewer that asks follow-up questions in real time',
-                    "Socratic hints when you're stuck, not just the answer",
-                    'Scored feedback on communication, logic, and code quality',
-                    'Replicates the pressure of a real 45-minute technical round',
-                    'Session history so you can track improvement over time',
-                    'GenAI Fluency track: practice directing and validating AI the way real engineers do',
-                  ].map((text) => (
-                    <li key={text} className="flex items-start gap-3 text-sm">
-                      <span className="text-green-500/70 shrink-0 mt-0.5 font-mono select-none">+</span>
-                      <span className="text-slate-700 dark:text-slate-200">{text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </AnimateIn>
-        </div>
-      </section>
-
       {/* ── FEATURES ──────────────────────────────────────────────────────── */}
       <section className="border-t border-slate-200 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
-            <SectionLabel index="002" label="Features" />
+            <SectionLabel index="001" label="Features" />
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">Built around real interview mechanics</h2>
             <p className="text-slate-500 text-lg max-w-xl">
               Every feature exists because real technical interviews demand it — including the ones that test how well you work with AI.
@@ -455,11 +392,207 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── VS COMPARISON ─────────────────────────────────────────────────── */}
+      <section className="border-t border-slate-200 dark:border-slate-800/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
+          <AnimateIn className="mb-12">
+            <SectionLabel index="002" label="Why MockPrep" />
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">The gap between practice and performance</h2>
+            <p className="text-slate-500 text-lg max-w-xl">
+              Most platforms only test what you know. MockPrep tests how you think, how you communicate, and how well you work with AI — because all three matter now.
+            </p>
+          </AnimateIn>
+
+          <AnimateIn delay={100}>
+            <div className="grid grid-cols-1 md:grid-cols-2 border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden">
+              {/* Left - traditional */}
+              <div className="border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/50">
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
+                  <span className="text-red-400/70 text-xs font-mono">---</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">traditional_practice.md</span>
+                </div>
+                <ul className="p-6 space-y-3.5">
+                  {[
+                    'Solve problems in silence with no one to talk to',
+                    'No feedback until you look up the answer',
+                    'Pass/fail verdict with no explanation',
+                    'Never tested on communication or reasoning',
+                    "Doesn't replicate real interview pressure",
+                    'Zero coverage of AI collaboration skills',
+                  ].map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-sm">
+                      <span className="text-red-400/70 shrink-0 mt-0.5 font-mono select-none">-</span>
+                      <span className="text-slate-400 dark:text-slate-500">{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Right - MockPrep */}
+              <div>
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
+                  <span className="text-green-500/70 text-xs font-mono">+++</span>
+                  <span className="text-green-600/80 dark:text-green-400/70 text-xs font-mono">mock_prep.md</span>
+                </div>
+                <ul className="p-6 space-y-3.5">
+                  {[
+                    'AI interviewer that asks follow-up questions in real time',
+                    "Socratic hints when you're stuck, not just the answer",
+                    'Scored feedback on communication, logic, and code quality',
+                    'Replicates the pressure of a real 45-minute technical round',
+                    'Session history so you can track improvement over time',
+                    'GenAI Fluency track: practice directing and validating AI the way real engineers do',
+                  ].map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-sm">
+                      <span className="text-green-500/70 shrink-0 mt-0.5 font-mono select-none">+</span>
+                      <span className="text-slate-700 dark:text-slate-200">{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </AnimateIn>
+        </div>
+      </section>
+
+      {/* ── GENAI FLUENCY ─────────────────────────────────────────────────── */}
+      <section className="border-t border-slate-200 dark:border-slate-800/60 relative overflow-hidden">
+        {/* Subtle blue ambient */}
+        <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 60% at 100% 50%, rgba(59,130,246,0.05) 0%, transparent 65%)' }} />
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-24">
+
+          <AnimateIn className="mb-16">
+            <SectionLabel index="003" label="GenAI Fluency" />
+            <div className="max-w-2xl">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-4">
+                The skill every engineer needs.{' '}
+                <span className="text-blue-600 dark:text-blue-400">Almost no one is training for it.</span>
+              </h2>
+              <p className="text-slate-500 text-lg leading-relaxed">
+                AI-assisted development is already the norm at most engineering teams. The engineers who stand out aren&apos;t the ones who use AI the most — they&apos;re the ones who know when to trust it, when to question it, and how to take full ownership of the output.
+              </p>
+            </div>
+          </AnimateIn>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mb-16">
+
+            {/* Left: 4 pillars */}
+            <AnimateIn>
+              <div className="space-y-8">
+                {[
+                  {
+                    label: 'prompt_quality',
+                    title: 'Prompt Quality',
+                    desc: 'Writing precise, well-constrained prompts that produce useful output — not just asking AI to "write this function for me" and hoping for the best.',
+                  },
+                  {
+                    label: 'output_validation',
+                    title: 'Output Validation',
+                    desc: 'Catching logic errors, off-by-one mistakes, and subtle edge case failures in AI-generated code before it goes anywhere near production.',
+                  },
+                  {
+                    label: 'human_judgment',
+                    title: 'Human Judgment',
+                    desc: 'Knowing when to use, modify, or discard AI output entirely — and making that call quickly without second-guessing every line.',
+                  },
+                  {
+                    label: 'accountability',
+                    title: 'Accountability',
+                    desc: 'Understanding that you own the code. AI is a tool, not a co-author who shares the blame when something breaks in production.',
+                  },
+                ].map(({ label, title, desc }) => (
+                  <div key={label}>
+                    <span className="text-[10px] font-mono text-blue-500 dark:text-blue-400/70 border border-blue-400/30 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/5 px-2 py-0.5 rounded-sm">{label}</span>
+                    <h3 className="text-slate-800 dark:text-slate-100 font-semibold mt-2 mb-1.5">{title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </AnimateIn>
+
+            {/* Right: mock session result */}
+            <AnimateIn delay={150}>
+              <div className="relative">
+                <div aria-hidden className="absolute -inset-6 rounded-2xl blur-3xl opacity-10 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.6) 0%, transparent 70%)' }} />
+                <div className="relative bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-xl dark:shadow-2xl">
+
+                  {/* Title bar */}
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0F172A]/80">
+                    <div className="flex gap-1.5 items-center">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
+                    </div>
+                    <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">genai_fluency_session.py</span>
+                    <span className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 text-[10px] font-mono px-2 py-0.5 rounded-sm">SCORED</span>
+                  </div>
+
+                  {/* Scores */}
+                  <div className="p-5 space-y-4">
+                    <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">{'// assessment_result'}</span>
+                    {[
+                      { label: 'prompt_quality',    score: 4, max: 5 },
+                      { label: 'output_validation', score: 3, max: 5 },
+                      { label: 'human_judgment',    score: 5, max: 5 },
+                      { label: 'accountability',    score: 4, max: 5 },
+                    ].map(({ label, score, max }) => (
+                      <div key={label} className="flex items-center gap-3">
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 w-40 shrink-0">{label}</span>
+                        <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-blue-500/60 rounded-full" style={{ width: `${(score / max) * 100}%` }} />
+                        </div>
+                        <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold font-mono shrink-0">{score}<span className="text-slate-300 dark:text-slate-700 font-normal">/{max}</span></span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Key moment */}
+                  <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-4 bg-slate-50 dark:bg-[#0F172A]/60 space-y-2">
+                    <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">{'// key_moment'}</span>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed border-l-2 border-blue-400/40 pl-3">
+                      Identified off-by-one error in AI&apos;s binary search output and corrected the boundary condition before running the test suite.
+                    </p>
+                  </div>
+
+                  {/* Fluency level */}
+                  <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0F172A]/80 flex items-center justify-between">
+                    <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">fluency_level</span>
+                    <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2.5 py-1 rounded-sm font-mono">Mild Strength</span>
+                  </div>
+                </div>
+              </div>
+            </AnimateIn>
+          </div>
+
+          {/* Bottom statement */}
+          <AnimateIn delay={200}>
+            <div className="border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/5 rounded-lg px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div>
+                <p className="text-slate-700 dark:text-slate-200 font-semibold mb-1">
+                  No other interview prep platform tests this.
+                </p>
+                <p className="text-slate-500 text-sm">
+                  GenAI Fluency is free to practice, no account required. Try a session and see exactly where you stand.
+                </p>
+              </div>
+              <Link
+                href="/problems?tab=genai"
+                className="shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors cursor-pointer"
+              >
+                Try GenAI Fluency
+                <IconArrow />
+              </Link>
+            </div>
+          </AnimateIn>
+
+        </div>
+      </section>
+
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
       <section className="border-t border-slate-200 dark:border-slate-800/60 bg-slate-100/60 dark:bg-[#1E293B]/20">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
-            <SectionLabel index="003" label="Workflow" />
+            <SectionLabel index="004" label="Workflow" />
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50">How it works</h2>
           </AnimateIn>
 
