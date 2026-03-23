@@ -2,10 +2,10 @@
 
 import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { problems } from '@/lib/problems';
 import type { Difficulty } from '@/lib/problems';
 import { genaiProblems } from '@/lib/genaiProblems';
+import InterviewStartModal, { type ModalProblem } from '@/components/InterviewStartModal';
 
 // Global difficulty score (0–100) per problem.
 const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
@@ -107,6 +107,7 @@ function ProblemsPageInner() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [genaiDifficulty, setGenaiDifficulty] = useState<'' | Difficulty>('');
   const [genaiCategory, setGenaiCategory] = useState('');
+  const [modalProblem, setModalProblem] = useState<ModalProblem | null>(null);
 
   const categories = useMemo(() => {
     const set = new Set(problems.map((p) => p.category));
@@ -289,10 +290,17 @@ function ProblemsPageInner() {
                   .slice(0, 110);
 
                 return (
-                  <Link
+                  <button
                     key={problem.id}
-                    href={`/interview/${problem.id}`}
-                    className={`group flex flex-col bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 border-l-4 ${d.border} ${d.borderHover} rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+                    type="button"
+                    onClick={() => setModalProblem({
+                      id: problem.id,
+                      title: problem.title,
+                      difficulty: problem.difficulty,
+                      type: 'coding',
+                      href: `/interview/${problem.id}`,
+                    })}
+                    className={`group flex flex-col text-left bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 border-l-4 ${d.border} ${d.borderHover} rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer w-full`}
                     aria-label={`Start interview: ${problem.title}, ${problem.difficulty} difficulty, ${problem.category}`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -327,7 +335,7 @@ function ProblemsPageInner() {
                         style={{ width: `${DIFFICULTY_SCORE[problem.id] ?? 50}%` }}
                       />
                     </div>
-                  </Link>
+                  </button>
                 );
               })}
             </div>
@@ -428,10 +436,17 @@ function ProblemsPageInner() {
                 const d = DIFFICULTY[problem.difficulty];
                 const descSnippet = problem.description.split('\n')[0].slice(0, 110);
                 return (
-                  <Link
+                  <button
                     key={problem.id}
-                    href={`/genai/${problem.id}`}
-                    className={`group flex flex-col bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 border-l-4 ${d.border} ${d.borderHover} rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500`}
+                    type="button"
+                    onClick={() => setModalProblem({
+                      id: problem.id,
+                      title: problem.title,
+                      difficulty: problem.difficulty,
+                      type: 'genai',
+                      href: `/genai/${problem.id}`,
+                    })}
+                    className={`group flex flex-col text-left bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 border-l-4 ${d.border} ${d.borderHover} rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 cursor-pointer w-full`}
                     aria-label={`Start GenAI session: ${problem.title}, ${problem.difficulty} difficulty`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -466,7 +481,7 @@ function ProblemsPageInner() {
                         style={{ width: `${GENAI_DIFFICULTY_SCORE[problem.id] ?? 50}%` }}
                       />
                     </div>
-                  </Link>
+                  </button>
                 );
               })}
             </div>
@@ -479,6 +494,8 @@ function ProblemsPageInner() {
           )}
         </div>
       )}
+
+      <InterviewStartModal problem={modalProblem} onClose={() => setModalProblem(null)} />
     </main>
   );
 }

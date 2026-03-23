@@ -245,6 +245,15 @@ export default function HistoryPage() {
   const [loaded, setLoaded] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmClearGenai, setConfirmClearGenai] = useState(false);
+  const [dailyLimit, setDailyLimit] = useState<{ remaining: number; limit: number } | null>(null);
+
+  useEffect(() => {
+    if (!authLoaded || !isSignedIn) return;
+    fetch('/api/user/daily-limit')
+      .then((r) => r.json())
+      .then((data) => setDailyLimit({ remaining: data.remaining, limit: data.limit }))
+      .catch(() => {});
+  }, [authLoaded, isSignedIn]);
 
   useEffect(() => {
     if (!authLoaded) return;
@@ -359,7 +368,7 @@ export default function HistoryPage() {
 
       <div className="max-w-3xl mx-auto px-6 py-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start justify-between mb-8">
           <div>
             <Link
               href="/problems"
@@ -377,6 +386,24 @@ export default function HistoryPage() {
               </p>
             )}
           </div>
+
+          {dailyLimit !== null && (
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Today&apos;s interviews</span>
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
+                <div className="w-20 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all"
+                    style={{ width: `${(dailyLimit.remaining / dailyLimit.limit) * 100}%` }}
+                  />
+                </div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">
+                  {dailyLimit.remaining}
+                  <span className="text-gray-400 dark:text-gray-500 font-normal">/{dailyLimit.limit}</span>
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {!loaded ? (

@@ -3,13 +3,17 @@ import Anthropic from '@anthropic-ai/sdk';
 const client = new Anthropic();
 
 export async function POST(request: Request) {
-  const { messages, problemTitle, problemDescription } = await request.json();
+  const { messages, problemTitle, problemDescription, code, language } = await request.json();
+
+  const codeSection = code?.trim()
+    ? `\nCandidate's current code (${language ?? 'unknown'}):\n\`\`\`${language ?? ''}\n${code}\n\`\`\`\nUse this to inform your guidance. Don't explicitly mention you can see their code unless they bring it up or it's directly relevant.\n`
+    : '';
 
   const systemPrompt = `You are a professional but approachable technical interviewer at a top tech company conducting a coding interview. Your role is to guide the candidate through solving "${problemTitle}" using the Socratic method.
 
 Problem being solved:
 ${problemDescription}
-
+${codeSection}
 Guidelines:
 - Open the session by introducing yourself briefly and asking the candidate to read the problem and share their initial approach/thoughts
 - Ask targeted follow-up questions like "What's the time complexity of that approach?", "Can you think of any edge cases?", "What data structure might help here?"

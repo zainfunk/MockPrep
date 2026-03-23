@@ -174,6 +174,8 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
             messages: updatedMessages,
             problemTitle: problem.title,
             problemDescription: problem.description,
+            code,
+            language,
           }),
         });
 
