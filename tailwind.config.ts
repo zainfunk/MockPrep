@@ -14,7 +14,9 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        headline: ['var(--font-space-grotesk)', 'sans-serif'],
+        body:     ['var(--font-inter)', 'sans-serif'],
+        mono:     ['var(--font-jetbrains-mono)', 'var(--font-mono)', 'ui-monospace', 'monospace'],
       },
     },
   },

@@ -7,14 +7,88 @@ import type { Difficulty } from '@/lib/problems';
 import { genaiProblems } from '@/lib/genaiProblems';
 import InterviewStartModal, { type ModalProblem } from '@/components/InterviewStartModal';
 
-// Global difficulty score (0–100) per problem.
+// ── Popularity order (lower = shown first when no filter active) ──────────────
+// Ranked by real-world interview frequency / cultural prominence
+
+const POPULARITY_ORDER: Record<string, number> = {
+  'two-sum': 1,
+  'valid-parentheses': 2,
+  'number-of-islands': 3,       // medium
+  'maximum-subarray': 4,
+  'best-time-to-buy-sell-stock': 5,
+  'coin-change': 6,             // medium
+  'reverse-linked-list': 7,
+  'lru-cache': 8,               // hard
+  'climbing-stairs': 9,
+  'contains-duplicate': 10,
+  'merge-two-sorted-lists': 11,
+  'valid-anagram': 12,
+  'linked-list-cycle': 13,
+  'binary-search': 14,
+  'invert-binary-tree': 15,
+  'single-number': 16,
+  'longest-substring': 17,
+  'group-anagrams': 18,
+  'binary-tree-level-order-traversal': 19,
+  'merge-intervals': 20,
+  'product-of-array-except-self': 20,
+  '3sum': 21,
+  'lru-cache': 22,
+  'top-k-frequent-elements': 23,
+  'kth-largest-element': 24,
+  'course-schedule': 25,
+  'house-robber': 26,
+  'majority-element': 27,
+  'fizz-buzz': 28,
+  'palindrome-number': 29,
+  'missing-number': 30,
+  'word-break': 31,
+  'longest-consecutive-sequence': 32,
+  'subsets': 33,
+  'combination-sum': 34,
+  'permutations': 35,
+  'container-with-most-water': 36,
+  'diameter-of-binary-tree': 37,
+  'validate-bst': 38,
+  'lowest-common-ancestor': 39,
+  'binary-tree-right-side-view': 40,
+  'move-zeroes': 41,
+  'remove-duplicates-sorted-array': 42,
+  'find-all-anagrams': 43,
+  'jump-game': 44,
+  'unique-paths': 45,
+  'decode-ways': 46,
+  'maximum-product-subarray': 47,
+  'longest-palindromic-substring': 48,
+  'longest-increasing-subsequence': 49,
+  'word-search': 50,
+  'trapping-rain-water': 51,
+  'merge-k-sorted-lists': 52,
+  'minimum-window-substring': 53,
+  'edit-distance': 54,
+  'search-rotated-sorted-array': 55,
+  'find-minimum-rotated-sorted-array': 56,
+  'spiral-matrix': 57,
+  'rotate-image': 58,
+  'letter-combinations': 59,
+  'pacific-atlantic-water-flow': 60,
+  'course-schedule-ii': 61,
+  'word-search-ii': 62,
+  'sliding-window-maximum': 63,
+  'regular-expression-matching': 64,
+  'n-queens': 65,
+  'word-ladder': 66,
+  'serialize-deserialize-bt': 67,
+  'median-of-two-sorted-arrays': 68,
+};
+
+// ── Difficulty score maps ─────────────────────────────────────────────────────
+
 const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
-  // Medium: spread across 28–55 to match coding mediums (32–60)
   'find-duplicates-ai': 28,
   'csv-report-ai': 38,
   'text-chunker-ai': 44,
   'json-flattener-ai': 52,
-  // Hard: spread across 65–93 to match coding hards (63–95)
   'lru-cache-ai': 65,
   'trie-autocomplete-ai': 72,
   'log-analyzer-ai': 78,
@@ -24,73 +98,80 @@ const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
 };
 
 const DIFFICULTY_SCORE: Record<string, number> = {
-  'contains-duplicate': 10,
-  'palindrome-number': 12,
-  'valid-anagram': 14,
-  'two-sum': 16,
-  'best-time-to-buy-sell-stock': 20,
-  'valid-parentheses': 24,
-  'maximum-subarray': 27,
-  'reverse-linked-list': 29,
-  'merge-two-sorted-lists': 32,
-  'letter-combinations': 35,
-  'house-robber': 40,
-  'longest-substring': 42,
-  'binary-tree-level-order-traversal': 45,
-  'word-break': 46,
-  'container-with-most-water': 48,
-  'group-anagrams': 49,
-  'product-of-array-except-self': 51,
-  'merge-intervals': 53,
-  '3sum': 54,
-  'number-of-islands': 56,
-  'coin-change': 57,
-  'longest-palindromic-substring': 60,
-  'word-search': 63,
-  'merge-k-sorted-lists': 70,
-  'lru-cache': 75,
-  'trapping-rain-water': 77,
-  'serialize-deserialize-bt': 80,
-  'word-ladder': 82,
-  'n-queens': 88,
-  'median-of-two-sorted-arrays': 95,
+  'contains-duplicate': 10, 'palindrome-number': 12, 'valid-anagram': 14,
+  'two-sum': 16, 'best-time-to-buy-sell-stock': 20, 'valid-parentheses': 24,
+  'maximum-subarray': 27, 'reverse-linked-list': 29, 'merge-two-sorted-lists': 32,
+  'letter-combinations': 35, 'house-robber': 40, 'longest-substring': 42,
+  'binary-tree-level-order-traversal': 45, 'word-break': 46,
+  'container-with-most-water': 48, 'group-anagrams': 49,
+  'product-of-array-except-self': 51, 'merge-intervals': 53,
+  '3sum': 54, 'number-of-islands': 56, 'coin-change': 57,
+  'longest-palindromic-substring': 60, 'word-search': 63,
+  'merge-k-sorted-lists': 70, 'lru-cache': 75, 'trapping-rain-water': 77,
+  'serialize-deserialize-bt': 80, 'word-ladder': 82,
+  'n-queens': 88, 'median-of-two-sorted-arrays': 95,
 };
 
-const DIFFICULTY: Record<Difficulty, {
-  badge: string; text: string; bar: string; active: string;
-  border: string; borderHover: string;
-}> = {
+// ── Design tokens ─────────────────────────────────────────────────────────────
+
+const D = {
   easy: {
-    badge: 'bg-green-100 text-green-700 border border-green-300 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/40',
-    text: 'text-green-600 dark:text-green-400',
-    bar: 'bg-green-500',
-    active: 'bg-green-100 border-green-400 text-green-800 dark:bg-green-800/60 dark:border-green-500 dark:text-green-200',
-    border: 'border-l-green-500/50',
-    borderHover: 'hover:border-l-green-500',
+    topBorder: 'border-t-4 border-[#58e7ab]',
+    badge: 'bg-[#69f6b8]/10 text-[#58e7ab]',
+    bar: '#58e7ab',
+    diffBtn: 'bg-[#69f6b8]/10 text-[#58e7ab] border border-[#69f6b8]/20',
   },
   medium: {
-    badge: 'bg-yellow-100 text-yellow-700 border border-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-300 dark:border-yellow-700/40',
-    text: 'text-yellow-600 dark:text-yellow-400',
-    bar: 'bg-yellow-500',
-    active: 'bg-yellow-100 border-yellow-400 text-yellow-800 dark:bg-yellow-800/60 dark:border-yellow-500 dark:text-yellow-200',
-    border: 'border-l-yellow-500/50',
-    borderHover: 'hover:border-l-yellow-500',
+    topBorder: 'border-t-4 border-amber-400',
+    badge: 'bg-amber-400/10 text-amber-400',
+    bar: '#fbbf24',
+    diffBtn: 'bg-amber-400/10 text-amber-400 border border-amber-400/20',
   },
   hard: {
-    badge: 'bg-red-100 text-red-700 border border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700/40',
-    text: 'text-red-600 dark:text-red-400',
-    bar: 'bg-red-500',
-    active: 'bg-red-100 border-red-400 text-red-800 dark:bg-red-800/60 dark:border-red-500 dark:text-red-200',
-    border: 'border-l-red-500/50',
-    borderHover: 'hover:border-l-red-500',
+    topBorder: 'border-t-4 border-[#d7383b]',
+    badge: 'bg-[#9f0519]/10 text-[#d7383b]',
+    bar: '#d7383b',
+    diffBtn: 'bg-[#9f0519]/10 text-[#d7383b] border border-[#9f0519]/20',
   },
 };
 
-function InfoIcon() {
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
+function IconChevron() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24"
-      fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true">
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+  );
+}
+
+function IconFilter() {
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+    </svg>
+  );
+}
+
+function IconRefresh() {
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+  );
+}
+
+function IconAnalytics() {
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+    </svg>
+  );
+}
+
+function IconInfo() {
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="8" x2="12" y2="8" strokeWidth="3" strokeLinecap="round" />
       <line x1="12" y1="12" x2="12" y2="16" />
@@ -98,482 +179,438 @@ function InfoIcon() {
   );
 }
 
-function ArrowIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24"
-      fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true">
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
+// ── Inner page ────────────────────────────────────────────────────────────────
 
 function ProblemsPageInner() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'genai' ? 'genai' : 'coding';
-  const [activeTab, setActiveTab] = useState<'coding' | 'genai'>(initialTab);
+
+  const [activeTab, setActiveTab]             = useState<'coding' | 'genai'>(initialTab);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'' | Difficulty>('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedCompany, setSelectedCompany] = useState('');
-  const [showCompanyTags, setShowCompanyTags] = useState(false);
-  const [genaiDifficulty, setGenaiDifficulty] = useState<'' | Difficulty>('');
-  const [genaiCategory, setGenaiCategory] = useState('');
-  const [modalProblem, setModalProblem] = useState<ModalProblem | null>(null);
+  const [selectedCategory, setSelectedCategory]     = useState('');
+  const [selectedCompany, setSelectedCompany]       = useState('');
+  const [showCompanyTags, setShowCompanyTags]       = useState(false);
+  const [genaiDifficulty, setGenaiDifficulty]       = useState<'' | Difficulty>('');
+  const [genaiCategory, setGenaiCategory]           = useState('');
+  const [modalProblem, setModalProblem]             = useState<ModalProblem | null>(null);
 
-  const categories = useMemo(() => {
-    const set = new Set(problems.map((p) => p.category));
-    return Array.from(set).sort();
-  }, []);
-
-  const companies = useMemo(() => {
-    const set = new Set(problems.flatMap((p) => p.companies ?? []));
-    return Array.from(set).sort();
-  }, []);
-
-  const genaiCategories = useMemo(() => {
-    const set = new Set(genaiProblems.map((p) => p.category));
-    return Array.from(set).sort();
-  }, []);
-
-  const DIFFICULTY_ORDER: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
+  const categories = useMemo(() => Array.from(new Set(problems.map((p) => p.category))).sort(), []);
+  const companies  = useMemo(() => Array.from(new Set(problems.flatMap((p) => p.companies ?? []))).sort(), []);
+  const genaiCategories = useMemo(() => Array.from(new Set(genaiProblems.map((p) => p.category))).sort(), []);
 
   const filtered = useMemo(() => {
-    return problems.filter((p) => {
+    const result = problems.filter((p) => {
       if (selectedDifficulty && p.difficulty !== selectedDifficulty) return false;
-      if (selectedCategory && p.category !== selectedCategory) return false;
-      if (selectedCompany && !p.companies?.includes(selectedCompany)) return false;
+      if (selectedCategory   && p.category   !== selectedCategory)   return false;
+      if (selectedCompany    && !p.companies?.includes(selectedCompany)) return false;
       return true;
     });
+    // No active filter → sort by popularity. Filter active → keep popularity order within results.
+    return result.sort(
+      (a, b) => (POPULARITY_ORDER[a.id] ?? 999) - (POPULARITY_ORDER[b.id] ?? 999)
+    );
   }, [selectedDifficulty, selectedCategory, selectedCompany]);
 
-  const filteredGenai = useMemo(() => {
-    return genaiProblems
-      .filter((p) => {
-        if (genaiDifficulty && p.difficulty !== genaiDifficulty) return false;
-        if (genaiCategory && p.category !== genaiCategory) return false;
-        return true;
-      })
-      .sort((a, b) => DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
-  }, [genaiDifficulty, genaiCategory]);
+  const filteredGenai = useMemo(() => genaiProblems
+    .filter((p) => {
+      if (genaiDifficulty && p.difficulty !== genaiDifficulty) return false;
+      if (genaiCategory   && p.category   !== genaiCategory)   return false;
+      return true;
+    })
+    .sort((a, b) => ({ easy: 0, medium: 1, hard: 2 }[a.difficulty] - { easy: 0, medium: 1, hard: 2 }[b.difficulty])),
+  [genaiDifficulty, genaiCategory]);
 
-  const isFiltered = selectedDifficulty || selectedCategory || selectedCompany;
+  const isCodingFiltered = selectedDifficulty || selectedCategory || selectedCompany;
+  const isGenaiFiltered  = genaiDifficulty || genaiCategory;
+
+  const clearCoding = () => { setSelectedDifficulty(''); setSelectedCategory(''); setSelectedCompany(''); };
+  const clearGenai  = () => { setGenaiDifficulty(''); setGenaiCategory(''); };
+
+  const activeProblems = activeTab === 'coding' ? filtered : filteredGenai;
+  const totalActive    = activeTab === 'coding' ? problems.length : genaiProblems.length;
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <main
+      className="min-h-screen bg-[#0e0e0f] text-white pt-16"
+      style={{
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+        backgroundSize: '24px 24px',
+      }}
+    >
+      {/* ── Sticky sub-header ── */}
+      <header className="sticky top-16 z-30 bg-[#0e0e0f] border-b border-white/5">
+        <div className="w-full px-6 md:px-10 xl:px-16 py-6">
 
-      {/* ── Header ── */}
-      <div className="relative dot-grid border-b border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: activeTab === 'genai'
-              ? 'radial-gradient(ellipse 60% 80% at 50% -20%, rgba(168,85,247,0.08) 0%, transparent 65%)'
-              : 'radial-gradient(ellipse 60% 80% at 50% -20%, rgba(59,130,246,0.08) 0%, transparent 65%)',
-          }}
-        />
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="font-mono text-xs text-slate-500 dark:text-slate-600 tracking-widest">{'// PRACTICE'}</span>
-            <div className="h-px w-10 bg-slate-300 dark:bg-slate-700" />
-          </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">Practice Problems</h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            {activeTab === 'coding'
-              ? 'Select a problem to start a 45-minute AI interview session.'
-              : 'Assess how effectively you use AI tools to solve real problems.'}
-          </p>
-        </div>
-      </div>
-
-      {/* ── IDE Tab Switcher ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex gap-6 border-b border-slate-200 dark:border-slate-800">
-          <button
-            onClick={() => setActiveTab('coding')}
-            className={`text-sm font-medium pb-3 pt-4 border-b-2 -mb-px transition-colors cursor-pointer ${
-              activeTab === 'coding'
-                ? 'text-blue-600 dark:text-blue-400 border-blue-500 dark:border-blue-400'
-                : 'text-slate-500 border-transparent hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
-          >
-            Coding Problems
-          </button>
-          <button
-            onClick={() => setActiveTab('genai')}
-            className={`text-sm font-medium pb-3 pt-4 border-b-2 -mb-px transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'genai'
-                ? 'text-purple-600 dark:text-purple-400 border-purple-500 dark:border-purple-400'
-                : 'text-slate-500 border-transparent hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
-          >
-            GenAI Fluency
-            <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full font-semibold leading-none">
-              NEW
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Coding Tab ── */}
-      {activeTab === 'coding' && (
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-
-          {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 mb-8">
-            <span className="text-slate-500 text-xs font-mono hidden sm:block">filter:</span>
-
-            <div className="flex gap-2" role="group" aria-label="Filter by difficulty">
-              {(['', 'easy', 'medium', 'hard'] as const).map((d) => (
+          {/* Title row */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-4xl font-headline font-bold tracking-tight mb-4 text-white">
+                Problem Library
+              </h1>
+              {/* Tab switcher */}
+              <div className="flex gap-1 p-1 bg-[#131314] rounded-lg w-fit">
                 <button
-                  key={d}
-                  onClick={() => setSelectedDifficulty(d)}
-                  aria-pressed={selectedDifficulty === d}
-                  className={`px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wide border transition-all duration-200 cursor-pointer ${
-                    selectedDifficulty === d
-                      ? d === ''
-                        ? 'bg-blue-600 border-blue-500 text-white'
-                        : DIFFICULTY[d].active
-                      : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
+                  onClick={() => setActiveTab('coding')}
+                  className={`px-5 py-2 rounded-md text-sm font-headline font-bold transition-all cursor-pointer ${
+                    activeTab === 'coding'
+                      ? 'bg-[#1a191b] text-white shadow-sm'
+                      : 'text-[#adaaab] hover:text-white'
                   }`}
                 >
-                  {d === '' ? 'all' : d}
+                  Coding Problems
                 </button>
-              ))}
-            </div>
-
-            <div className="w-px h-5 bg-slate-300 dark:bg-slate-700 hidden sm:block" aria-hidden />
-
-            <div className="relative">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                aria-label="Filter by category"
-                className="w-44 appearance-none bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-500 transition-colors cursor-pointer"
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <svg xmlns="http://www.w3.org/2000/svg" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
-
-            <div className="relative">
-              <select
-                value={selectedCompany}
-                onChange={(e) => setSelectedCompany(e.target.value)}
-                disabled={!showCompanyTags}
-                aria-label="Filter by company"
-                className={`w-44 appearance-none border text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none transition-colors ${
-                  showCompanyTags
-                    ? 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-500 cursor-pointer'
-                    : 'bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-400 dark:text-slate-600 cursor-not-allowed'
-                }`}
-              >
-                <option value="">All Companies</option>
-                {companies.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <svg xmlns="http://www.w3.org/2000/svg" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => { setShowCompanyTags((v) => { if (v) setSelectedCompany(''); return !v; }); }}
-              aria-pressed={showCompanyTags}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all duration-200 cursor-pointer ${
-                showCompanyTags
-                  ? 'bg-blue-600 border-blue-500 text-white'
-                  : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 3l-4 4-4-4"/>
-              </svg>
-              Companies
-            </button>
-
-            <div className="flex items-center gap-3 ml-auto">
-              <div className="group relative flex items-center gap-1 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-default" aria-label="Bar length indicates relative difficulty across all problems">
-                <InfoIcon />
-                <span className="text-xs hidden sm:block">Difficulty bars</span>
-                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 text-center leading-relaxed shadow-xl">
-                  Bar length shows relative difficulty across the full problem set, not just within a tier.
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-200 dark:border-t-slate-700" />
-                </div>
-              </div>
-
-              <div className="group relative flex items-center gap-1 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-default" aria-label="Company tags disclaimer">
-                <InfoIcon />
-                <span className="text-xs hidden sm:block">Company tags</span>
-                <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 text-center leading-relaxed shadow-xl">
-                  Company tags are based on publicly reported interview experiences and do not imply affiliation or endorsement.
-                  <div className="absolute top-full right-4 border-4 border-transparent border-t-slate-200 dark:border-t-slate-700" />
-                </div>
-              </div>
-            </div>
-
-            {isFiltered && (
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500 text-sm">
-                  {filtered.length} of {problems.length}
-                </span>
                 <button
-                  onClick={() => { setSelectedDifficulty(''); setSelectedCategory(''); setSelectedCompany(''); }}
-                  className="text-xs text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  onClick={() => setActiveTab('genai')}
+                  className={`px-5 py-2 rounded-md text-sm font-headline font-medium transition-all cursor-pointer flex items-center gap-2 ${
+                    activeTab === 'genai'
+                      ? 'bg-[#1a191b] text-white shadow-sm'
+                      : 'text-[#adaaab] hover:text-white'
+                  }`}
                 >
-                  Clear
+                  GenAI Fluency
+                  <span className="bg-[#6e9fff]/20 text-[#85adff] px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest">
+                    NEW
+                  </span>
                 </button>
               </div>
-            )}
+            </div>
+
+            {/* Problem count badge */}
+            <div className="flex items-center gap-2 text-[11px] font-mono text-[#adaaab] bg-[#131314] px-4 py-2 rounded-lg border border-white/5 w-fit">
+              <IconAnalytics />
+              Showing {activeProblems.length} of {totalActive} problems
+            </div>
           </div>
 
-          {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-400 dark:text-slate-500" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
+          {/* ── Filter bar ── */}
+          {activeTab === 'coding' ? (
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Difficulty pills */}
+              <div className="flex bg-[#131314] rounded-lg p-1 gap-1">
+                {(['', 'easy', 'medium', 'hard'] as const).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setSelectedDifficulty(d)}
+                    className={`px-3 py-1 text-xs font-mono rounded transition-colors cursor-pointer ${
+                      selectedDifficulty === d
+                        ? d === ''
+                          ? 'bg-[#85adff]/10 text-[#85adff] border border-[#85adff]/20'
+                          : D[d].diffBtn
+                        : 'text-[#adaaab] hover:bg-[#1a191b] hover:text-white'
+                    }`}
+                  >
+                    {d === '' ? 'ALL' : d.toUpperCase()}
+                  </button>
+                ))}
               </div>
-              <p className="text-slate-600 dark:text-slate-400 font-medium mb-1">No problems match your filters</p>
-              <p className="text-slate-500 text-sm">Try adjusting the difficulty or category.</p>
+
+              <div className="h-6 w-px bg-white/10 mx-1" />
+
+              {/* Category select */}
+              <div className="relative">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="appearance-none bg-[#1a191b] border border-white/10 text-[#adaaab] text-xs font-headline rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-[#85adff]/50 hover:border-white/20 transition-colors cursor-pointer"
+                >
+                  <option value="">Categories</option>
+                  {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#767576]">
+                  <IconChevron />
+                </span>
+              </div>
+
+              {/* Company select */}
+              <div className="relative">
+                <select
+                  value={selectedCompany}
+                  onChange={(e) => setSelectedCompany(e.target.value)}
+                  disabled={!showCompanyTags}
+                  className={`appearance-none border text-xs font-headline rounded-lg pl-3 pr-8 py-2 focus:outline-none transition-colors ${
+                    showCompanyTags
+                      ? 'bg-[#1a191b] border-white/10 text-[#adaaab] hover:border-white/20 focus:border-[#85adff]/50 cursor-pointer'
+                      : 'bg-[#131314] border-white/5 text-[#484849] cursor-not-allowed'
+                  }`}
+                >
+                  <option value="">Company</option>
+                  {companies.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#767576]">
+                  <IconChevron />
+                </span>
+              </div>
+
+              {/* Company toggle */}
+              <button
+                onClick={() => { setShowCompanyTags((v) => { if (v) setSelectedCompany(''); return !v; }); }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-headline transition-all cursor-pointer ${
+                  showCompanyTags
+                    ? 'bg-[#85adff]/10 border-[#85adff]/30 text-[#85adff]'
+                    : 'bg-[#1a191b] border-white/10 text-[#adaaab] hover:border-white/20 hover:text-white'
+                }`}
+              >
+                <IconFilter />
+                Companies
+              </button>
+
+              {/* Info tooltips */}
+              <div className="group relative flex items-center gap-1.5 text-[#484849] hover:text-[#767576] transition-colors cursor-default">
+                <IconInfo />
+                <span className="text-[11px] font-mono hidden sm:block">Difficulty bars</span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-[#1a191b] border border-white/10 text-[#adaaab] text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 text-center leading-relaxed shadow-xl">
+                  Bar length shows relative difficulty across the full problem set, not just within a tier.
+                </div>
+              </div>
+
+              <div className="group relative flex items-center gap-1.5 text-[#484849] hover:text-[#767576] transition-colors cursor-default">
+                <IconInfo />
+                <span className="text-[11px] font-mono hidden sm:block">Company tags</span>
+                <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-64 bg-[#1a191b] border border-white/10 text-[#adaaab] text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 text-center leading-relaxed shadow-xl">
+                  Company tags are based on publicly reported interview experiences and do not imply affiliation or endorsement.
+                </div>
+              </div>
+
+              {/* Reset */}
+              {isCodingFiltered && (
+                <button
+                  onClick={clearCoding}
+                  className="ml-auto flex items-center gap-1.5 text-xs font-mono text-[#85adff] hover:underline cursor-pointer"
+                >
+                  <IconRefresh />
+                  Reset Filters
+                </button>
+              )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filtered.map((problem, index) => {
-                const d = DIFFICULTY[problem.difficulty];
-                const descSnippet = problem.description
-                  .replace(/`[^`]*`/g, (m) => m.slice(1, -1))
-                  .replace(/\*\*([^*]+)\*\*/g, '$1')
-                  .split('\n')[0]
-                  .slice(0, 110);
-
-                return (
+            <div className="flex flex-wrap items-center gap-3">
+              {/* GenAI difficulty pills */}
+              <div className="flex bg-[#131314] rounded-lg p-1 gap-1">
+                {(['', 'easy', 'medium', 'hard'] as const).map((d) => (
                   <button
-                    key={problem.id}
-                    type="button"
-                    onClick={() => setModalProblem({
-                      id: problem.id,
-                      title: problem.title,
-                      difficulty: problem.difficulty,
-                      type: 'coding',
-                      href: `/interview/${problem.id}`,
-                    })}
-                    className={`group flex flex-col text-left bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 border-l-4 ${d.border} ${d.borderHover} rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer w-full`}
-                    aria-label={`Start interview: ${problem.title}, ${problem.difficulty} difficulty, ${problem.category}`}
+                    key={d}
+                    onClick={() => setGenaiDifficulty(d)}
+                    className={`px-3 py-1 text-xs font-mono rounded transition-colors cursor-pointer ${
+                      genaiDifficulty === d
+                        ? d === ''
+                          ? 'bg-[#ac8aff]/10 text-[#ac8aff] border border-[#ac8aff]/20'
+                          : D[d].diffBtn
+                        : 'text-[#adaaab] hover:bg-[#1a191b] hover:text-white'
+                    }`}
                   >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex flex-col gap-1.5">
-                        <span className="font-mono text-[10px] text-slate-400 dark:text-slate-600">
-                          {'#'}{String(index + 1).padStart(3, '0')}
+                    {d === '' ? 'ALL' : d.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+
+              <div className="h-6 w-px bg-white/10 mx-1" />
+
+              {/* GenAI category select */}
+              <div className="relative">
+                <select
+                  value={genaiCategory}
+                  onChange={(e) => setGenaiCategory(e.target.value)}
+                  className="appearance-none bg-[#1a191b] border border-white/10 text-[#adaaab] text-xs font-headline rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-[#ac8aff]/50 hover:border-white/20 transition-colors cursor-pointer"
+                >
+                  <option value="">Categories</option>
+                  {genaiCategories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#767576]">
+                  <IconChevron />
+                </span>
+              </div>
+
+              {/* Info tooltip */}
+              <div className="group relative flex items-center gap-1.5 text-[#484849] hover:text-[#767576] transition-colors cursor-default">
+                <IconInfo />
+                <span className="text-[11px] font-mono hidden sm:block">Difficulty bars</span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-[#1a191b] border border-white/10 text-[#adaaab] text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 text-center leading-relaxed shadow-xl">
+                  Bar length shows relative difficulty across the full problem set, not just within a tier.
+                </div>
+              </div>
+
+              {isGenaiFiltered && (
+                <button
+                  onClick={clearGenai}
+                  className="ml-auto flex items-center gap-1.5 text-xs font-mono text-[#ac8aff] hover:underline cursor-pointer"
+                >
+                  <IconRefresh />
+                  Reset Filters
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* ── Problem Grid ── */}
+      <div className="w-full px-6 md:px-10 xl:px-16 py-10">
+
+        {/* ── Coding tab ── */}
+        {activeTab === 'coding' && (
+          filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="text-[#767576] text-lg font-headline mb-1">No problems match your filters</div>
+              <p className="text-[#484849] text-sm">Try adjusting the difficulty or category.</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filtered.map((problem, index) => {
+                  const d = D[problem.difficulty];
+                  const descSnippet = problem.description
+                    .replace(/`[^`]*`/g, (m) => m.slice(1, -1))
+                    .replace(/\*\*([^*]+)\*\*/g, '$1')
+                    .split('\n')[0]
+                    .slice(0, 110);
+                  const score = DIFFICULTY_SCORE[problem.id] ?? 50;
+
+                  return (
+                    <button
+                      key={problem.id}
+                      type="button"
+                      onClick={() => setModalProblem({
+                        id: problem.id,
+                        title: problem.title,
+                        difficulty: problem.difficulty,
+                        type: 'coding',
+                        href: `/interview/${problem.id}`,
+                      })}
+                      className={`group relative flex flex-col text-left bg-[#1a191b] ${d.topBorder} p-6 rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)] cursor-pointer w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#85adff]`}
+                    >
+                      {/* Number + badge row */}
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="font-mono text-[10px] text-[#484849]">
+                          #{String(index + 1).padStart(2, '0')}
                         </span>
-                        <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${d.badge}`}>
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${d.badge}`}>
                           {problem.difficulty}
                         </span>
                       </div>
-                      <span className="text-slate-400 group-hover:text-blue-400 transition-colors mt-0.5 shrink-0">
-                        <ArrowIcon />
-                      </span>
-                    </div>
 
-                    <h2 className="font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors leading-snug mb-2 text-[15px] mt-1">
-                      {problem.title}
-                    </h2>
+                      {/* Title */}
+                      <h3 className="text-base font-headline font-bold text-white mb-2 leading-tight group-hover:text-[#85adff] transition-colors">
+                        {problem.title}
+                      </h3>
 
-                    <span className={`inline-block text-xs text-slate-500 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-md px-2 py-0.5 w-fit ${showCompanyTags && problem.companies?.length ? 'mb-2' : 'mb-3'}`}>
-                      {problem.category}
-                    </span>
+                      {/* Description */}
+                      <p className="text-[#767576] text-xs line-clamp-2 mb-4 leading-relaxed flex-1">
+                        {descSnippet}{problem.description.length > 110 ? '…' : ''}
+                      </p>
 
-                    {showCompanyTags && problem.companies && problem.companies.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {problem.companies.slice(0, 3).map((c) => (
-                          <span key={c} className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/40 rounded px-1.5 py-0.5">
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5 mb-5">
+                        <span className="text-[10px] font-mono bg-[#262627] px-2 py-1 rounded text-[#adaaab] border border-white/5">
+                          {problem.category}
+                        </span>
+                        {showCompanyTags && problem.companies?.slice(0, 2).map((c) => (
+                          <span key={c} className="text-[10px] font-mono bg-[#262627] px-2 py-1 rounded text-[#adaaab] border border-white/5">
                             {c}
                           </span>
                         ))}
-                        {problem.companies.length > 3 && (
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 px-0.5">+{problem.companies.length - 3}</span>
+                        {showCompanyTags && (problem.companies?.length ?? 0) > 2 && (
+                          <span className="text-[10px] text-[#484849] px-1">+{(problem.companies?.length ?? 0) - 2}</span>
                         )}
                       </div>
-                    )}
 
-                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mt-auto">
-                      {descSnippet}{problem.description.length > 110 ? '...' : ''}
-                    </p>
-
-                    <div className="mt-4 h-0.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${d.bar}`}
-                        style={{ width: `${DIFFICULTY_SCORE[problem.id] ?? 50}%` }}
-                      />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {filtered.length > 0 && (
-            <p className="text-center text-slate-500 text-sm mt-12">
-              {filtered.length} problem{filtered.length !== 1 ? 's' : ''} shown &nbsp;·&nbsp; 45-minute timed sessions &nbsp;·&nbsp; AI-powered feedback
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* ── GenAI Tab ── */}
-      {activeTab === 'genai' && (
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-
-          {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 mb-8">
-            <span className="text-slate-500 text-xs font-mono hidden sm:block">filter:</span>
-
-            <div className="flex gap-2" role="group" aria-label="Filter by difficulty">
-              {(['', 'easy', 'medium', 'hard'] as const).map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setGenaiDifficulty(d)}
-                  aria-pressed={genaiDifficulty === d}
-                  className={`px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wide border transition-all duration-200 cursor-pointer ${
-                    genaiDifficulty === d
-                      ? d === ''
-                        ? 'bg-purple-600 border-purple-500 text-white'
-                        : DIFFICULTY[d].active
-                      : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
-                  }`}
-                >
-                  {d === '' ? 'all' : d}
-                </button>
-              ))}
-            </div>
-
-            <div className="w-px h-5 bg-slate-300 dark:bg-slate-700 hidden sm:block" aria-hidden />
-
-            <div className="relative">
-              <select
-                value={genaiCategory}
-                onChange={(e) => setGenaiCategory(e.target.value)}
-                aria-label="Filter by category"
-                className="w-44 appearance-none bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-slate-400 dark:hover:border-slate-500 transition-colors cursor-pointer"
-              >
-                <option value="">All Categories</option>
-                {genaiCategories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <svg xmlns="http://www.w3.org/2000/svg" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
-
-            <div className="group relative flex items-center gap-1 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-default ml-auto" aria-label="Bar length indicates relative difficulty">
-              <InfoIcon />
-              <span className="text-xs hidden sm:block">Difficulty bars</span>
-              <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 text-center leading-relaxed shadow-xl">
-                Bar length shows relative difficulty across the full problem set, not just within a tier.
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-200 dark:border-t-slate-700" />
+                      {/* Difficulty bar */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[9px] font-mono text-[#484849] uppercase tracking-tight">
+                          <span>Difficulty</span>
+                          <span>{score}%</span>
+                        </div>
+                        <div className="w-full bg-[#0e0e0f] h-1 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${score}%`, backgroundColor: d.bar }}
+                          />
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+              <p className="text-center text-[#484849] text-xs font-mono mt-12">
+                {filtered.length} problem{filtered.length !== 1 ? 's' : ''} shown &nbsp;·&nbsp; 45-minute timed sessions &nbsp;·&nbsp; AI-powered feedback
+              </p>
+            </>
+          )
+        )}
 
-            {(genaiDifficulty || genaiCategory) && (
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500 text-sm">
-                  {filteredGenai.length} of {genaiProblems.length}
-                </span>
-                <button
-                  onClick={() => { setGenaiDifficulty(''); setGenaiCategory(''); }}
-                  className="text-xs text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:border-purple-400/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
-                >
-                  Clear
-                </button>
-              </div>
-            )}
-          </div>
-
-          {filteredGenai.length === 0 ? (
+        {/* ── GenAI tab ── */}
+        {activeTab === 'genai' && (
+          filteredGenai.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-400 dark:text-slate-500" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </div>
-              <p className="text-slate-600 dark:text-slate-400 font-medium mb-1">No problems match your filters</p>
-              <p className="text-slate-500 text-sm">Try adjusting the difficulty or category.</p>
+              <div className="text-[#767576] text-lg font-headline mb-1">No problems match your filters</div>
+              <p className="text-[#484849] text-sm">Try adjusting the difficulty or category.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredGenai.map((problem, index) => {
-                const d = DIFFICULTY[problem.difficulty];
-                const descSnippet = problem.description.split('\n')[0].slice(0, 110);
-                return (
-                  <button
-                    key={problem.id}
-                    type="button"
-                    onClick={() => setModalProblem({
-                      id: problem.id,
-                      title: problem.title,
-                      difficulty: problem.difficulty,
-                      type: 'genai',
-                      href: `/genai/${problem.id}`,
-                    })}
-                    className={`group flex flex-col text-left bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 border-l-4 ${d.border} ${d.borderHover} rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 cursor-pointer w-full`}
-                    aria-label={`Start GenAI session: ${problem.title}, ${problem.difficulty} difficulty`}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex flex-col gap-1.5">
-                        <span className="font-mono text-[10px] text-slate-400 dark:text-slate-600">
-                          {'#'}{String(index + 1).padStart(3, '0')}
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredGenai.map((problem, index) => {
+                  const d = D[problem.difficulty];
+                  const descSnippet = problem.description.split('\n')[0].slice(0, 110);
+                  const score = GENAI_DIFFICULTY_SCORE[problem.id] ?? 50;
+
+                  return (
+                    <button
+                      key={problem.id}
+                      type="button"
+                      onClick={() => setModalProblem({
+                        id: problem.id,
+                        title: problem.title,
+                        difficulty: problem.difficulty,
+                        type: 'genai',
+                        href: `/genai/${problem.id}`,
+                      })}
+                      className={`group relative flex flex-col text-left bg-[#1a191b] ${d.topBorder} p-6 rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)] cursor-pointer w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ac8aff]`}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="font-mono text-[10px] text-[#484849]">
+                          #{String(index + 1).padStart(2, '0')}
                         </span>
-                        <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${d.badge}`}>
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${d.badge}`}>
                           {problem.difficulty}
                         </span>
                       </div>
-                      <span className="text-slate-400 group-hover:text-purple-400 transition-colors mt-0.5 shrink-0">
-                        <ArrowIcon />
-                      </span>
-                    </div>
 
-                    <h2 className="font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors leading-snug mb-2 text-[15px] mt-1">
-                      {problem.title}
-                    </h2>
+                      <h3 className="text-base font-headline font-bold text-white mb-2 leading-tight group-hover:text-[#ac8aff] transition-colors">
+                        {problem.title}
+                      </h3>
 
-                    <span className="inline-block text-xs text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/50 rounded-md px-2 py-0.5 mb-3 w-fit">
-                      {problem.category}
-                    </span>
+                      <p className="text-[#767576] text-xs line-clamp-2 mb-4 leading-relaxed flex-1">
+                        {descSnippet}{problem.description.length > 110 ? '…' : ''}
+                      </p>
 
-                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mt-auto">
-                      {descSnippet}{problem.description.length > 110 ? '...' : ''}
-                    </p>
+                      <div className="flex flex-wrap gap-1.5 mb-5">
+                        <span className="text-[10px] font-mono bg-[#262627] px-2 py-1 rounded text-[#ac8aff] border border-[#ac8aff]/10">
+                          {problem.category}
+                        </span>
+                      </div>
 
-                    <div className="mt-4 h-0.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${d.bar}`}
-                        style={{ width: `${GENAI_DIFFICULTY_SCORE[problem.id] ?? 50}%` }}
-                      />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {filteredGenai.length > 0 && (
-            <p className="text-center text-slate-500 text-sm mt-12">
-              {filteredGenai.length} assessment{filteredGenai.length !== 1 ? 's' : ''} shown &nbsp;·&nbsp; No time limit &nbsp;·&nbsp; AI collaboration encouraged
-            </p>
-          )}
-        </div>
-      )}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[9px] font-mono text-[#484849] uppercase tracking-tight">
+                          <span>Difficulty</span>
+                          <span>{score}%</span>
+                        </div>
+                        <div className="w-full bg-[#0e0e0f] h-1 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${score}%`, backgroundColor: d.bar }}
+                          />
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-center text-[#484849] text-xs font-mono mt-12">
+                {filteredGenai.length} assessment{filteredGenai.length !== 1 ? 's' : ''} shown &nbsp;·&nbsp; No time limit &nbsp;·&nbsp; AI collaboration encouraged
+              </p>
+            </>
+          )
+        )}
+      </div>
 
       <InterviewStartModal problem={modalProblem} onClose={() => setModalProblem(null)} />
     </main>
@@ -582,7 +619,7 @@ function ProblemsPageInner() {
 
 export default function ProblemsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0e0e0f]" />}>
       <ProblemsPageInner />
     </Suspense>
   );
