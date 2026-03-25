@@ -6,12 +6,13 @@ export function generateStaticParams() {
   return problems.map((p) => ({ problemId: p.id }));
 }
 
-export default function InterviewPage({
+export default async function InterviewPage({
   params,
 }: {
-  params: { problemId: string };
+  params: Promise<{ problemId: string }>;
 }) {
-  const problem = getProblemById(params.problemId);
+  const { problemId } = await params;
+  const problem = getProblemById(problemId);
   if (!problem) notFound();
 
   return <InterviewSession problem={problem} />;
