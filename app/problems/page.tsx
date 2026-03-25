@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, useEffect, useRef, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import { problems } from '@/lib/problems';
 import type { Difficulty } from '@/lib/problems';
 import { genaiProblems } from '@/lib/genaiProblems';
+import { FLUENCY_CATEGORIES } from '@/data/genaiFluentQuestions';
 import InterviewStartModal, { type ModalProblem } from '@/components/InterviewStartModal';
 
 // ── Popularity order (lower = shown first when no filter active) ──────────────
@@ -182,9 +184,10 @@ function IconInfo() {
 
 function ProblemsPageInner() {
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'genai' ? 'genai' : 'coding';
+  const rawTab = searchParams.get('tab');
+  const initialTab = rawTab === 'genai' ? 'genai' : rawTab === 'fluency' ? 'fluency' : 'coding';
 
-  const [activeTab, setActiveTab]             = useState<'coding' | 'genai'>(initialTab);
+  const [activeTab, setActiveTab]             = useState<'coding' | 'genai' | 'fluency'>(initialTab);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'' | Difficulty>('');
   const [selectedCategory, setSelectedCategory]     = useState('');
   const [selectedCompany, setSelectedCompany]       = useState('');
@@ -192,6 +195,21 @@ function ProblemsPageInner() {
   const [genaiDifficulty, setGenaiDifficulty]       = useState<'' | Difficulty>('');
   const [genaiCategory, setGenaiCategory]           = useState('');
   const [modalProblem, setModalProblem]             = useState<ModalProblem | null>(null);
+  const [showBackToTop, setShowBackToTop]           = useState(false);
+  const [mounted, setMounted]                       = useState(false);
+  const headerRef                                   = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    const header = headerRef.current;
+    if (!header) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowBackToTop(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
   const categories = useMemo(() => Array.from(new Set(problems.map((p) => p.category))).sort(), []);
   const companies  = useMemo(() => Array.from(new Set(problems.flatMap((p) => p.companies ?? []))).sort(), []);
@@ -226,9 +244,10 @@ function ProblemsPageInner() {
   const clearGenai  = () => { setGenaiDifficulty(''); setGenaiCategory(''); };
 
   const activeProblems = activeTab === 'coding' ? filtered : filteredGenai;
-  const totalActive    = activeTab === 'coding' ? problems.length : genaiProblems.length;
+  const totalActive    = activeTab === 'coding' ? problems.length : activeTab === 'genai' ? genaiProblems.length : 0;
 
   return (
+    <>
     <main
       className="min-h-screen bg-[#0e0e0f] text-white pt-16"
       style={{
@@ -237,7 +256,7 @@ function ProblemsPageInner() {
       }}
     >
       {/* ── Sticky sub-header ── */}
-      <header className="sticky top-16 z-30 bg-[#0e0e0f] border-b border-white/5">
+      <header ref={headerRef} className="bg-[#0e0e0f] border-b border-white/5">
         <div className="w-full px-6 md:px-10 xl:px-16 py-6">
 
           {/* Title row */}
@@ -266,8 +285,21 @@ function ProblemsPageInner() {
                       : 'text-[#adaaab] hover:text-white'
                   }`}
                 >
-                  GenAI Fluency
+                  GenAI Coding
                   <span className="bg-[#6e9fff]/20 text-[#85adff] px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest">
+                    NEW
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('fluency')}
+                  className={`px-5 py-2 rounded-md text-sm font-headline font-medium transition-all cursor-pointer flex items-center gap-2 ${
+                    activeTab === 'fluency'
+                      ? 'bg-[#1a191b] text-white shadow-sm'
+                      : 'text-[#adaaab] hover:text-white'
+                  }`}
+                >
+                  GenAI Fluency
+                  <span className="bg-[#9bffce]/10 text-[#9bffce] px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest">
                     NEW
                   </span>
                 </button>
@@ -275,14 +307,16 @@ function ProblemsPageInner() {
             </div>
 
             {/* Problem count badge */}
-            <div className="flex items-center gap-2 text-[11px] font-mono text-[#adaaab] bg-[#131314] px-4 py-2 rounded-lg border border-white/5 w-fit">
-              <IconAnalytics />
-              Showing {activeProblems.length} of {totalActive} problems
-            </div>
+            {activeTab !== 'fluency' && (
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#adaaab] bg-[#131314] px-4 py-2 rounded-lg border border-white/5 w-fit">
+                <IconAnalytics />
+                Showing {activeProblems.length} of {totalActive} problems
+              </div>
+            )}
           </div>
 
           {/* ── Filter bar ── */}
-          {activeTab === 'coding' ? (
+          {activeTab === 'fluency' ? null : activeTab === 'coding' ? (
             <div className="flex flex-wrap items-center gap-3">
               {/* Difficulty pills */}
               <div className="flex bg-[#131314] rounded-lg p-1 gap-1">
@@ -609,10 +643,116 @@ function ProblemsPageInner() {
             </>
           )
         )}
+        {/* ── GenAI Fluency tab ── */}
+        {activeTab === 'fluency' && (
+          <div className="max-w-2xl mx-auto py-4 space-y-10">
+
+            {/* Intro card */}
+            <div className="bg-[#1a191b] rounded-xl p-8 border border-[#9bffce]/10 space-y-5">
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#9bffce]">
+                  Behavioral · STAR Format
+                </span>
+                <h2 className="text-2xl font-bold font-headline text-white mt-2">
+                  GenAI Fluency Interview
+                </h2>
+                <p className="text-sm text-[#adaaab] mt-2 leading-relaxed">
+                  3 randomly selected behavioral questions drawn from 40 real-world GenAI scenarios.
+                  You will be evaluated on how you think about, communicate, and apply GenAI — not your ability to write code.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: 'Questions', value: '3' },
+                  { label: 'Format', value: 'STAR' },
+                  { label: 'Duration', value: '~20–30m' },
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-[#131314] rounded-lg p-3 text-center border border-white/5">
+                    <div className="text-xl font-bold font-headline text-[#9bffce]">{stat.value}</div>
+                    <div className="text-[10px] font-mono text-[#767576] uppercase mt-0.5">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setModalProblem({
+                  id: 'genai-fluency',
+                  title: 'GenAI Fluency Interview',
+                  difficulty: 'medium',
+                  type: 'fluency',
+                  href: '/genai-fluency',
+                })}
+                className="w-full py-3 font-bold font-headline rounded-md text-sm transition-all hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                style={{ background: '#9bffce', color: '#001f14' }}
+              >
+                Start a Session
+              </button>
+            </div>
+
+            {/* Scoring criteria */}
+            <div className="space-y-3">
+              <h3 className="font-headline font-bold text-sm uppercase tracking-widest text-[#adaaab]">
+                7 Evaluation Criteria
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { label: 'Specificity & Concreteness', desc: 'Real examples with named tools, outcomes, and context' },
+                  { label: 'GenAI Literacy', desc: 'Understanding of how AI tools actually work and behave' },
+                  { label: 'Critical Thinking & Evaluation', desc: 'How rigorously you review and validate AI output' },
+                  { label: 'Judgment & Risk Awareness', desc: 'Knowing when GenAI is and isn\'t the right tool' },
+                  { label: 'Responsibility & Ethics', desc: 'Data privacy, bias, IP, and accountability' },
+                  { label: 'Learning Agility', desc: 'How you\'ve evolved your GenAI practice over time' },
+                  { label: 'Communication & Influence', desc: 'How you explain GenAI to different stakeholders' },
+                ].map((c) => (
+                  <div key={c.label} className="bg-[#131314] rounded-lg p-4 border border-white/5">
+                    <div className="text-xs font-bold font-headline text-white mb-1">{c.label}</div>
+                    <div className="text-[11px] text-[#767576] leading-relaxed">{c.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Question categories */}
+            <div className="space-y-3">
+              <h3 className="font-headline font-bold text-sm uppercase tracking-widest text-[#adaaab]">
+                Question Categories
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {FLUENCY_CATEGORIES.map((cat) => (
+                  <span
+                    key={cat}
+                    className="text-[11px] font-mono px-3 py-1.5 rounded-full border"
+                    style={{ background: 'rgba(155,255,206,0.05)', color: '#9bffce', borderColor: 'rgba(155,255,206,0.15)' }}
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <InterviewStartModal problem={modalProblem} onClose={() => setModalProblem(null)} />
     </main>
+
+      {/* ── Back to Top (portaled to body so fixed positioning is relative to viewport) ── */}
+      {mounted && createPortal(
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className={`fixed bottom-6 right-6 z-[9999] flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1a191b] border border-white/10 text-[#adaaab] text-xs font-mono shadow-lg hover:border-white/20 hover:text-white transition-all duration-300 cursor-pointer ${
+            showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+        >
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+          </svg>
+          Back to top
+        </button>,
+        document.body
+      )}
+    </>
   );
 }
 

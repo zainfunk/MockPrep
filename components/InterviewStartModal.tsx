@@ -8,7 +8,7 @@ export interface ModalProblem {
   id: string;
   title: string;
   difficulty: string;
-  type: 'coding' | 'genai';
+  type: 'coding' | 'genai' | 'fluency';
   href: string;
 }
 
@@ -73,15 +73,30 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
   if (!problem || typeof document === 'undefined') return null;
 
   const isCoding = problem.type === 'coding';
+  const isFluency = problem.type === 'fluency';
   const diffStyle = DIFFICULTY_STYLES[problem.difficulty] ?? DIFFICULTY_STYLES.medium;
 
   // Gradient & accent colors
   const btnGradient = isCoding
     ? 'bg-gradient-to-br from-blue-400 to-blue-500 text-blue-950 shadow-blue-400/20'
+    : isFluency
+    ? 'bg-gradient-to-br from-emerald-400 to-teal-500 text-emerald-950 shadow-emerald-400/20'
     : 'bg-gradient-to-br from-purple-400 to-purple-500 text-purple-950 shadow-purple-400/20';
-  const progressBar = isCoding ? 'from-blue-400 to-blue-500' : 'from-purple-400 to-purple-500';
-  const topBorder = isCoding ? 'border-t-blue-400' : 'border-t-purple-400';
-  const labelColor = isCoding ? 'text-blue-400' : 'text-purple-400';
+  const progressBar = isCoding
+    ? 'from-blue-400 to-blue-500'
+    : isFluency
+    ? 'from-emerald-400 to-teal-500'
+    : 'from-purple-400 to-purple-500';
+  const topBorder = isCoding
+    ? 'border-t-blue-400'
+    : isFluency
+    ? 'border-t-emerald-400'
+    : 'border-t-purple-400';
+  const labelColor = isCoding
+    ? 'text-blue-400'
+    : isFluency
+    ? 'text-emerald-400'
+    : 'text-purple-400';
 
   const progressPercent = limitData ? Math.min((limitData.used / limitData.limit) * 100, 100) : 0;
   const afterUsed = limitData ? limitData.used + 1 : null;
@@ -121,7 +136,7 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
                 className={`font-['var(--font-jetbrains-mono)'] text-[10px] ${labelColor} uppercase tracking-[0.2em] font-medium block`}
                 style={{ fontFamily: 'var(--font-jetbrains-mono)' }}
               >
-                {isCoding ? 'Coding Interview' : 'GenAI Fluency'}
+                {isCoding ? 'Coding Interview' : isFluency ? 'GenAI Fluency' : 'GenAI Coding'}
               </span>
               <h2
                 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight"
@@ -130,12 +145,14 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
                 {problem.title}
               </h2>
             </div>
-            <span
-              className={`flex-shrink-0 text-xs font-medium px-4 py-1.5 rounded-full ${diffStyle.badge}`}
-              style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: '10px', letterSpacing: '0.1em' }}
-            >
-              {diffStyle.label}
-            </span>
+            {!isFluency && (
+              <span
+                className={`flex-shrink-0 text-xs font-medium px-4 py-1.5 rounded-full ${diffStyle.badge}`}
+                style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: '10px', letterSpacing: '0.1em' }}
+              >
+                {diffStyle.label}
+              </span>
+            )}
           </div>
 
           {/* Daily Session Capacity */}

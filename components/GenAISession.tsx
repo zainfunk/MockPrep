@@ -427,7 +427,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: `${T.secondary}20`, borderRadius: 4, border: `1px solid ${T.secondary}30` }}>
             <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.secondary, boxShadow: `0 0 6px ${T.secondary}` }} />
-            <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.secondary, textTransform: 'uppercase', letterSpacing: '0.1em' }}>GenAI Fluency</span>
+            <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.secondary, textTransform: 'uppercase', letterSpacing: '0.1em' }}>GenAI Coding</span>
           </div>
           <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)' }} />
           <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', color: T.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 320 }}>{problem.title}</span>

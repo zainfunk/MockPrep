@@ -112,7 +112,7 @@ function InterviewPreview() {
       <div className="relative bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-xl dark:shadow-2xl">
 
         {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0F172A]/80">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0e0e0f]/80">
           <div className="flex gap-1.5 items-center">
             <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
@@ -161,7 +161,7 @@ function InterviewPreview() {
         </div>
 
         {/* Score strip */}
-        <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0F172A]/70 flex items-center justify-between">
+        <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0e0e0f]/70 flex items-center justify-between">
           <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">{'// session_score'}</span>
           <div className="flex gap-4">
             {[['comm', '8'], ['logic', '7'], ['code', '9']].map(([label, val]) => (
@@ -230,7 +230,7 @@ function FeatureCard({
 
 export default function LandingPage() {
   return (
-    <main className={`${spaceGrotesk.className} ${jetbrainsMono.variable} min-h-screen bg-slate-50 dark:bg-[#0F172A] text-slate-900 dark:text-slate-100`}>
+    <main className={`${spaceGrotesk.className} ${jetbrainsMono.variable} min-h-screen bg-slate-50 dark:bg-[#0e0e0f] text-slate-900 dark:text-slate-100`}>
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
@@ -346,7 +346,7 @@ export default function LandingPage() {
                   icon={<IconLayers />}
                   accent="cyan"
                   title="Two Problem Tracks"
-                  description="20 curated coding problems for traditional interview prep, plus 10 GenAI Fluency assessments built around scenarios where AI produces plausible-but-flawed output. Practice both, because both matter."
+                  description="20 curated coding problems for traditional interview prep, plus 10 GenAI Coding assessments built around scenarios where AI produces plausible-but-flawed output. Practice both, because both matter."
                   extra={
                     <div className="flex gap-2 flex-wrap">
                       {[
@@ -441,7 +441,7 @@ export default function LandingPage() {
                     'Scored feedback on communication, logic, and code quality',
                     'Replicates the pressure of a real 45-minute technical round',
                     'Session history so you can track improvement over time',
-                    'GenAI Fluency track: practice directing and validating AI the way real engineers do',
+                    'GenAI Coding track: practice directing and validating AI the way real engineers do',
                   ].map((text) => (
                     <li key={text} className="flex items-start gap-3 text-sm">
                       <span className="text-green-500/70 shrink-0 mt-0.5 font-mono select-none">+</span>
@@ -455,14 +455,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── GENAI FLUENCY ─────────────────────────────────────────────────── */}
+      {/* ── GENAI CODING ─────────────────────────────────────────────────── */}
       <section className="border-t border-slate-200 dark:border-slate-800/60 relative overflow-hidden">
         {/* Subtle blue ambient */}
         <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 60% at 100% 50%, rgba(59,130,246,0.05) 0%, transparent 65%)' }} />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-24">
 
           <AnimateIn className="mb-16">
-            <SectionLabel index="003" label="GenAI Fluency" />
+            <SectionLabel index="003" label="GenAI Coding" />
             <div className="max-w-2xl">
               <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-4">
                 The skill every engineer needs.{' '}
@@ -517,7 +517,7 @@ export default function LandingPage() {
                 <div className="relative bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-xl dark:shadow-2xl">
 
                   {/* Title bar */}
-                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0F172A]/80">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0e0e0f]/80">
                     <div className="flex gap-1.5 items-center">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
                       <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
@@ -547,7 +547,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Key moment */}
-                  <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-4 bg-slate-50 dark:bg-[#0F172A]/60 space-y-2">
+                  <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-4 bg-slate-50 dark:bg-[#0e0e0f]/60 space-y-2">
                     <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">{'// key_moment'}</span>
                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed border-l-2 border-blue-400/40 pl-3">
                       Identified off-by-one error in AI&apos;s binary search output and corrected the boundary condition before running the test suite.
@@ -555,7 +555,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Fluency level */}
-                  <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0F172A]/80 flex items-center justify-between">
+                  <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0e0e0f]/80 flex items-center justify-between">
                     <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">fluency_level</span>
                     <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2.5 py-1 rounded-sm font-mono">Mild Strength</span>
                   </div>
@@ -572,14 +572,14 @@ export default function LandingPage() {
                   No other interview prep platform tests this.
                 </p>
                 <p className="text-slate-500 text-sm">
-                  GenAI Fluency is free to practice, no account required. Try a session and see exactly where you stand.
+                  GenAI Coding is free to practice, no account required. Try a session and see exactly where you stand.
                 </p>
               </div>
               <Link
                 href="/problems?tab=genai"
                 className="shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors cursor-pointer"
               >
-                Try GenAI Fluency
+                Try GenAI Coding
                 <IconArrow />
               </Link>
             </div>
@@ -603,7 +603,7 @@ export default function LandingPage() {
                   step: '01',
                   cmd: '--pick-problem',
                   title: 'Pick a problem',
-                  desc: 'Choose from two tracks: traditional coding problems for interview fundamentals, or GenAI Fluency assessments to practice working with AI the way the job actually requires.',
+                  desc: 'Choose from two tracks: traditional coding problems for interview fundamentals, or GenAI Coding assessments to practice working with AI the way the job actually requires.',
                 },
                 {
                   step: '02',

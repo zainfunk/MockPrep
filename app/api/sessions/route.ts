@@ -7,7 +7,7 @@ export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const [interviewRes, genaiRes] = await Promise.all([
+  const [interviewRes, genaiRes, fluencyRes] = await Promise.all([
     supabase
       .from('interview_sessions')
       .select('*')
@@ -18,11 +18,17 @@ export async function GET() {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('fluency_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }),
   ]);
 
   return NextResponse.json({
     interviewSessions: interviewRes.data ?? [],
     genaiSessions: genaiRes.data ?? [],
+    fluencySessions: fluencyRes.data ?? [],
   });
 }
 
@@ -32,7 +38,7 @@ export async function POST(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { type, session } = body as { type: 'interview' | 'genai'; session: Record<string, unknown> };
+  const { type, session } = body as { type: 'interview' | 'genai' | 'fluency'; session: Record<string, unknown> };
 
   if (type === 'interview') {
     const { error } = await supabase.from('interview_sessions').insert({
@@ -69,6 +75,22 @@ export async function POST(req: Request) {
       average_score: session.averageScore,
       key_moments: session.keyMoments,
       top_improvements: session.topImprovements,
+      closing_note: session.closingNote,
+    });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  } else if (type === 'fluency') {
+    const { error } = await supabase.from('fluency_sessions').insert({
+      user_id: userId,
+      duration: session.duration,
+      total_score: session.totalScore,
+      rating: session.rating,
+      has_red_flags: session.hasRedFlags,
+      red_flag_details: session.redFlagDetails,
+      aggregate_scores: session.aggregateScores,
+      question_results: session.questionResults,
+      questions: session.questions,
+      key_strengths: session.keyStrengths,
+      key_improvements: session.keyImprovements,
       closing_note: session.closingNote,
     });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

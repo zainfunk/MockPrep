@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     ? 'The AI produced code but the user wrote their own final solution.'
     : 'No AI-generated code was produced during this session.';
 
-  const prompt = `You are evaluating a developer's GenAI Fluency — how well they use AI tools to solve a programming problem. Analyze the interaction below and provide structured feedback.
+  const prompt = `You are evaluating a developer's GenAI Coding — how well they use AI tools to solve a programming problem. Analyze the interaction below and provide structured feedback.
 
 Problem: ${problemTitle}
 ${problemDescription ? `\nProblem description:\n${problemDescription}` : ''}
