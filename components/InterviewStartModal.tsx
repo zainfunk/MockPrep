@@ -106,12 +106,9 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
     if (!problem) return;
     setModalState('submitting');
     try {
-      const res = await fetch('/api/user/daily-limit', { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to increment');
-      router.push(problem.href);
-    } catch {
-      setModalState('error');
-    }
+      await fetch('/api/user/daily-limit', { method: 'POST' });
+    } catch {}
+    router.push(problem.href);
   }
 
   const modal = (
