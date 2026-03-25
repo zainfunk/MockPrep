@@ -25,10 +25,10 @@ interface Props {
   onClose: () => void;
 }
 
-const DIFFICULTY_BADGE: Record<string, string> = {
-  easy: 'bg-green-100 text-green-700 border border-green-300 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/40',
-  medium: 'bg-yellow-100 text-yellow-700 border border-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-300 dark:border-yellow-700/40',
-  hard: 'bg-red-100 text-red-700 border border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700/40',
+const DIFFICULTY_STYLES: Record<string, { badge: string; label: string }> = {
+  easy:   { badge: 'bg-emerald-500/10 text-emerald-300 border border-emerald-400/20', label: 'EASY' },
+  medium: { badge: 'bg-amber-500/10 text-amber-300 border border-amber-400/20',       label: 'MEDIUM' },
+  hard:   { badge: 'bg-red-500/10 text-red-400 border border-red-400/20',             label: 'HARD' },
 };
 
 export default function InterviewStartModal({ problem, onClose }: Props) {
@@ -73,7 +73,19 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
   if (!problem || typeof document === 'undefined') return null;
 
   const isCoding = problem.type === 'coding';
-  const accentColor = isCoding ? 'blue' : 'purple';
+  const diffStyle = DIFFICULTY_STYLES[problem.difficulty] ?? DIFFICULTY_STYLES.medium;
+
+  // Gradient & accent colors
+  const btnGradient = isCoding
+    ? 'bg-gradient-to-br from-blue-400 to-blue-500 text-blue-950 shadow-blue-400/20'
+    : 'bg-gradient-to-br from-purple-400 to-purple-500 text-purple-950 shadow-purple-400/20';
+  const progressBar = isCoding ? 'from-blue-400 to-blue-500' : 'from-purple-400 to-purple-500';
+  const topBorder = isCoding ? 'border-t-blue-400' : 'border-t-purple-400';
+  const labelColor = isCoding ? 'text-blue-400' : 'text-purple-400';
+
+  const progressPercent = limitData ? Math.min((limitData.used / limitData.limit) * 100, 100) : 0;
+  const afterUsed = limitData ? limitData.used + 1 : null;
+  const afterRemaining = limitData ? limitData.remaining - 1 : null;
 
   async function handleStart() {
     if (!problem) return;
@@ -87,145 +99,179 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
     }
   }
 
-  const progressPercent = limitData ? Math.min((limitData.used / limitData.limit) * 100, 100) : 0;
-  const afterUsed = limitData ? limitData.used + 1 : null;
-  const afterRemaining = limitData ? limitData.remaining - 1 : null;
-
   const modal = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-6 sm:p-12"
       onClick={onClose}
     >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-xl" />
+
+      {/* Modal */}
       <div
-        className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-sm w-full max-w-md shadow-2xl"
+        className={`relative w-full max-w-2xl bg-[#131314] rounded-xl shadow-2xl overflow-hidden border-t-4 ${topBorder} ring-1 ring-white/5`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Type pill header */}
-        <div className={`px-6 pt-5 pb-0`}>
-          <span className={`inline-block text-xs font-semibold tracking-widest uppercase px-2.5 py-1 rounded-sm ${
-            isCoding
-              ? 'bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
-              : 'bg-purple-50 text-purple-600 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50'
-          }`}>
-            {isCoding ? 'Coding Interview' : 'GenAI Fluency'}
-          </span>
-        </div>
+        <div className="p-8 sm:p-10 space-y-8">
 
-        {/* Problem info */}
-        <div className="px-6 pt-4 pb-5 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2 leading-tight">
-            {problem.title}
-          </h2>
-          <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${DIFFICULTY_BADGE[problem.difficulty] ?? DIFFICULTY_BADGE.medium}`}>
-            {problem.difficulty}
-          </span>
-        </div>
-
-        {/* Daily limit section */}
-        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800">
-          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">
-            Daily interviews
-          </p>
-
-          {modalState === 'loading' && (
-            <div className="space-y-2">
-              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden animate-pulse" />
-              <div className="h-4 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+          {/* Header */}
+          <div className="flex justify-between items-start gap-4">
+            <div className="space-y-1.5 min-w-0">
+              <span
+                className={`font-['var(--font-jetbrains-mono)'] text-[10px] ${labelColor} uppercase tracking-[0.2em] font-medium block`}
+                style={{ fontFamily: 'var(--font-jetbrains-mono)' }}
+              >
+                {isCoding ? 'Coding Interview' : 'GenAI Fluency'}
+              </span>
+              <h2
+                className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight"
+                style={{ fontFamily: 'var(--font-space-grotesk)' }}
+              >
+                {problem.title}
+              </h2>
             </div>
-          )}
+            <span
+              className={`flex-shrink-0 text-xs font-medium px-4 py-1.5 rounded-full ${diffStyle.badge}`}
+              style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: '10px', letterSpacing: '0.1em' }}
+            >
+              {diffStyle.label}
+            </span>
+          </div>
 
-          {modalState === 'error' && (
-            <p className="text-sm text-red-500 dark:text-red-400">
-              Could not load usage data. You can still start the interview.
-            </p>
-          )}
+          {/* Daily Session Capacity */}
+          <div className="bg-zinc-950/50 p-6 rounded-lg border border-white/5 space-y-4">
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <label
+                  className="text-slate-400 font-bold uppercase tracking-widest block"
+                  style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: '11px' }}
+                >
+                  Daily Session Capacity
+                </label>
 
-          {(modalState === 'ready' || modalState === 'submitting') && limitData && (
-            <>
-              {/* Progress bar */}
-              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-2">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    accentColor === 'blue' ? 'bg-blue-500' : 'bg-purple-500'
-                  }`}
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+                {modalState === 'loading' && (
+                  <div className="flex items-baseline gap-2">
+                    <div className="h-9 w-12 bg-zinc-800 rounded animate-pulse" />
+                    <div className="h-5 w-8 bg-zinc-800 rounded animate-pulse" />
+                  </div>
+                )}
 
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm text-slate-600 dark:text-slate-400">
-                  <span className="font-semibold text-slate-900 dark:text-white">{limitData.used}</span>
-                  <span className="text-slate-400"> / {limitData.limit} used today</span>
-                </span>
-                {afterRemaining !== null && (
-                  <span className="text-xs text-slate-400 dark:text-slate-500">
-                    {afterRemaining < 0 ? 0 : afterRemaining} remaining after this
-                  </span>
+                {modalState === 'error' && (
+                  <p className="text-sm text-red-400">
+                    Could not load usage data. You can still start.
+                  </p>
+                )}
+
+                {(modalState === 'ready' || modalState === 'submitting') && limitData && (
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className="text-3xl font-bold text-white tracking-tighter"
+                      style={{ fontFamily: 'var(--font-space-grotesk)' }}
+                    >
+                      {limitData.used}
+                    </span>
+                    <span className="text-zinc-600 font-medium" style={{ fontFamily: 'var(--font-space-grotesk)' }}>
+                      / {limitData.limit}
+                    </span>
+                  </div>
                 )}
               </div>
 
-              {/* Arrow showing deduction */}
-              {afterUsed !== null && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                  Starting this session will count as{' '}
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">
-                    {afterUsed}/{limitData.limit}
-                  </span>{' '}
-                  for today.
-                </p>
+              {afterRemaining !== null && (
+                <span
+                  className="text-zinc-500 pb-1"
+                  style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: '10px' }}
+                >
+                  {afterRemaining < 0 ? 0 : afterRemaining} SLOTS REMAINING
+                </span>
               )}
+            </div>
 
-              {limitData.remaining <= 0 && (
-                <div className="mt-3 flex items-start gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-sm px-3 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                  </svg>
-                  <span className="text-xs">
-                    You&apos;ve used all {limitData.limit} interviews for today — you can still start this session.
-                  </span>
-                </div>
+            {/* Progress bar */}
+            <div className="relative h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+              {(modalState === 'ready' || modalState === 'submitting') && (
+                <div
+                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${progressBar} shadow-lg transition-all duration-300`}
+                  style={{ width: `${progressPercent}%` }}
+                />
               )}
-            </>
-          )}
+              {modalState === 'loading' && (
+                <div className="absolute top-0 left-0 h-full w-1/3 bg-zinc-700 rounded-full animate-pulse" />
+              )}
+            </div>
+
+            {/* Limit warning */}
+            {(modalState === 'ready' || modalState === 'submitting') && limitData && limitData.remaining <= 0 && (
+              <div className="flex items-start gap-2 text-amber-400 bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span className="text-xs" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
+                  You&apos;ve used all {limitData.limit} interviews for today — you can still start this session.
+                </span>
+              </div>
+            )}
+
+            {/* "will count as" note */}
+            {afterUsed !== null && limitData && limitData.remaining > 0 && (
+              <p className="text-zinc-500 text-xs" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
+                Starting will count as{' '}
+                <span className="text-zinc-300 font-semibold">{afterUsed}/{limitData.limit}</span> for today.
+              </p>
+            )}
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <button
+              type="button"
+              onClick={handleStart}
+              disabled={modalState === 'submitting' || modalState === 'loading'}
+              className={`flex-1 px-8 py-4 ${btnGradient} font-bold rounded-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed shadow-lg cursor-pointer`}
+              style={{ fontFamily: 'var(--font-space-grotesk)', letterSpacing: '0.05em' }}
+            >
+              {modalState === 'submitting' ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  STARTING…
+                </>
+              ) : (
+                <>
+                  <span>START INTERVIEW</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-8 py-4 border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition-all active:scale-[0.98] rounded-md cursor-pointer uppercase tracking-widest text-sm"
+              style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: '12px' }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
 
-        {/* Actions */}
-        <div className="px-6 py-4 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors px-4 py-2 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-sm cursor-pointer"
+        {/* Terminal accent footer */}
+        <div className="bg-zinc-900 px-8 sm:px-10 py-3 flex justify-between items-center border-t border-white/5">
+          <div className="flex gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500/40" />
+            <div className="w-2 h-2 rounded-full bg-amber-500/40" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500/40" />
+          </div>
+          <span
+            className="text-zinc-600"
+            style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: '10px' }}
           >
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            onClick={handleStart}
-            disabled={modalState === 'submitting'}
-            className={`flex items-center gap-2 text-sm font-semibold px-5 py-2 rounded-sm transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
-              isCoding
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-purple-600 hover:bg-purple-700 text-white'
-            }`}
-          >
-            {modalState === 'submitting' ? (
-              <>
-                <svg className="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                </svg>
-                Starting…
-              </>
-            ) : (
-              <>
-                Start Interview
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                </svg>
-              </>
-            )}
-          </button>
+            ID: {problem.id.toUpperCase()}
+          </span>
         </div>
       </div>
     </div>
