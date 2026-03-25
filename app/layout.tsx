@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import NavBar from '@/components/NavBar';
+import AppShell from '@/components/AppShell';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains-mono' });
 
 export const metadata: Metadata = {
   title: 'MockPrep - AI Mock Interviews',
@@ -31,9 +34,9 @@ export default function RootLayout({
             }}
           />
         </head>
-        <body className={inter.className}>
+        <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.className}`}>
           <NavBar />
-          {children}
+          <AppShell>{children}</AppShell>
         </body>
       </html>
     </ClerkProvider>

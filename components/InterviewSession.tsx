@@ -10,7 +10,7 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false 
 type Language = 'python' | 'javascript' | 'java' | 'cpp';
 
 const LANGUAGE_LABELS: Record<Language, string> = {
-  python: 'Python',
+  python: 'Python 3.11',
   javascript: 'JavaScript',
   java: 'Java',
   cpp: 'C++',
@@ -23,6 +23,13 @@ const MONACO_LANGUAGE_MAP: Record<Language, string> = {
   cpp: 'cpp',
 };
 
+const FILE_EXT: Record<Language, string> = {
+  python: 'py',
+  javascript: 'js',
+  java: 'java',
+  cpp: 'cpp',
+};
+
 const STUBS: Record<Language, string> = {
   python: `def solution():\n    pass`,
   javascript: `function solution() {\n  // your solution here\n}`,
@@ -31,6 +38,24 @@ const STUBS: Record<Language, string> = {
 };
 
 const TOTAL_SECONDS = 45 * 60;
+
+const T = {
+  surface: '#0e0e0f',
+  surfaceLow: '#131314',
+  surfaceMid: '#1a191b',
+  surfaceHigh: '#201f21',
+  surfaceTop: '#262627',
+  primary: '#85adff',
+  primaryCont: '#6e9fff',
+  secondary: '#ac8aff',
+  tertiary: '#9bffce',
+  error: '#ff716c',
+  errorDim: '#d7383b',
+  textPrimary: '#ffffff',
+  textSecond: '#adaaab',
+  textMuted: '#767576',
+  outline: 'rgba(72,72,73,0.15)',
+};
 
 interface Message {
   role: 'user' | 'assistant';
@@ -56,11 +81,7 @@ interface SessionRecord {
   difficulty: string;
   category: string;
   duration: string;
-  scores: {
-    communication: number;
-    problemSolving: number;
-    codeQuality: number;
-  };
+  scores: { communication: number; problemSolving: number; codeQuality: number };
   overallScore: number;
   topImprovements: string[];
   fullFeedback: string;
@@ -78,17 +99,153 @@ function saveSession(record: SessionRecord): void {
     const existing: SessionRecord[] = raw ? (JSON.parse(raw) as SessionRecord[]) : [];
     existing.push(record);
     localStorage.setItem('interview_sessions', JSON.stringify(existing));
-  } catch {
-    // localStorage may be unavailable in some environments — silently ignore
-  }
-
-  // Save to DB (fire and forget — don't block UI)
+  } catch { /* silent */ }
   fetch('/api/sessions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ type: 'interview', session: record }),
   }).catch(() => {});
 }
+
+// ─── Score Ring ───────────────────────────────────────────────────────────────
+
+function ScoreRing({ label, score, explanation, delay = 0 }: {
+  label: string; score: number; explanation: string; delay?: number;
+}) {
+  const r = 54;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (Math.min(10, Math.max(0, score)) / 10) * circ;
+  const color = score >= 8 ? T.tertiary : score >= 5 ? T.primary : T.errorDim;
+
+  return (
+    <div style={{ background: T.surfaceMid, padding: '28px 20px', borderRadius: 8, borderTop: `4px solid ${color}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ position: 'relative', width: 120, height: 120, marginBottom: 16 }}>
+        <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 128 128">
+          <circle cx="64" cy="64" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+          <circle cx="64" cy="64" r={r} fill="transparent" stroke={color} strokeWidth="8"
+            strokeDasharray={`${circ} ${circ}`} strokeDashoffset={offset}
+            style={{ transition: `stroke-dashoffset 1s ease ${delay}ms` }} />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '1.875rem', color: T.textPrimary }}>{score}</span>
+        </div>
+      </div>
+      <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', color: T.textPrimary, textAlign: 'center' }}>{label}</span>
+      <p style={{ fontSize: '0.8rem', color: T.textSecond, textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>{explanation}</p>
+    </div>
+  );
+}
+
+// ─── FeedbackScreen ───────────────────────────────────────────────────────────
+
+function FeedbackScreen({ feedback, loading, onRestart }: {
+  feedback: FeedbackData | null; loading: boolean; onRestart: () => void;
+}) {
+  if (loading || !feedback) {
+    return (
+      <div style={{ minHeight: 'calc(100vh - 56px)', background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>
+        <style>{`@keyframes spin-ring { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }`}</style>
+        <div style={{ textAlign: 'center' }}>
+          <svg style={{ width: 56, height: 56, margin: '0 auto 24px', animation: 'spin-ring 1s linear infinite' }} viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="22" stroke={`${T.primary}20`} strokeWidth="4" />
+            <path d="M28 6 a22 22 0 0 1 22 22" stroke={T.primary} strokeWidth="4" strokeLinecap="round" />
+          </svg>
+          <h2 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '1.375rem', color: T.textPrimary, margin: '0 0 8px' }}>Analyzing your session</h2>
+          <p style={{ fontSize: '0.875rem', color: T.textSecond, margin: '0 0 4px' }}>Reviewing code, communication, and problem-solving...</p>
+          <p style={{ fontSize: '0.75rem', color: T.textMuted, margin: '0 0 24px' }}>This usually takes about 20 seconds.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            {['Reviewing conversation', 'Evaluating code quality', 'Generating feedback'].map((step, i) => (
+              <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textMuted }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.primary, opacity: 0.6 }} />
+                {step}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const avg = Math.round((feedback.communicationScore + feedback.problemSolvingScore + feedback.codeQualityScore) / 3);
+  const avgColor = avg >= 8 ? T.tertiary : avg >= 5 ? T.primary : T.errorDim;
+  const fluencyLabel = avg >= 8 ? 'Outstanding' : avg >= 7 ? 'Strength' : avg >= 5 ? 'Developing' : 'Needs Work';
+
+  return (
+    <div style={{ minHeight: 'calc(100vh - 56px)', background: T.surface, overflowY: 'auto', fontFamily: 'var(--font-inter), sans-serif' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 32px' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 48 }}>
+          <div>
+            <span style={{ display: 'block', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.secondary, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>Performance Review</span>
+            <h1 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '2.75rem', color: T.textPrimary, letterSpacing: '-0.02em', margin: 0, lineHeight: 1.1 }}>Session Report</h1>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <div style={{ padding: '6px 16px', background: `${avgColor}1a`, border: `1px solid ${avgColor}33`, borderRadius: 4, fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '1rem', color: avgColor }}>
+              {fluencyLabel}
+            </div>
+            <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Performance level</span>
+          </div>
+        </div>
+
+        {/* Score cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+          <ScoreRing label="Communication" score={feedback.communicationScore} explanation={feedback.communicationExplanation} delay={0} />
+          <ScoreRing label="Problem Solving" score={feedback.problemSolvingScore} explanation={feedback.problemSolvingExplanation} delay={150} />
+          <ScoreRing label="Code Quality" score={feedback.codeQualityScore} explanation={feedback.codeQualityExplanation} delay={300} />
+        </div>
+
+        {/* Details */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
+          <div style={{ background: T.surfaceLow, padding: '24px', borderRadius: 8, border: `1px solid ${T.outline}` }}>
+            <h3 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', color: T.textPrimary, margin: '0 0 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <svg width="14" height="14" fill="none" stroke={T.secondary} strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              Top Improvements
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {feedback.topImprovements.map((item, i) => (
+                <div key={i} style={{ display: 'flex', gap: 12, padding: '10px 14px', background: T.surfaceMid, borderRadius: 6 }}>
+                  <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.secondary, minWidth: 20, marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
+                  <p style={{ fontSize: '0.8125rem', color: T.textSecond, margin: 0, lineHeight: 1.5 }}>{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ background: T.surfaceLow, padding: '24px', borderRadius: 8, border: `1px solid ${T.outline}` }}>
+            <h3 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', color: T.textPrimary, margin: '0 0 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <svg width="14" height="14" fill="none" stroke={T.primary} strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+              Time Management
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: T.textSecond, lineHeight: 1.7, margin: 0 }}>{feedback.timeManagement}</p>
+          </div>
+        </div>
+
+        {/* Aggregate + closing note */}
+        <div style={{ background: `${T.secondary}12`, padding: '40px', borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 36, border: `1px solid ${T.secondary}20` }}>
+          <div style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '3.5rem', color: T.textPrimary, lineHeight: 1, marginBottom: 6 }}>{avg}</div>
+          <div style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.secondary, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 24 }}>Aggregate Performance Score</div>
+          <blockquote style={{ maxWidth: 560, fontStyle: 'italic', color: '#ceb9ff', background: `${T.secondary}12`, padding: '18px 24px', borderRadius: 6, border: `1px solid ${T.secondary}25`, fontSize: '0.9375rem', lineHeight: 1.7, margin: 0 }}>
+            "{feedback.closingNote}"
+          </blockquote>
+        </div>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={onRestart}
+            style={{ padding: '13px 48px', background: `linear-gradient(135deg, ${T.primary} 0%, ${T.primaryCont} 100%)`, color: '#002c66', borderRadius: 6, border: 'none', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', boxShadow: `0 8px 24px ${T.primary}30`, transition: 'transform 0.15s, box-shadow 0.15s' }}
+            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = `0 12px 32px ${T.primary}45`; }}
+            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 8px 24px ${T.primary}30`; }}
+          >
+            Practice Another Problem
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function InterviewSession({ problem }: { problem: Problem }) {
   const router = useRouter();
@@ -97,15 +254,14 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [language, setLanguage] = useState<Language>('python');
   const [code, setCode] = useState(STUBS.python);
   const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
-  const [chatWidth, setChatWidth] = useState(320);
-  const [problemHeight, setProblemHeight] = useState(208);
-  const [isDark, setIsDark] = useState(true);
+  const [chatWidth, setChatWidth] = useState(340);
+  const [problemHeight, setProblemHeight] = useState(220);
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
-  const dragStartWidth = useRef(320);
+  const dragStartWidth = useRef(340);
   const isVDragging = useRef(false);
   const dragStartY = useRef(0);
-  const dragStartHeight = useRef(208);
+  const dragStartHeight = useRef(220);
   const [isStreaming, setIsStreaming] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
@@ -113,36 +269,18 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [sessionEnded, setSessionEnded] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const timeElapsedRef = useRef(0);
-  // Track which message indices have already been animated
   const animatedRef = useRef<Set<number>>(new Set());
 
-  // Sync dark mode state with document class
-  useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    setIsDark(saved ? saved === 'dark' : document.documentElement.classList.contains('dark'));
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
-  // Scroll chat to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Timer
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!sessionStarted || sessionEnded) return;
     const interval = setInterval(() => {
       setTimeLeft((t) => {
-        if (t <= 1) {
-          clearInterval(interval);
-          handleEndSession();
-          return 0;
-        }
+        if (t <= 1) { clearInterval(interval); handleEndSession(); return 0; }
         timeElapsedRef.current += 1;
         return t - 1;
       });
@@ -151,72 +289,41 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   }, [sessionStarted, sessionEnded]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-  const sendMessage = useCallback(
-    async (userMessage: string, msgs: Message[]) => {
-      setIsStreaming(true);
-      const updatedMessages = [...msgs, { role: 'user' as const, content: userMessage }];
-      setMessages(updatedMessages);
-
-      const assistantMessageIndex = updatedMessages.length;
-      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
-
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: updatedMessages,
-            problemTitle: problem.title,
-            problemDescription: problem.description,
-            code,
-            language,
-          }),
-        });
-
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        let accumulated = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          accumulated += decoder.decode(value, { stream: true });
-          setMessages((prev) => {
-            const next = [...prev];
-            next[assistantMessageIndex] = { role: 'assistant', content: accumulated };
-            return next;
-          });
-        }
-
-        setMessages((prev) => {
-          const next = [...prev];
-          next[assistantMessageIndex] = { role: 'assistant', content: accumulated };
-          return next;
-        });
-      } finally {
-        setIsStreaming(false);
+  const sendMessage = useCallback(async (userMessage: string, msgs: Message[]) => {
+    setIsStreaming(true);
+    const updated = [...msgs, { role: 'user' as const, content: userMessage }];
+    setMessages(updated);
+    const aIdx = updated.length;
+    setMessages((p) => [...p, { role: 'assistant', content: '' }]);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: updated, problemTitle: problem.title, problemDescription: problem.description, code, language }),
+      });
+      const reader = res.body!.getReader();
+      const dec = new TextDecoder();
+      let acc = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += dec.decode(value, { stream: true });
+        setMessages((p) => { const n = [...p]; n[aIdx] = { role: 'assistant', content: acc }; return n; });
       }
-    },
-    [problem]
-  );
+      setMessages((p) => { const n = [...p]; n[aIdx] = { role: 'assistant', content: acc }; return n; });
+    } finally {
+      setIsStreaming(false);
+    }
+  }, [problem]);
 
-  // Start session with AI greeting — intentionally runs once on mount
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (sessionStarted) return;
     setSessionStarted(true);
-    sendMessage(
-      `Hi! I'm ready to start the interview. The problem is "${problem.title}".`,
-      []
-    );
-  }, []);
-  /* eslint-enable react-hooks/exhaustive-deps */
+    sendMessage(`Hi! I'm ready to start the interview. The problem is "${problem.title}".`, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSend = async () => {
     if (!input.trim() || isStreaming) return;
@@ -229,41 +336,23 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     if (sessionEnded) return;
     setSessionEnded(true);
     setLoadingFeedback(true);
-
     try {
-      const response = await fetch('/api/feedback', {
+      const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages,
-          code,
-          problemTitle: problem.title,
-          timeElapsed: timeElapsedRef.current,
-        }),
+        body: JSON.stringify({ messages, code, problemTitle: problem.title, timeElapsed: timeElapsedRef.current }),
       });
-      const data: FeedbackData = await response.json();
+      const data: FeedbackData = await res.json();
       setFeedback(data);
-
-      // Save session to localStorage
       const record: SessionRecord = {
         id: Date.now().toString(),
-        date: new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         problemTitle: problem.title,
         difficulty: problem.difficulty,
         category: problem.category,
         duration: formatDuration(timeElapsedRef.current),
-        scores: {
-          communication: data.communicationScore,
-          problemSolving: data.problemSolvingScore,
-          codeQuality: data.codeQualityScore,
-        },
-        overallScore: Math.round(
-          (data.communicationScore + data.problemSolvingScore + data.codeQualityScore) / 3
-        ),
+        scores: { communication: data.communicationScore, problemSolving: data.problemSolvingScore, codeQuality: data.codeQualityScore },
+        overallScore: Math.round((data.communicationScore + data.problemSolvingScore + data.codeQualityScore) / 3),
         topImprovements: data.topImprovements,
         fullFeedback: data.closingNote,
       };
@@ -273,255 +362,212 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     }
   }, [sessionEnded, messages, code, problem]);
 
-  const handleDividerMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      isDragging.current = true;
-      dragStartX.current = e.clientX;
-      dragStartWidth.current = chatWidth;
-      e.preventDefault();
+  const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = chatWidth;
+    e.preventDefault();
+    const move = (ev: MouseEvent) => { if (!isDragging.current) return; setChatWidth(Math.min(600, Math.max(240, dragStartWidth.current + ev.clientX - dragStartX.current))); };
+    const up = () => { isDragging.current = false; window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  }, [chatWidth]);
 
-      const onMouseMove = (ev: MouseEvent) => {
-        if (!isDragging.current) return;
-        const delta = ev.clientX - dragStartX.current;
-        const next = Math.min(600, Math.max(200, dragStartWidth.current + delta));
-        setChatWidth(next);
-      };
-      const onMouseUp = () => {
-        isDragging.current = false;
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      };
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-    },
-    [chatWidth]
-  );
+  const handleVerticalDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    isVDragging.current = true;
+    dragStartY.current = e.clientY;
+    dragStartHeight.current = problemHeight;
+    e.preventDefault();
+    const move = (ev: MouseEvent) => { if (!isVDragging.current) return; setProblemHeight(Math.min(500, Math.max(80, dragStartHeight.current + ev.clientY - dragStartY.current))); };
+    const up = () => { isVDragging.current = false; window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  }, [problemHeight]);
 
-  const handleVerticalDividerMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      isVDragging.current = true;
-      dragStartY.current = e.clientY;
-      dragStartHeight.current = problemHeight;
-      e.preventDefault();
+  const handleLanguageChange = (lang: Language) => { setLanguage(lang); setCode(STUBS[lang]); };
 
-      const onMouseMove = (ev: MouseEvent) => {
-        if (!isVDragging.current) return;
-        const delta = ev.clientY - dragStartY.current;
-        const next = Math.min(500, Math.max(80, dragStartHeight.current + delta));
-        setProblemHeight(next);
-      };
-      const onMouseUp = () => {
-        isVDragging.current = false;
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      };
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-    },
-    [problemHeight]
-  );
-
-  const handleLanguageChange = (lang: Language) => {
-    setLanguage(lang);
-    setCode(STUBS[lang]);
-  };
-
-  const handleResetCode = () => setCode(STUBS[language]);
-  const handleCopyCode = () => navigator.clipboard.writeText(code);
-
-  const timerColor =
-    timeLeft > 600 ? 'text-green-400' : timeLeft > 180 ? 'text-yellow-400' : 'text-red-400';
+  const timerColor = timeLeft > 600 ? T.tertiary : timeLeft > 180 ? '#facc15' : T.error;
 
   if (sessionEnded) {
-    return (
-      <FeedbackScreen
-        feedback={feedback}
-        loading={loadingFeedback}
-        onRestart={() => router.push('/problems')}
-      />
-    );
+    return <FeedbackScreen feedback={feedback} loading={loadingFeedback} onRestart={() => router.push('/problems')} />;
   }
 
+  const diffColor = problem.difficulty === 'easy' ? T.tertiary : problem.difficulty === 'medium' ? '#facc15' : T.errorDim;
+  const diffBg = problem.difficulty === 'easy' ? 'rgba(155,255,206,0.08)' : problem.difficulty === 'medium' ? 'rgba(250,204,21,0.08)' : 'rgba(215,56,59,0.08)';
+  const diffBorder = problem.difficulty === 'easy' ? 'rgba(155,255,206,0.2)' : problem.difficulty === 'medium' ? 'rgba(250,204,21,0.2)' : 'rgba(215,56,59,0.2)';
+
   return (
-    <div className={`h-[calc(100vh-56px)] flex flex-col overflow-hidden ${isDark ? 'bg-gray-950 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
-      {/* Top Bar */}
-      <div className={`h-14 border-b flex items-center justify-between px-4 shrink-0 ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
-        <span className={`font-semibold truncate max-w-xs ${isDark ? 'text-white' : 'text-gray-900'}`}>{problem.title}</span>
-        <div className="flex items-center gap-4">
-          <span className={`font-mono text-lg font-bold ${timerColor}`}>
-            {formatTime(timeLeft)}
-          </span>
-          <button
-            onClick={handleEndSession}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
-          >
+    <div style={{ height: 'calc(100vh - 56px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: T.surface }}>
+      <style>{`
+        .s-dot-grid { background-image: radial-gradient(circle, #262627 1px, transparent 1px); background-size: 24px 24px; }
+        .chat-glass { background: rgba(26,25,27,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: ${T.secondary}; animation: t-bounce 1.4s ease-in-out infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes t-bounce { 0%,80%,100%{transform:scale(0.5);opacity:0.3}40%{transform:scale(1);opacity:1} }
+        .hdiv:hover { background: ${T.primary} !important; }
+        .vdiv:hover { background: ${T.primary} !important; }
+        .end-btn:hover { background: rgba(255,113,108,0.22) !important; }
+        .chat-send:not(:disabled):hover { opacity: 0.85 !important; }
+        @keyframes spin-ring { from{transform:rotate(-90deg)}to{transform:rotate(270deg)} }
+      `}</style>
+
+      {/* Sub-header */}
+      <div style={{ height: 52, background: 'rgba(19,19,20,0.92)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', color: T.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 320 }}>{problem.title}</span>
+          <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: T.surfaceHigh, borderRadius: 4 }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" strokeWidth="2" stroke={T.secondary}><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+            <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', color: timerColor, fontWeight: 500 }}>{formatTime(timeLeft)}</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px', background: T.surfaceLow, borderRadius: 4, border: `1px solid ${T.outline}` }}>
+            <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Language</span>
+            <select
+              value={language}
+              onChange={(e) => handleLanguageChange(e.target.value as Language)}
+              style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', color: T.primary, background: 'transparent', border: 'none', outline: 'none', cursor: 'pointer' }}
+            >
+              {(Object.keys(LANGUAGE_LABELS) as Language[]).map((l) => (
+                <option key={l} value={l} style={{ background: T.surfaceMid, color: T.textPrimary }}>{LANGUAGE_LABELS[l]}</option>
+              ))}
+            </select>
+          </div>
+          <button className="end-btn" onClick={handleEndSession} style={{ padding: '6px 14px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.error, background: `${T.error}18`, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
             End Session
           </button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Chat Panel */}
-        <div
-          className={`flex flex-col border-r shrink-0 ${isDark ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'}`}
-          style={{ width: chatWidth }}
-        >
-          <div className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider border-b ${isDark ? 'text-gray-500 border-gray-700' : 'text-gray-400 border-gray-200'}`}>
-            AI Interviewer
+      {/* Split pane */}
+      <div className="s-dot-grid" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+
+        {/* Chat */}
+        <div style={{ width: chatWidth, flexShrink: 0, display: 'flex', flexDirection: 'column', background: T.surfaceLow, borderRight: `1px solid ${T.outline}` }}>
+          <div style={{ padding: '13px 18px', borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: T.tertiary, boxShadow: `0 0 8px ${T.tertiary}` }} />
+              <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', color: T.textPrimary }}>AI_INTERVIEWER</span>
+            </div>
+            <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>v4.2-stable</span>
           </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-4">
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             {messages.map((msg, i) => {
               const isNew = !animatedRef.current.has(i);
-              if (isNew && msg.content) {
-                animatedRef.current.add(i);
-              }
+              if (isNew && msg.content) animatedRef.current.add(i);
               return (
-                <div
-                  key={i}
-                  className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} ${isNew && msg.content ? 'fade-in' : ''}`}
-                >
-                  <span className="text-xs text-gray-500 mb-1 px-1">
-                    {msg.role === 'user' ? 'You' : 'Interviewer'}
+                <div key={i} className={isNew && msg.content ? 'fade-in' : ''} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 4 }}>
+                  {msg.role === 'user' ? (
+                    <div style={{ background: T.surfaceMid, borderRadius: '10px 10px 2px 10px', padding: '10px 14px', maxWidth: '90%', borderTop: `2px solid ${T.primary}` }}>
+                      <p style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: T.textPrimary, margin: 0 }}>{msg.content}</p>
+                    </div>
+                  ) : (
+                    <div className="chat-glass" style={{ borderRadius: '10px 10px 10px 2px', padding: '10px 14px', maxWidth: '90%', borderTop: `2px solid ${T.secondary}`, borderRight: `1px solid ${T.outline}`, borderBottom: `1px solid ${T.outline}`, borderLeft: `1px solid ${T.outline}` }}>
+                      <p style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: T.textPrimary, margin: 0, whiteSpace: 'pre-wrap' }}>
+                        {msg.content || (isStreaming && i === messages.length - 1 ? '▌' : '')}
+                      </p>
+                    </div>
+                  )}
+                  <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: msg.role === 'user' ? T.textMuted : T.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {msg.role === 'user' ? 'You' : 'INTERVIEWER_AI'}
                   </span>
-                  <div
-                    className="max-w-[90%] rounded-xl px-3 py-2 text-sm whitespace-pre-wrap"
-                    style={isDark
-                      ? { backgroundColor: msg.role === 'user' ? '#2a2a2a' : '#1e293b', color: '#ffffff' }
-                      : { backgroundColor: msg.role === 'user' ? '#e5e7eb' : '#eff6ff', color: '#111827' }
-                    }
-                  >
-                    {msg.content || (isStreaming && i === messages.length - 1 ? '▌' : '')}
-                  </div>
                 </div>
               );
             })}
+            {isStreaming && messages[messages.length - 1]?.content === '' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, opacity: 0.6 }}>
+                <div style={{ display: 'flex', gap: 3 }}><div className="typing-dot"/><div className="typing-dot"/><div className="typing-dot"/></div>
+                <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>ANALYZING...</span>
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
-          <div className={`p-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-            <div className="flex gap-2">
-              <input
+
+          <div style={{ padding: '12px 14px', background: T.surfaceMid }}>
+            <div style={{ position: 'relative' }}>
+              <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                placeholder="Type a message..."
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                placeholder="Discuss approach or ask a question..."
                 disabled={isStreaming}
-                className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50 ${isDark ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500' : 'bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-400'}`}
+                rows={3}
+                style={{ width: '100%', background: T.surface, border: `1px solid ${T.outline}`, borderRadius: 8, padding: '10px 44px 10px 12px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.8rem', color: T.textPrimary, outline: 'none', resize: 'none', boxSizing: 'border-box', opacity: isStreaming ? 0.5 : 1, lineHeight: 1.5 }}
               />
               <button
+                className="chat-send"
                 onClick={handleSend}
                 disabled={isStreaming || !input.trim()}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                style={{ position: 'absolute', bottom: 8, right: 8, width: 28, height: 28, borderRadius: 4, background: T.secondary, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (isStreaming || !input.trim()) ? 0.25 : 1, transition: 'opacity 0.15s' }}
               >
-                Send
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Drag Divider */}
-        <div
-          onMouseDown={handleDividerMouseDown}
-          className={`w-1.5 hover:bg-blue-500 cursor-col-resize shrink-0 transition-colors ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
-        />
+        {/* Horizontal drag */}
+        <div className="hdiv" onMouseDown={handleDividerMouseDown} style={{ width: 3, background: T.outline, cursor: 'col-resize', flexShrink: 0, transition: 'background 0.15s' }} />
 
-        {/* Right: Problem + Editor */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Problem Description */}
-          <div
-            className={`overflow-y-auto p-4 shrink-0 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
-            style={{ height: problemHeight }}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <h2 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{problem.title}</h2>
-              <span
-                className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                  problem.difficulty === 'easy'
-                    ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700 border border-green-300'
-                    : problem.difficulty === 'medium'
-                    ? isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
-                    : isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700 border border-red-300'
-                }`}
-              >
-                {problem.difficulty}
-              </span>
-              <span className={`px-2 py-0.5 rounded text-xs ${isDark ? 'text-gray-500 bg-gray-800' : 'text-gray-500 bg-gray-100 border border-gray-200'}`}>
-                {problem.category}
-              </span>
+        {/* Right: problem + editor */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+          {/* Problem */}
+          <div style={{ height: problemHeight, overflowY: 'auto', padding: '16px 20px', flexShrink: 0, background: T.surfaceLow }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <h2 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.9375rem', color: T.textPrimary, margin: 0 }}>{problem.title}</h2>
+              <span style={{ padding: '2px 7px', borderRadius: 4, fontSize: '0.5625rem', fontFamily: 'var(--font-jetbrains-mono), monospace', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', background: diffBg, color: diffColor, border: `1px solid ${diffBorder}` }}>{problem.difficulty}</span>
+              <span style={{ padding: '2px 7px', borderRadius: 4, fontSize: '0.5625rem', fontFamily: 'var(--font-jetbrains-mono), monospace', color: T.textMuted, background: T.surfaceHigh }}>{problem.category}</span>
             </div>
-            <p className={`text-sm whitespace-pre-wrap mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              {problem.description}
-            </p>
+            <p style={{ fontSize: '0.8125rem', color: T.textSecond, lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: '0 0 12px' }}>{problem.description}</p>
             {problem.examples.map((ex, i) => (
-              <div key={i} className="mb-2 text-sm">
-                <span className={`font-medium ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Example {i + 1}:</span>
-                <div className={`rounded px-2 py-1 mt-1 font-mono text-xs ${isDark ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}>
+              <div key={i} style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: '0.5625rem', color: T.textMuted, fontFamily: 'var(--font-jetbrains-mono), monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Example {i + 1}</span>
+                <div style={{ marginTop: 3, padding: '7px 12px', background: T.surface, borderRadius: 4, fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textSecond, lineHeight: 1.6 }}>
                   <div>Input: {ex.input}</div>
                   <div>Output: {ex.output}</div>
-                  {ex.explanation && (
-                    <div className={isDark ? 'text-gray-500 italic' : 'text-gray-500 italic'}>{ex.explanation}</div>
-                  )}
+                  {ex.explanation && <div style={{ color: T.textMuted, fontStyle: 'italic', marginTop: 2 }}>{ex.explanation}</div>}
                 </div>
               </div>
             ))}
-            <div className="mt-2">
-              <p className="text-gray-500 text-xs font-medium mb-1">Constraints:</p>
-              <ul className={`text-xs space-y-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                {problem.constraints.map((c, i) => (
-                  <li key={i} className="font-mono">
-                    • {c}
-                  </li>
-                ))}
-              </ul>
+            <div style={{ marginTop: 8 }}>
+              <p style={{ fontSize: '0.5rem', color: T.textMuted, fontFamily: 'var(--font-jetbrains-mono), monospace', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 6px' }}>Constraints</p>
+              {problem.constraints.map((c, i) => (
+                <div key={i} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textSecond, marginBottom: 2 }}>• {c}</div>
+              ))}
             </div>
           </div>
 
-          {/* Vertical Drag Divider */}
-          <div
-            onMouseDown={handleVerticalDividerMouseDown}
-            className={`h-1.5 hover:bg-blue-500 cursor-row-resize shrink-0 transition-colors ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
-          />
+          {/* Vertical drag */}
+          <div className="vdiv" onMouseDown={handleVerticalDividerMouseDown} style={{ height: 3, background: T.outline, cursor: 'row-resize', flexShrink: 0, transition: 'background 0.15s' }} />
 
-          {/* Editor Toolbar */}
-          <div
-            className={`flex items-center gap-2 px-3 py-2 border-b shrink-0 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
-            style={{ backgroundColor: isDark ? '#1a202c' : '#f9fafb' }}
-          >
-            <select
-              value={language}
-              onChange={(e) => handleLanguageChange(e.target.value as Language)}
-              className={`border text-sm rounded px-2 py-1 focus:outline-none focus:border-blue-500 ${isDark ? 'bg-gray-700 border-gray-600 text-gray-200' : 'bg-white border-gray-300 text-gray-700'}`}
-            >
-              {(Object.keys(LANGUAGE_LABELS) as Language[]).map((lang) => (
-                <option key={lang} value={lang}>
-                  {LANGUAGE_LABELS[lang]}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleResetCode}
-              className={`text-sm px-3 py-1 rounded transition-colors ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'}`}
-            >
-              Reset Code
-            </button>
-            <button
-              onClick={handleCopyCode}
-              className={`text-sm px-3 py-1 rounded transition-colors ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'}`}
-            >
-              Copy Code
-            </button>
+          {/* IDE toolbar */}
+          <div style={{ height: 40, background: T.surfaceLow, borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 8px', borderBottom: `2px solid ${T.primary}` }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.primary} strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textPrimary }}>solution.{FILE_EXT[language]}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 14 }}>
+              <button onClick={() => setCode(STUBS[language])} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Reset</button>
+              <button onClick={() => navigator.clipboard.writeText(code)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Copy</button>
+            </div>
           </div>
 
-          {/* Code Editor */}
-          <div className="flex-1 overflow-hidden">
+          {/* Monaco */}
+          <div style={{ flex: 1, overflow: 'hidden' }}>
             <MonacoEditor
               height="100%"
               language={MONACO_LANGUAGE_MAP[language]}
               value={code}
               onChange={(v) => setCode(v || '')}
-              theme={isDark ? 'vs-dark' : 'vs-light'}
+              theme="vs-dark"
               options={{
-                fontSize: 14,
+                fontSize: 13,
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,
                 wordWrap: 'on',
@@ -531,215 +577,13 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
                 automaticLayout: true,
                 quickSuggestions: true,
                 suggestOnTriggerCharacters: true,
+                fontFamily: "'JetBrains Mono', 'Cascadia Code', monospace",
+                lineHeight: 22,
+                padding: { top: 16, bottom: 16 },
               }}
             />
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── ScoreCard ───────────────────────────────────────────────────────────────
-
-function ScoreRing({
-  label,
-  score,
-  explanation,
-  delay = 0,
-}: {
-  label: string;
-  score: number;
-  explanation: string;
-  delay?: number;
-}) {
-  const r = 36;
-  const circ = 2 * Math.PI * r;
-  const pct = Math.min(100, Math.max(0, score / 10));
-  const dash = pct * circ;
-  const color = score >= 8 ? '#4ade80' : score >= 5 ? '#facc15' : '#f87171';
-  const textColor = score >= 8 ? 'text-green-400' : score >= 5 ? 'text-yellow-400' : 'text-red-400';
-  const trackColor = score >= 8 ? 'rgba(74,222,128,0.1)' : score >= 5 ? 'rgba(250,204,21,0.1)' : 'rgba(248,113,113,0.1)';
-
-  return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 flex flex-col items-center text-center">
-      {/* Ring */}
-      <div className="relative w-24 h-24 mb-4">
-        <svg className="w-24 h-24 -rotate-90" viewBox="0 0 88 88" aria-hidden>
-          <circle cx="44" cy="44" r={r} fill="none" stroke={trackColor} strokeWidth="7" />
-          <circle
-            cx="44" cy="44" r={r} fill="none"
-            stroke={color} strokeWidth="7" strokeLinecap="round"
-            strokeDasharray={`${dash} ${circ}`}
-            style={{ transition: `stroke-dasharray 1s ease ${delay}ms` }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-2xl font-extrabold ${textColor}`}>{score}</span>
-        </div>
-      </div>
-      <h3 className="text-gray-900 dark:text-white font-semibold mb-2">{label}</h3>
-      <p className="text-gray-500 text-sm leading-relaxed">{explanation}</p>
-    </div>
-  );
-}
-
-// ─── FeedbackScreen ──────────────────────────────────────────────────────────
-
-function FeedbackScreen({
-  feedback,
-  loading,
-  onRestart,
-}: {
-  feedback: FeedbackData | null;
-  loading: boolean;
-  onRestart: () => void;
-}) {
-  if (loading || !feedback) {
-    return (
-      <div className="h-[calc(100vh-56px)] bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          {/* Spinner */}
-          <div className="w-20 h-20 mx-auto mb-8">
-            <svg className="w-20 h-20 animate-spin" viewBox="0 0 80 80" fill="none" aria-hidden>
-              <circle cx="40" cy="40" r="34" stroke="rgba(59,130,246,0.15)" strokeWidth="6" />
-              <path
-                d="M40 6 a34 34 0 0 1 34 34"
-                stroke="#3b82f6"
-                strokeWidth="6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Analyzing your session</h2>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Reviewing your code, communication, and problem-solving approach...</p>
-          <p className="text-gray-400 dark:text-gray-600 text-xs mb-6">This usually takes about 20 seconds.</p>
-
-          {/* Animated steps */}
-          <div className="flex flex-col items-center gap-2 text-sm">
-            {[
-              'Reviewing conversation',
-              'Evaluating code quality',
-              'Generating feedback',
-            ].map((step, i) => (
-              <div
-                key={step}
-                className="flex items-center gap-2 text-gray-500"
-                style={{ animation: `pulse 1.5s ease-in-out ${i * 0.4}s infinite` }}
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500/60" />
-                {step}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const avg = Math.round(
-    (feedback.communicationScore + feedback.problemSolvingScore + feedback.codeQualityScore) / 3
-  );
-
-  const avgColor = avg >= 8 ? 'text-green-400' : avg >= 5 ? 'text-yellow-400' : 'text-red-400';
-  const avgR = 54;
-  const avgCirc = 2 * Math.PI * avgR;
-  const avgDash = (avg / 10) * avgCirc;
-  const avgStroke = avg >= 8 ? '#4ade80' : avg >= 5 ? '#facc15' : '#f87171';
-  const avgTrack = avg >= 8 ? 'rgba(74,222,128,0.1)' : avg >= 5 ? 'rgba(250,204,21,0.1)' : 'rgba(248,113,113,0.1)';
-
-  return (
-    <div className="min-h-[calc(100vh-56px)] bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-y-auto">
-
-      {/* ── Hero header ── */}
-      <div className="relative border-b border-gray-800/60 overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 60% 100% at 50% -10%, rgba(59,130,246,0.1) 0%, transparent 65%)' }}
-        />
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-12">
-          <div className="flex flex-col lg:flex-row items-center gap-10">
-
-            {/* Overall score ring */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className="relative w-36 h-36">
-                <svg className="w-36 h-36 -rotate-90" viewBox="0 0 132 132" aria-hidden>
-                  <circle cx="66" cy="66" r={avgR} fill="none" stroke={avgTrack} strokeWidth="9" />
-                  <circle
-                    cx="66" cy="66" r={avgR} fill="none"
-                    stroke={avgStroke} strokeWidth="9" strokeLinecap="round"
-                    strokeDasharray={`${avgDash} ${avgCirc}`}
-                    style={{ transition: 'stroke-dasharray 1.2s ease 0ms' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-4xl font-extrabold leading-none ${avgColor}`}>{avg}</span>
-                  <span className="text-gray-500 text-xs mt-0.5">/10</span>
-                </div>
-              </div>
-              <p className="text-gray-400 text-sm mt-3">Overall Score</p>
-            </div>
-
-            {/* Title + summary */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-medium px-3 py-1.5 rounded-full mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                Session Complete
-              </div>
-              <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-3">
-                {avg >= 8 ? 'Outstanding work.' : avg >= 5 ? 'Solid effort.' : 'Keep pushing.'}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg max-w-lg">
-                {feedback.closingNote}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Score breakdown ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Score Breakdown</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          <ScoreRing label="Communication" score={feedback.communicationScore} explanation={feedback.communicationExplanation} delay={100} />
-          <ScoreRing label="Problem Solving" score={feedback.problemSolvingScore} explanation={feedback.problemSolvingExplanation} delay={250} />
-          <ScoreRing label="Code Quality" score={feedback.codeQualityScore} explanation={feedback.codeQualityExplanation} delay={400} />
-        </div>
-
-        {/* ── Details grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-
-          {/* Improvements */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Top 3 Things to Improve</h3>
-            <ol className="space-y-4">
-              {feedback.topImprovements.map((item, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="w-7 h-7 rounded-full bg-blue-600/15 border border-blue-500/25 text-blue-400 text-sm font-bold flex items-center justify-center shrink-0">
-                    {i + 1}
-                  </span>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed pt-0.5">{item}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Time management */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Time Management</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{feedback.timeManagement}</p>
-          </div>
-        </div>
-
-        {/* ── CTA ── */}
-        <button
-          onClick={onRestart}
-          className="btn-glow w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-semibold text-base transition-colors"
-        >
-          Practice Another Problem
-        </button>
       </div>
     </div>
   );
