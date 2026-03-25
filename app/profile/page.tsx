@@ -320,7 +320,7 @@ export default function ProfilePage() {
   // ── Loading ──
   if (!authLoaded || !loaded) return (
     <div className="min-h-screen flex items-center justify-center" style={dotGrid}>
-      <p style={{ ...type.labelMd, color: T.textMuted }} className="animate-pulse">// loading...</p>
+      <p style={{ ...type.labelMd, color: T.textMuted }} className="animate-pulse">{'// loading...'}</p>
     </div>
   );
 
@@ -328,7 +328,7 @@ export default function ProfilePage() {
   if (!isSignedIn) return (
     <div className="min-h-screen flex items-center justify-center px-6" style={dotGrid}>
       <div className="text-center max-w-sm">
-        <p style={{ ...type.labelSm, color: T.textMuted, marginBottom: 16 }}>// profile</p>
+        <p style={{ ...type.labelSm, color: T.textMuted, marginBottom: 16 }}>{'// profile'}</p>
         <h1 style={{ ...type.displayLg, color: T.textPrimary, marginBottom: 10 }}>Sign in to view your profile</h1>
         <p style={{ ...type.bodyMd, color: T.textSecond, marginBottom: 28 }}>Track streaks, scores, and skill growth over time.</p>
         <SignInButton mode="modal">
@@ -379,7 +379,7 @@ export default function ProfilePage() {
 
         {noData ? (
           <div className="flex flex-col items-center justify-center py-32">
-            <p style={{ ...type.labelSm, color: T.textMuted, marginBottom:14 }}>// no data yet</p>
+            <p style={{ ...type.labelSm, color: T.textMuted, marginBottom:14 }}>{'// no data yet'}</p>
             <h2 style={{ ...type.headlineMd, color: T.textSecond, marginBottom:8 }}>No sessions completed</h2>
             <p style={{ ...type.bodyMd, color: T.textMuted, marginBottom:28 }}>Complete your first interview to start tracking progress.</p>
             <Link href="/problems"
@@ -562,7 +562,7 @@ export default function ProfilePage() {
               <div className="bento-card" style={{ background:T.surfaceMid, padding:'24px 24px 20px' }}>
                 <h4 style={{ fontFamily:'var(--font-space-grotesk), sans-serif', fontSize:'0.8rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:T.textPrimary, marginBottom:20 }}>Top Problem Types</h4>
                 {stats!.topCategories.length===0 ? (
-                  <p style={{ ...type.labelMd, color:T.textMuted }}>// no data</p>
+                  <p style={{ ...type.labelMd, color:T.textMuted }}>{'// no data'}</p>
                 ) : (
                   /* No dividers — spacing-4 vertical gaps per spec */
                   <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>

@@ -154,7 +154,7 @@ function FeedbackScreen({ feedback, loading, onRestart }: {
           <p style={{ fontSize: '0.875rem', color: T.textSecond, margin: '0 0 4px' }}>Reviewing code, communication, and problem-solving...</p>
           <p style={{ fontSize: '0.75rem', color: T.textMuted, margin: '0 0 24px' }}>This usually takes about 20 seconds.</p>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            {['Reviewing conversation', 'Evaluating code quality', 'Generating feedback'].map((step, i) => (
+            {['Reviewing conversation', 'Evaluating code quality', 'Generating feedback'].map((step) => (
               <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textMuted }}>
                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.primary, opacity: 0.6 }} />
                 {step}
@@ -225,7 +225,7 @@ function FeedbackScreen({ feedback, loading, onRestart }: {
           <div style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '3.5rem', color: T.textPrimary, lineHeight: 1, marginBottom: 6 }}>{avg}</div>
           <div style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.secondary, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 24 }}>Aggregate Performance Score</div>
           <blockquote style={{ maxWidth: 560, fontStyle: 'italic', color: '#ceb9ff', background: `${T.secondary}12`, padding: '18px 24px', borderRadius: 6, border: `1px solid ${T.secondary}25`, fontSize: '0.9375rem', lineHeight: 1.7, margin: 0 }}>
-            "{feedback.closingNote}"
+            &ldquo;{feedback.closingNote}&rdquo;
           </blockquote>
         </div>
 

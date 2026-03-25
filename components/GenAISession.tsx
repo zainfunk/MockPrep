@@ -56,10 +56,6 @@ const FLUENCY_COLOR: Record<string, string> = {
   Mixed: '#facc15', 'Mild Concern': '#fb923c', Concern: T.error,
 };
 
-const FLUENCY_HEADLINE: Record<string, string> = {
-  Strength: 'Outstanding fluency.', 'Mild Strength': 'Strong AI collaboration.',
-  Mixed: 'Solid effort.', 'Mild Concern': 'Room to grow.', Concern: 'Keep developing.',
-};
 
 // ─── Score Ring ───────────────────────────────────────────────────────────────
 
@@ -205,7 +201,7 @@ function GenAIFeedbackScreen({ feedback, loading, record }: {
             {record.promptCount} prompt{record.promptCount !== 1 ? 's' : ''} · {Math.round(record.duration / 60)}m elapsed
           </div>
           <blockquote style={{ maxWidth: 560, fontStyle: 'italic', color: '#ceb9ff', background: `${T.secondary}12`, padding: '18px 24px', borderRadius: 6, border: `1px solid ${T.secondary}25`, fontSize: '0.9375rem', lineHeight: 1.7, margin: 0 }}>
-            "{feedback.closingNote}"
+            &ldquo;{feedback.closingNote}&rdquo;
           </blockquote>
         </div>
 
