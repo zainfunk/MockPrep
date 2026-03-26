@@ -86,6 +86,7 @@ const POPULARITY_ORDER: Record<string, number> = {
 // ── Difficulty score maps ─────────────────────────────────────────────────────
 
 const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
+  // existing
   'find-duplicates-ai': 28,
   'csv-report-ai': 38,
   'text-chunker-ai': 44,
@@ -96,6 +97,33 @@ const GENAI_DIFFICULTY_SCORE: Record<string, number> = {
   'session-analyzer-ai': 83,
   'rate-limiter-ai': 87,
   'expression-evaluator-ai': 93,
+  // easy
+  'palindrome-checker-ai': 10,
+  'moving-average-ai': 15,
+  'word-frequency-ai': 20,
+  'number-formatter-ai': 25,
+  // medium
+  'balanced-brackets-ai': 30,
+  'markdown-parser-ai': 36,
+  'stock-profit-ai': 42,
+  'url-shortener-ai': 46,
+  'dependency-resolver-ai': 50,
+  'time-zone-converter-ai': 54,
+  'matrix-spiral-ai': 57,
+  'config-validator-ai': 59,
+  'token-bucket-ai': 61,
+  'stream-stats-ai': 62,
+  // hard
+  'graph-shortest-path-ai': 67,
+  'bloom-filter-ai': 71,
+  'event-sourcing-ai': 74,
+  'parser-combinator-ai': 77,
+  'cache-with-ttl-ai': 80,
+  'pipeline-builder-ai': 84,
+  'circuit-breaker-ai': 86,
+  'semantic-cache-ai': 89,
+  'query-engine-ai': 91,
+  'consistent-hashing-ai': 92,
 };
 
 const DIFFICULTY_SCORE: Record<string, number> = {
