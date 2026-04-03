@@ -5,6 +5,23 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* v2 design tokens */
+  --surface-0: #0e0e0f;
+  --surface-1: #141416;
+  --surface-2: #1c1c1f;
+  --surface-3: #242428;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.10);
+  --border-active: rgba(133,173,255,0.35);
+  --accent-blue: #85adff;
+  --accent-purple: #ac8aff;
+  --accent-green: #4ade80;
+  --accent-amber: #fbbf24;
+  --accent-red: #f87171;
+  --text-primary: #f0f0f2;
+  --text-secondary: rgba(240,240,242,0.55);
+  --text-tertiary: rgba(240,240,242,0.30);
 }
 
 /* Light mode body defaults */
@@ -56,6 +73,26 @@ main,
 }
 .dark .dot-grid {
   background-image: radial-gradient(circle, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+}
+
+/* v2 enhanced dot grid with edge fade */
+.bg-grid {
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.10) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
 }
 
 /* ── Hero bottom fade ── */
