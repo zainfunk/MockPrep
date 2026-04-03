@@ -19,6 +19,7 @@ const CRITERIA = [
   'communication',
 ] as const;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CRITERIA_LABELS: Record<(typeof CRITERIA)[number], string> = {
   specificity: 'Specificity & Concreteness',
   genaiLiteracy: 'GenAI Literacy',
