@@ -7,6 +7,7 @@ interface DailyInterviewMeta {
 }
 
 const DAILY_LIMIT = 10;
+const UNLIMITED_EMAILS = ['funktastix0@gmail.com'];
 
 async function getTodayUsage(userId: string): Promise<{ used: number; date: string }> {
   const client = await clerkClient();
@@ -20,10 +21,21 @@ async function getTodayUsage(userId: string): Promise<{ used: number; date: stri
   return { used: meta.dailyInterviews.count, date: today };
 }
 
+async function isUnlimited(userId: string): Promise<boolean> {
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const email = user.emailAddresses?.[0]?.emailAddress ?? '';
+  return UNLIMITED_EMAILS.includes(email);
+}
+
 // GET /api/user/daily-limit — return current daily usage
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  if (await isUnlimited(userId)) {
+    return NextResponse.json({ used: 0, limit: 9999, remaining: 9999, date: new Date().toISOString().slice(0, 10) });
+  }
 
   const { used, date } = await getTodayUsage(userId);
   return NextResponse.json({ used, limit: DAILY_LIMIT, remaining: DAILY_LIMIT - used, date });
@@ -33,6 +45,10 @@ export async function GET() {
 export async function POST() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  if (await isUnlimited(userId)) {
+    return NextResponse.json({ used: 0, limit: 9999, remaining: 9999, date: new Date().toISOString().slice(0, 10) });
+  }
 
   const { used, date } = await getTodayUsage(userId);
   const newCount = used + 1;

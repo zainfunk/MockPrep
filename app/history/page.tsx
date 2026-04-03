@@ -21,6 +21,44 @@ interface SessionRecord {
   fullFeedback: string;
 }
 
+interface FluencyQuestionResult {
+  scores: {
+    specificity: number;
+    genaiLiteracy: number;
+    criticalThinking: number;
+    judgment: number;
+    responsibility: number;
+    learningAgility: number;
+    communication: number;
+  };
+  totalScore: number;
+  notes: string;
+}
+
+interface FluencySessionRecord {
+  id: string;
+  date: string;
+  duration: number;
+  questions: Array<{ question: string; category: string; response: string }>;
+  questionResults: FluencyQuestionResult[];
+  aggregateScores: {
+    specificity: number;
+    genaiLiteracy: number;
+    criticalThinking: number;
+    judgment: number;
+    responsibility: number;
+    learningAgility: number;
+    communication: number;
+  };
+  totalScore: number;
+  rating: string;
+  hasRedFlags: boolean;
+  redFlagDetails: string[];
+  keyStrengths: string[];
+  keyImprovements: string[];
+  closingNote: string;
+}
+
 interface GenAISessionRecord {
   id: string;
   date: string;
@@ -345,18 +383,154 @@ function GenAISessionCard({ session }: { session: GenAISessionRecord }) {
   );
 }
 
+// ── Fluency helpers ───────────────────────────────────────────────────────────
+
+function ratingColor(rating: string) {
+  switch (rating) {
+    case 'Exceptional':  return 'text-[#9bffce]';
+    case 'Proficient':   return 'text-[#85adff]';
+    case 'Developing':   return 'text-[#fbbf24]';
+    case 'Insufficient': return 'text-[#d7383b]';
+    default:             return 'text-[#adaaab]';
+  }
+}
+
+const CRITERIA_META = [
+  { key: 'specificity'      as const, abbr: 'S.C.', label: 'Specificity' },
+  { key: 'genaiLiteracy'    as const, abbr: 'G.L.', label: 'GenAI Literacy' },
+  { key: 'criticalThinking' as const, abbr: 'C.T.', label: 'Critical Thinking' },
+  { key: 'judgment'         as const, abbr: 'J.R.', label: 'Judgment' },
+  { key: 'responsibility'   as const, abbr: 'R.E.', label: 'Responsibility' },
+  { key: 'learningAgility'  as const, abbr: 'L.A.', label: 'Learning Agility' },
+  { key: 'communication'    as const, abbr: 'C.I.', label: 'Communication' },
+];
+
+// ── Fluency Session Card ──────────────────────────────────────────────────────
+
+function FluencySessionCard({ session }: { session: FluencySessionRecord }) {
+  const [expanded, setExpanded] = useState(false);
+  const durationMin = Math.round(session.duration / 60);
+  const date = new Date(session.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const maxTotal = (session.questions?.length ?? 3) * 28;
+
+  return (
+    <div className="bg-[#131314] rounded-xl overflow-hidden">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full text-left p-6 flex flex-wrap items-center justify-between gap-6 hover:bg-[#1a191b] transition-colors focus:outline-none"
+      >
+        <div className="flex-1 min-w-[260px]">
+          <div className="flex items-center gap-3 mb-1">
+            <h4 className="font-headline font-bold text-lg text-white">GenAI Fluency Interview</h4>
+            <span className="font-headline text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-[#9bffce]/10 text-[#9bffce] border border-[#9bffce]/20">
+              Behavioral
+            </span>
+            {session.hasRedFlags && (
+              <span className="font-headline text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-[#9f0519]/10 text-[#d7383b] border border-[#9f0519]/20">
+                Red Flag
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-4 text-xs font-headline text-[#adaaab]">
+            <span className="flex items-center gap-1"><IconCalendar />{date}</span>
+            <span className="flex items-center gap-1"><IconTimer />{durationMin}m</span>
+            <span>{session.questions?.length ?? 3} questions</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1">
+            {CRITERIA_META.map((c) => (
+              <div
+                key={c.key}
+                title={c.label}
+                className="w-9 h-9 rounded bg-[#9bffce]/5 border border-[#9bffce]/15 flex items-center justify-center"
+              >
+                <span className="text-[9px] font-headline font-bold text-[#9bffce]">{c.abbr}</span>
+              </div>
+            ))}
+          </div>
+          <div className="ml-4 text-right">
+            <div className={`text-lg font-headline font-bold ${ratingColor(session.rating)}`}>
+              {session.totalScore}<span className="text-xs text-[#484849] font-normal">/{maxTotal}</span>
+            </div>
+            <div className={`text-[10px] font-headline uppercase ${ratingColor(session.rating)}`}>{session.rating}</div>
+          </div>
+          <div className="text-[#767576] ml-2"><IconChevron open={expanded} /></div>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-6 py-6 bg-[#1a191b]/40 border-t border-white/5 space-y-6">
+
+          {/* Score matrix */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-2">
+              <h5 className="font-headline text-xs font-bold text-[#adaaab] uppercase tracking-widest mb-3">
+                Aggregate Scores
+              </h5>
+              {CRITERIA_META.map((c) => {
+                const score = session.aggregateScores?.[c.key] ?? 0;
+                const pct = (score / 4) * 100;
+                return (
+                  <div key={c.key} className="flex items-center gap-3 text-xs">
+                    <span className="w-36 shrink-0 text-[#adaaab]">{c.label}</span>
+                    <div className="flex-1 bg-[#262627] rounded-full h-1.5 overflow-hidden">
+                      <div className="h-full rounded-full bg-[#9bffce]" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="font-mono text-white w-8 text-right">{score.toFixed(1)}/4</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="bg-[#9bffce]/5 p-4 rounded-lg border border-[#9bffce]/10 space-y-3">
+              {session.keyStrengths?.length > 0 && (
+                <div>
+                  <h5 className="font-headline text-[10px] font-bold text-[#9bffce] uppercase tracking-widest mb-1">
+                    Strengths
+                  </h5>
+                  {session.keyStrengths.map((s, i) => (
+                    <p key={i} className="text-xs text-white/70 leading-relaxed">{s}</p>
+                  ))}
+                </div>
+              )}
+              {session.closingNote && (
+                <p className="text-[#adaaab] text-xs italic pt-2 border-t border-white/5">{session.closingNote}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Red flags */}
+          {session.hasRedFlags && session.redFlagDetails?.length > 0 && (
+            <div className="bg-[#9f0519]/5 rounded-lg p-4 border border-[#9f0519]/20">
+              <h5 className="font-headline text-xs font-bold text-[#d7383b] uppercase tracking-widest mb-2">Red Flags</h5>
+              {session.redFlagDetails.map((flag, i) => (
+                <p key={i} className="text-xs text-[#d7383b]/80">{flag}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HistoryPage() {
   const { isSignedIn, isLoaded: authLoaded } = useAuth();
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [genaiSessions, setGenaiSessions] = useState<GenAISessionRecord[]>([]);
+  const [fluencySessions, setFluencySessions] = useState<FluencySessionRecord[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmClearGenai, setConfirmClearGenai] = useState(false);
+  const [confirmClearFluency, setConfirmClearFluency] = useState(false);
   const [dailyLimit, setDailyLimit] = useState<{ remaining: number; limit: number } | null>(null);
   const [codingOpen, setCodingOpen] = useState(true);
   const [genaiOpen, setGenaiOpen] = useState(true);
+  const [fluencyOpen, setFluencyOpen] = useState(true);
 
   useEffect(() => {
     if (!authLoaded || !isSignedIn) return;
@@ -415,8 +589,25 @@ export default function HistoryPage() {
             closingNote: s.closing_note as string,
           }));
 
+          const fluency = (data.fluencySessions ?? []).map((s: Record<string, unknown>) => ({
+            id: s.id as string,
+            date: s.created_at as string,
+            duration: s.duration as number,
+            questions: s.questions as FluencySessionRecord['questions'],
+            questionResults: s.question_results as FluencyQuestionResult[],
+            aggregateScores: s.aggregate_scores as FluencySessionRecord['aggregateScores'],
+            totalScore: s.total_score as number,
+            rating: s.rating as string,
+            hasRedFlags: s.has_red_flags as boolean,
+            redFlagDetails: s.red_flag_details as string[],
+            keyStrengths: s.key_strengths as string[],
+            keyImprovements: s.key_improvements as string[],
+            closingNote: s.closing_note as string,
+          }));
+
           setSessions(interviews);
           setGenaiSessions(genai);
+          setFluencySessions(fluency);
           setLoaded(true);
         })
         .catch(() => setLoaded(true));
@@ -439,6 +630,15 @@ export default function HistoryPage() {
         }
       } catch {}
 
+      try {
+        const raw = localStorage.getItem('fluency_sessions');
+        if (raw) {
+          const parsed = JSON.parse(raw) as FluencySessionRecord[];
+          parsed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setFluencySessions(parsed);
+        }
+      } catch {}
+
       setLoaded(true);
     }
   }, [authLoaded, isSignedIn]);
@@ -457,7 +657,14 @@ export default function HistoryPage() {
     setConfirmClearGenai(false);
   };
 
-  const totalSessions = sessions.length + genaiSessions.length;
+  const handleClearFluency = () => {
+    if (!confirmClearFluency) { setConfirmClearFluency(true); return; }
+    localStorage.removeItem('fluency_sessions');
+    setFluencySessions([]);
+    setConfirmClearFluency(false);
+  };
+
+  const totalSessions = sessions.length + genaiSessions.length + fluencySessions.length;
   const usedToday = dailyLimit ? dailyLimit.limit - dailyLimit.remaining : 0;
   const limitPct = dailyLimit ? (usedToday / dailyLimit.limit) * 100 : 0;
 
@@ -582,7 +789,7 @@ export default function HistoryPage() {
               </section>
             )}
 
-            {/* ── GenAI Fluency ── */}
+            {/* ── GenAI Coding ── */}
             {genaiSessions.length > 0 && (
               <section>
                 <div
@@ -591,7 +798,7 @@ export default function HistoryPage() {
                 >
                   <h2 className="font-headline font-bold text-xl flex items-center gap-3">
                     <span className="text-[#ac8aff]"><IconBrain /></span>
-                    GENAI FLUENCY
+                    GENAI CODING
                   </h2>
                   <div className="flex items-center gap-3">
                     {!isSignedIn && (
@@ -616,6 +823,50 @@ export default function HistoryPage() {
                   <div className="space-y-4">
                     {genaiSessions.map((session) => (
                       <GenAISessionCard key={session.id} session={session} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* ── GenAI Fluency ── */}
+            {fluencySessions.length > 0 && (
+              <section>
+                <div
+                  className="flex items-center justify-between mb-6 cursor-pointer group"
+                  onClick={() => setFluencyOpen((v) => !v)}
+                >
+                  <h2 className="font-headline font-bold text-xl flex items-center gap-3">
+                    <span className="text-[#9bffce]">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                      </svg>
+                    </span>
+                    GENAI FLUENCY
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    {!isSignedIn && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleClearFluency(); }}
+                        onBlur={() => setConfirmClearFluency(false)}
+                        className={`text-xs px-3 py-1.5 rounded border font-headline transition-colors ${
+                          confirmClearFluency
+                            ? 'bg-[#9f0519] border-[#9f0519] text-white'
+                            : 'bg-transparent border-[#484849]/50 text-[#767576] hover:text-[#d7383b] hover:border-[#9f0519]/50'
+                        }`}
+                      >
+                        {confirmClearFluency ? 'Confirm?' : 'Clear'}
+                      </button>
+                    )}
+                    <span className="text-[#767576] group-hover:text-white transition-colors">
+                      <IconChevron open={fluencyOpen} />
+                    </span>
+                  </div>
+                </div>
+                {fluencyOpen && (
+                  <div className="space-y-4">
+                    {fluencySessions.map((session) => (
+                      <FluencySessionCard key={session.id} session={session} />
                     ))}
                   </div>
                 )}

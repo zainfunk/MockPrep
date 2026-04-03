@@ -6,12 +6,13 @@ export function generateStaticParams() {
   return genaiProblems.map((p) => ({ problemId: p.id }));
 }
 
-export default function GenAIPage({
+export default async function GenAIPage({
   params,
 }: {
-  params: { problemId: string };
+  params: Promise<{ problemId: string }>;
 }) {
-  const problem = getGenAIProblemById(params.problemId);
+  const { problemId } = await params;
+  const problem = getGenAIProblemById(problemId);
   if (!problem) notFound();
 
   return <GenAISession problem={problem} />;
