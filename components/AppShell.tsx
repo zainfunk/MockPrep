@@ -9,6 +9,7 @@ function useNavVisible() {
   if (pathname === '/') return false;
   if (pathname.startsWith('/interview')) return false;
   if (pathname.startsWith('/genai')) return false;
+  if (pathname.startsWith('/dashboard')) return false;
   return true;
 }
 
