@@ -317,7 +317,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     } finally {
       setIsStreaming(false);
     }
-  }, [problem]);
+  }, [problem, code, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (sessionStarted) return;

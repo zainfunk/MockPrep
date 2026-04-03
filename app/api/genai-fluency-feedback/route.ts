@@ -8,6 +8,7 @@ interface QuestionInput {
   response: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CRITERIA = [
   'specificity',
   'genaiLiteracy',
@@ -55,10 +56,6 @@ export async function POST(request: Request) {
         `--- Question ${i + 1} [${q.category}] ---\nQuestion: ${q.question}\n\nCandidate Response:\n${q.response || '(No response provided)'}`
     )
     .join('\n\n');
-
-  const criteriaDesc = Object.entries(CRITERIA_LABELS)
-    .map(([key, label]) => `- ${label} (key: "${key}"): scored 1–4`)
-    .join('\n');
 
   const prompt = `You are an expert evaluator conducting a GenAI Fluency behavioral interview assessment. You will evaluate ${questions.length} candidate responses using a strict 7-criterion rubric.
 

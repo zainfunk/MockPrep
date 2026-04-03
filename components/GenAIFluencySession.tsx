@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { fluencyQuestions, getRandomFluencyQuestions } from '@/data/genaiFluentQuestions';
+import { getRandomFluencyQuestions } from '@/data/genaiFluentQuestions';
 import type { FluencyQuestion } from '@/data/genaiFluentQuestions';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
