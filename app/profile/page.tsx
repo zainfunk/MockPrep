@@ -18,6 +18,9 @@ interface GenAISessionRecord {
   scores: { promptQuality: number; outputValidation: number; humanJudgment: number; accountability: number };
   fluencyLevel: string; averageScore: number; keyMoments: string[]; topImprovements: string[]; closingNote: string;
 }
+interface FluencySessionRecord {
+  id: string; date: string; duration: number; totalScore: number; rating: string;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function parseDurationToSeconds(duration: string | number): number {
@@ -203,20 +206,29 @@ export default function ProfilePage() {
   const { user } = useUser();
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [genaiSessions, setGenaiSessions] = useState<GenAISessionRecord[]>([]);
+  const [fluencySessions, setFluencySessions] = useState<FluencySessionRecord[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!authLoaded) return;
+
+    let localInterviews: SessionRecord[] = [];
+    let localGenai: GenAISessionRecord[] = [];
+    let localFluency: FluencySessionRecord[] = [];
+    try { localInterviews = JSON.parse(localStorage.getItem('interview_sessions') ?? '[]'); } catch {}
+    try { localGenai = JSON.parse(localStorage.getItem('genai_sessions') ?? '[]'); } catch {}
+    try { localFluency = JSON.parse(localStorage.getItem('fluency_sessions') ?? '[]'); } catch {}
+
     if (isSignedIn) {
       fetch('/api/sessions').then(r=>r.json()).then(data => {
-        setSessions((data.interviewSessions??[]).map((s: Record<string,unknown>) => ({
+        const interviews: SessionRecord[] = (data.interviewSessions??[]).map((s: Record<string,unknown>) => ({
           id: s.id as string, date: s.created_at as string,
           problemTitle: s.problem_title as string, difficulty: s.difficulty as string,
           category: s.category as string, duration: s.duration as string,
           scores: { communication: s.score_communication as number, problemSolving: s.score_problem_solving as number, codeQuality: s.score_code_quality as number },
           overallScore: s.overall_score as number, topImprovements: s.top_improvements as string[], fullFeedback: s.full_feedback as string,
-        })));
-        setGenaiSessions((data.genaiSessions??[]).map((s: Record<string,unknown>) => ({
+        }));
+        const genai: GenAISessionRecord[] = (data.genaiSessions??[]).map((s: Record<string,unknown>) => ({
           id: s.id as string, date: s.created_at as string, problemId: s.problem_id as string,
           problemTitle: s.problem_title as string, difficulty: s.difficulty as string, category: s.category as string,
           duration: s.duration as number, promptCount: s.prompt_count as number, ranCode: s.ran_code as boolean,
@@ -224,19 +236,38 @@ export default function ProfilePage() {
           scores: { promptQuality: s.score_prompt_quality as number, outputValidation: s.score_output_validation as number, humanJudgment: s.score_human_judgment as number, accountability: s.score_accountability as number },
           fluencyLevel: s.fluency_level as string, averageScore: s.average_score as number,
           keyMoments: s.key_moments as string[], topImprovements: s.top_improvements as string[], closingNote: s.closing_note as string,
-        })));
+        }));
+        const fluency: FluencySessionRecord[] = (data.fluencySessions??[]).map((s: Record<string,unknown>) => ({
+          id: s.id as string, date: s.created_at as string, duration: s.duration as number,
+          totalScore: s.total_score as number, rating: s.rating as string,
+        }));
+
+        // Merge localStorage records not already in Supabase (deduped by id)
+        const interviewIds = new Set(interviews.map(s => s.id));
+        const genaiIds = new Set(genai.map(s => s.id));
+        const fluencyIds = new Set(fluency.map(s => s.id));
+        setSessions([...interviews, ...localInterviews.filter(s => !interviewIds.has(s.id))]);
+        setGenaiSessions([...genai, ...localGenai.filter(s => !genaiIds.has(s.id))]);
+        setFluencySessions([...fluency, ...localFluency.filter(s => !fluencyIds.has(s.id))]);
         setLoaded(true);
-      }).catch(() => setLoaded(true));
+      }).catch((err) => {
+        console.error('[profile] /api/sessions fetch failed, using localStorage only:', err);
+        setSessions(localInterviews);
+        setGenaiSessions(localGenai);
+        setFluencySessions(localFluency);
+        setLoaded(true);
+      });
     } else {
-      try { const r = localStorage.getItem('interview_sessions'); if (r) setSessions(JSON.parse(r)); } catch { /**/ }
-      try { const r = localStorage.getItem('genai_sessions'); if (r) setGenaiSessions(JSON.parse(r)); } catch { /**/ }
+      setSessions(localInterviews);
+      setGenaiSessions(localGenai);
+      setFluencySessions(localFluency);
       setLoaded(true);
     }
   }, [authLoaded, isSignedIn]);
 
   const stats = useMemo(() => {
     if (!loaded) return null;
-    const totalSessions = sessions.length + genaiSessions.length;
+    const totalSessions = sessions.length + genaiSessions.length + fluencySessions.length;
     const codingSeconds = sessions.reduce((a,s) => a+parseDurationToSeconds(s.duration), 0);
     const genaiSeconds  = genaiSessions.reduce((a,s) => a+(s.duration||0), 0);
     const avgCodingScore = sessions.length > 0 ? avg(sessions.map(s=>s.overallScore)) : null;
@@ -244,7 +275,7 @@ export default function ProfilePage() {
     const avgGenaiScore  = genaiSessions.length > 0 ? avg(genaiSessions.map(s=>s.averageScore)) : null;
 
     const activityMap: Record<string,number> = {};
-    [...sessions,...genaiSessions].forEach(s => { const k=toDateKey(new Date(s.date)); activityMap[k]=(activityMap[k]||0)+1; });
+    [...sessions,...genaiSessions,...fluencySessions].forEach(s => { const k=toDateKey(new Date(s.date)); activityMap[k]=(activityMap[k]||0)+1; });
 
     const today = new Date(); today.setHours(0,0,0,0);
     let currentStreak=0; const d=new Date(today);
@@ -289,7 +320,7 @@ export default function ProfilePage() {
     const bestSession = sessions.length > 0 ? [...sessions].sort((a,b)=>b.overallScore-a.overallScore)[0] : null;
 
     const weekStart = new Date(today); weekStart.setDate(today.getDate()-today.getDay());
-    const thisWeek = [...sessions,...genaiSessions].filter(s=>new Date(s.date)>=weekStart).length;
+    const thisWeek = [...sessions,...genaiSessions,...fluencySessions].filter(s=>new Date(s.date)>=weekStart).length;
     const uniqueProblems = new Set([...sessions.map(s=>s.problemTitle),...genaiSessions.map(s=>s.problemTitle)]).size;
     const totalPrompts = genaiSessions.reduce((a,s)=>a+(s.promptCount||0),0);
     const codeRunRate = genaiSessions.length>0 ? Math.round((genaiSessions.filter(s=>s.ranCode).length/genaiSessions.length)*100) : null;

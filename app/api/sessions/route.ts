@@ -42,6 +42,7 @@ export async function POST(req: Request) {
 
   if (type === 'interview') {
     const { error } = await supabase.from('interview_sessions').insert({
+      id: session.id,
       user_id: userId,
       problem_title: session.problemTitle,
       difficulty: session.difficulty,
@@ -54,9 +55,13 @@ export async function POST(req: Request) {
       top_improvements: session.topImprovements,
       full_feedback: session.fullFeedback,
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error('[api/sessions] interview insert failed:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
   } else if (type === 'genai') {
     const { error } = await supabase.from('genai_sessions').insert({
+      id: session.id,
       user_id: userId,
       problem_id: session.problemId,
       problem_title: session.problemTitle,
@@ -77,9 +82,13 @@ export async function POST(req: Request) {
       top_improvements: session.topImprovements,
       closing_note: session.closingNote,
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error('[api/sessions] genai insert failed:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
   } else if (type === 'fluency') {
     const { error } = await supabase.from('fluency_sessions').insert({
+      id: session.id,
       user_id: userId,
       duration: session.duration,
       total_score: session.totalScore,
@@ -93,7 +102,10 @@ export async function POST(req: Request) {
       key_improvements: session.keyImprovements,
       closing_note: session.closingNote,
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error('[api/sessions] fluency insert failed:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
   } else {
     return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
   }
