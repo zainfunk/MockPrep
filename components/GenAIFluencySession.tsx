@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { getRandomFluencyQuestions } from '@/data/genaiFluentQuestions';
 import type { FluencyQuestion } from '@/data/genaiFluentQuestions';
@@ -168,8 +168,54 @@ export default function GenAIFluencySession() {
   const [feedback, setFeedback] = useState<FluencyFeedback | null>(null);
   const [error, setError] = useState('');
 
+  // chat
+  interface ChatMsg { role: 'user' | 'assistant'; content: string }
+  const [chatHistory, setChatHistory] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
   // expanded per-question in feedback
   const [expandedQ, setExpandedQ] = useState<number | null>(0);
+
+  // reset chat when switching questions
+  useEffect(() => {
+    setChatHistory([]);
+    setChatInput('');
+  }, [currentQ]);
+
+  // scroll chat to bottom on new messages
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory, chatLoading]);
+
+  const sendChatMessage = useCallback(async () => {
+    const msg = chatInput.trim();
+    if (!msg || chatLoading) return;
+    const q = questions[currentQ];
+    const updated: ChatMsg[] = [...chatHistory, { role: 'user', content: msg }];
+    setChatHistory(updated);
+    setChatInput('');
+    setChatLoading(true);
+    try {
+      const res = await fetch('/api/genai-fluency-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: q.question,
+          category: q.category,
+          history: chatHistory,
+          message: msg,
+        }),
+      });
+      const data = await res.json();
+      setChatHistory([...updated, { role: 'assistant', content: data.reply }]);
+    } catch {
+      setChatHistory([...updated, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatInput, chatLoading, chatHistory, questions, currentQ]);
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -589,109 +635,215 @@ export default function GenAIFluencySession() {
         </div>
       </header>
 
-      {/* ── Question + response ── */}
-      <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto px-6 py-10 gap-8">
+      {/* ── Two-column body ── */}
+      <div className="flex-1 flex overflow-hidden">
 
-        {/* Category + question number */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <span
-              className="font-mono text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded"
-              style={{ background: 'rgba(155,255,206,0.08)', color: T.primary, border: '1px solid rgba(155,255,206,0.15)' }}
-            >
-              {q.category}
-            </span>
-            <span className="font-mono text-xs" style={{ color: T.dimmed }}>
-              Question {currentQ + 1} of {questions.length}
-            </span>
+        {/* ── Left: Question + response ── */}
+        <div className="flex-1 flex flex-col overflow-y-auto px-6 py-10 gap-8">
+
+          {/* Category + question number */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span
+                className="font-mono text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded"
+                style={{ background: 'rgba(155,255,206,0.08)', color: T.primary, border: '1px solid rgba(155,255,206,0.15)' }}
+              >
+                {q.category}
+              </span>
+              <span className="font-mono text-xs" style={{ color: T.dimmed }}>
+                Question {currentQ + 1} of {questions.length}
+              </span>
+            </div>
+
+            <p className="text-lg leading-relaxed text-white/90 font-headline">
+              {q.question}
+            </p>
+
+            <p className="text-xs font-mono" style={{ color: T.dimmed }}>
+              Use the STAR format: <span style={{ color: T.muted }}>Situation → Task → Action → Result</span>
+            </p>
           </div>
 
-          <p className="text-lg leading-relaxed text-white/90 font-headline">
-            {q.question}
-          </p>
-
-          <p className="text-xs font-mono" style={{ color: T.dimmed }}>
-            Use the STAR format: <span style={{ color: T.muted }}>Situation → Task → Action → Result</span>
-          </p>
-        </div>
-
-        {/* Textarea */}
-        <div className="flex-1 flex flex-col gap-2">
-          <textarea
-            value={responses[currentQ]}
-            onChange={(e) => {
-              const updated = [...responses];
-              updated[currentQ] = e.target.value;
-              setResponses(updated);
-            }}
-            placeholder="Describe a specific situation from your experience…"
-            className="flex-1 w-full rounded-lg p-5 text-sm leading-relaxed resize-none focus:outline-none transition-colors"
-            style={{
-              background: T.surface,
-              border: `1px solid ${T.border}`,
-              color: T.white,
-              minHeight: '260px',
-              caretColor: T.primary,
-            }}
-            onFocus={(e) => { e.target.style.borderColor = 'rgba(155,255,206,0.35)'; }}
-            onBlur={(e) => { e.target.style.borderColor = T.border; }}
-          />
-          <div className="flex justify-between items-center">
-            <span
-              className="text-[11px] font-mono"
-              style={{ color: currentWords >= 30 ? T.primary : T.dimmed }}
-            >
-              {currentWords} words {currentWords < 30 && `· ${30 - currentWords} more to unlock submission`}
-              {currentWords >= 30 && '· minimum met'}
-            </span>
-            {currentWords >= 30 && (
-              <span className="text-[11px] font-mono flex items-center gap-1" style={{ color: T.primary }}>
-                <IconCheck /> Ready
+          {/* Textarea */}
+          <div className="flex-1 flex flex-col gap-2">
+            <textarea
+              value={responses[currentQ]}
+              onChange={(e) => {
+                const updated = [...responses];
+                updated[currentQ] = e.target.value;
+                setResponses(updated);
+              }}
+              placeholder="Describe a specific situation from your experience…"
+              className="flex-1 w-full rounded-lg p-5 text-sm leading-relaxed resize-none focus:outline-none transition-colors"
+              style={{
+                background: T.surface,
+                border: `1px solid ${T.border}`,
+                color: T.white,
+                minHeight: '260px',
+                caretColor: T.primary,
+              }}
+              onFocus={(e) => { e.target.style.borderColor = 'rgba(155,255,206,0.35)'; }}
+              onBlur={(e) => { e.target.style.borderColor = T.border; }}
+            />
+            <div className="flex justify-between items-center">
+              <span
+                className="text-[11px] font-mono"
+                style={{ color: currentWords >= 30 ? T.primary : T.dimmed }}
+              >
+                {currentWords} words {currentWords < 30 && `· ${30 - currentWords} more to unlock submission`}
+                {currentWords >= 30 && '· minimum met'}
               </span>
+              {currentWords >= 30 && (
+                <span className="text-[11px] font-mono flex items-center gap-1" style={{ color: T.primary }}>
+                  <IconCheck /> Ready
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <p className="text-sm font-mono px-4 py-2 rounded-lg" style={{ background: 'rgba(159,5,25,0.1)', color: '#d7383b', border: '1px solid rgba(215,56,59,0.2)' }}>
+              {error}
+            </p>
+          )}
+
+          {/* Navigation */}
+          <div className="flex justify-between items-center pt-2">
+            <button
+              onClick={() => setCurrentQ((v) => Math.max(0, v - 1))}
+              disabled={currentQ === 0}
+              className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono disabled:opacity-20 transition-all hover:bg-white/5"
+              style={{ color: T.secondary, border: `1px solid ${T.border}` }}
+            >
+              <IconArrowLeft /> Previous
+            </button>
+
+            {!isLast ? (
+              <button
+                onClick={() => setCurrentQ((v) => Math.min(questions.length - 1, v + 1))}
+                className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-all"
+                style={{ background: T.surfaceHigh, color: T.white, border: `1px solid ${T.border}` }}
+              >
+                Next <IconArrowRight />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!allAnswered}
+                className="flex items-center gap-2 px-5 py-2 rounded text-sm font-bold font-mono transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{
+                  background: allAnswered ? T.primary : T.surfaceHigh,
+                  color: allAnswered ? '#001f14' : T.muted,
+                }}
+              >
+                Submit All <IconArrowRight />
+              </button>
             )}
           </div>
         </div>
 
-        {/* Error */}
-        {error && (
-          <p className="text-sm font-mono px-4 py-2 rounded-lg" style={{ background: 'rgba(159,5,25,0.1)', color: '#d7383b', border: '1px solid rgba(215,56,59,0.2)' }}>
-            {error}
-          </p>
-        )}
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center pt-2">
-          <button
-            onClick={() => setCurrentQ((v) => Math.max(0, v - 1))}
-            disabled={currentQ === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono disabled:opacity-20 transition-all hover:bg-white/5"
-            style={{ color: T.secondary, border: `1px solid ${T.border}` }}
+        {/* ── Right: Clarifying chat ── */}
+        <div
+          className="w-80 shrink-0 flex flex-col border-l"
+          style={{ borderColor: T.border, background: T.surface }}
+        >
+          {/* Chat header */}
+          <div
+            className="shrink-0 px-4 py-3 border-b"
+            style={{ borderColor: T.border }}
           >
-            <IconArrowLeft /> Previous
-          </button>
+            <div className="text-[10px] font-mono uppercase tracking-[0.2em]" style={{ color: T.primary }}>
+              Ask a clarifying question
+            </div>
+            <p className="text-[11px] mt-0.5" style={{ color: T.muted }}>
+              Ask the AI to explain the question or what a strong answer looks like.
+            </p>
+          </div>
 
-          {!isLast ? (
-            <button
-              onClick={() => setCurrentQ((v) => Math.min(questions.length - 1, v + 1))}
-              className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-all"
-              style={{ background: T.surfaceHigh, color: T.white, border: `1px solid ${T.border}` }}
-            >
-              Next <IconArrowRight />
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={!allAnswered}
-              className="flex items-center gap-2 px-5 py-2 rounded text-sm font-bold font-mono transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{
-                background: allAnswered ? T.primary : T.surfaceHigh,
-                color: allAnswered ? '#001f14' : T.muted,
-              }}
-            >
-              Submit All <IconArrowRight />
-            </button>
-          )}
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {chatHistory.length === 0 && (
+              <p className="text-[11px] font-mono text-center mt-6" style={{ color: T.dimmed }}>
+                No messages yet. Ask anything about the question.
+              </p>
+            )}
+            {chatHistory.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className="max-w-[90%] text-xs leading-relaxed px-3 py-2 rounded-lg"
+                  style={
+                    msg.role === 'user'
+                      ? { background: 'rgba(155,255,206,0.12)', color: T.white, border: '1px solid rgba(155,255,206,0.2)' }
+                      : { background: T.surfaceHigher, color: T.secondary, border: `1px solid ${T.border}` }
+                  }
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="flex justify-start">
+                <div
+                  className="px-3 py-2 rounded-lg flex items-center gap-1.5"
+                  style={{ background: T.surfaceHigher, border: `1px solid ${T.border}` }}
+                >
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full animate-bounce"
+                      style={{ backgroundColor: T.muted, animationDelay: `${i * 120}ms` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            <div ref={chatBottomRef} />
+          </div>
+
+          {/* Input */}
+          <div
+            className="shrink-0 p-3 border-t"
+            style={{ borderColor: T.border }}
+          >
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+                }}
+                placeholder="Ask a question…"
+                className="flex-1 rounded px-3 py-2 text-xs focus:outline-none transition-colors"
+                style={{
+                  background: T.surfaceHigher,
+                  border: `1px solid ${T.border}`,
+                  color: T.white,
+                  caretColor: T.primary,
+                }}
+                onFocus={(e) => { e.target.style.borderColor = 'rgba(155,255,206,0.3)'; }}
+                onBlur={(e) => { e.target.style.borderColor = T.border; }}
+              />
+              <button
+                onClick={sendChatMessage}
+                disabled={!chatInput.trim() || chatLoading}
+                className="px-3 py-2 rounded text-xs font-bold font-mono transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{
+                  background: chatInput.trim() && !chatLoading ? T.primary : T.surfaceHigher,
+                  color: chatInput.trim() && !chatLoading ? '#001f14' : T.muted,
+                  border: `1px solid ${chatInput.trim() && !chatLoading ? T.primary : T.border}`,
+                }}
+              >
+                <IconArrowRight />
+              </button>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );

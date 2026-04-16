@@ -34,7 +34,7 @@ export default function RootLayout({
             }}
           />
         </head>
-        <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.className}`}>
+        <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.className} pt-14`}>
           <NavBar />
           <AppShell>{children}</AppShell>
         </body>

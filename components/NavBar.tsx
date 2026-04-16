@@ -23,7 +23,7 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
+    <nav className="fixed top-0 left-0 right-0 z-50 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
       {/* Logo */}
       <Link
         href="/"
