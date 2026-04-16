@@ -540,10 +540,19 @@ export default function HistoryPage() {
       .catch(() => {});
   }, [authLoaded, isSignedIn]);
 
+
   useEffect(() => {
     if (!authLoaded) return;
 
     if (isSignedIn) {
+      // Read localStorage fallback data (for sessions saved before Supabase, or during offline)
+      let localInterviews: SessionRecord[] = [];
+      let localGenai: GenAISessionRecord[] = [];
+      let localFluency: FluencySessionRecord[] = [];
+      try { localInterviews = JSON.parse(localStorage.getItem('interview_sessions') ?? '[]'); } catch {}
+      try { localGenai = JSON.parse(localStorage.getItem('genai_sessions') ?? '[]'); } catch {}
+      try { localFluency = JSON.parse(localStorage.getItem('fluency_sessions') ?? '[]'); } catch {}
+
       fetch('/api/sessions')
         .then((r) => r.json())
         .then((data) => {
@@ -563,6 +572,13 @@ export default function HistoryPage() {
             topImprovements: s.top_improvements as string[],
             fullFeedback: s.full_feedback as string,
           }));
+
+          // Merge localStorage sessions not already in Supabase (deduped by id)
+          const supabaseIds = new Set(interviews.map((s: SessionRecord) => s.id));
+          const mergedInterviews = [
+            ...interviews,
+            ...localInterviews.filter((s) => !supabaseIds.has(s.id)),
+          ].sort((a: SessionRecord, b: SessionRecord) => Number(b.id) - Number(a.id));
 
           const genai = (data.genaiSessions ?? []).map((s: Record<string, unknown>) => ({
             id: s.id as string,
@@ -589,6 +605,12 @@ export default function HistoryPage() {
             closingNote: s.closing_note as string,
           }));
 
+          const supabaseGenaiIds = new Set(genai.map((s: GenAISessionRecord) => s.id));
+          const mergedGenai = [
+            ...genai,
+            ...localGenai.filter((s) => !supabaseGenaiIds.has(s.id)),
+          ].sort((a: GenAISessionRecord, b: GenAISessionRecord) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
           const fluency = (data.fluencySessions ?? []).map((s: Record<string, unknown>) => ({
             id: s.id as string,
             date: s.created_at as string,
@@ -605,12 +627,24 @@ export default function HistoryPage() {
             closingNote: s.closing_note as string,
           }));
 
-          setSessions(interviews);
-          setGenaiSessions(genai);
-          setFluencySessions(fluency);
+          const supabaseFluencyIds = new Set(fluency.map((s: FluencySessionRecord) => s.id));
+          const mergedFluency = [
+            ...fluency,
+            ...localFluency.filter((s) => !supabaseFluencyIds.has(s.id)),
+          ].sort((a: FluencySessionRecord, b: FluencySessionRecord) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+          setSessions(mergedInterviews);
+          setGenaiSessions(mergedGenai);
+          setFluencySessions(mergedFluency);
           setLoaded(true);
         })
-        .catch(() => setLoaded(true));
+        .catch(() => {
+          // Supabase fetch failed — fall back to localStorage entirely
+          setSessions(localInterviews.sort((a, b) => Number(b.id) - Number(a.id)));
+          setGenaiSessions(localGenai.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+          setFluencySessions(localFluency.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+          setLoaded(true);
+        });
     } else {
       try {
         const raw = localStorage.getItem('interview_sessions');

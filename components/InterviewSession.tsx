@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@clerk/nextjs';
 import { Problem } from '@/lib/problems';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
@@ -138,10 +139,10 @@ function ScoreRing({ label, score, explanation, delay = 0 }: {
 
 // ─── FeedbackScreen ───────────────────────────────────────────────────────────
 
-function FeedbackScreen({ feedback, loading, onRestart }: {
-  feedback: FeedbackData | null; loading: boolean; onRestart: () => void;
+function FeedbackScreen({ feedback, loading, error, onRestart, onRetry }: {
+  feedback: FeedbackData | null; loading: boolean; error: string | null; onRestart: () => void; onRetry: () => void;
 }) {
-  if (loading || !feedback) {
+  if (loading) {
     return (
       <div style={{ minHeight: 'calc(100vh - 56px)', background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>
         <style>{`@keyframes spin-ring { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }`}</style>
@@ -160,6 +161,30 @@ function FeedbackScreen({ feedback, loading, onRestart }: {
                 {step}
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !feedback) {
+    return (
+      <div style={{ minHeight: 'calc(100vh - 56px)', background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>
+        <div style={{ textAlign: 'center', maxWidth: 420, padding: '0 24px' }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', background: `${T.errorDim}18`, border: `1px solid ${T.errorDim}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.error} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h2 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '1.25rem', color: T.textPrimary, margin: '0 0 8px' }}>Feedback generation failed</h2>
+          <p style={{ fontSize: '0.8125rem', color: T.textSecond, lineHeight: 1.6, margin: '0 0 28px' }}>
+            {error ?? 'Something went wrong while evaluating your session. Your session data is saved.'}
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <button onClick={onRetry} style={{ padding: '10px 24px', background: T.primary, color: '#002c66', borderRadius: 6, border: 'none', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}>
+              Try Again
+            </button>
+            <button onClick={onRestart} style={{ padding: '10px 24px', background: T.surfaceMid, color: T.textSecond, borderRadius: 6, border: `1px solid ${T.outline}`, fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>
+              Back to Problems
+            </button>
           </div>
         </div>
       </div>
@@ -249,6 +274,7 @@ function FeedbackScreen({ feedback, loading, onRestart }: {
 
 export default function InterviewSession({ problem }: { problem: Problem }) {
   const router = useRouter();
+  const { isSignedIn } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [language, setLanguage] = useState<Language>('python');
@@ -266,7 +292,11 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [sessionStarted, setSessionStarted] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const pendingMessagesRef = useRef<Message[]>([]);
+  const pendingCodeRef = useRef<string>('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const timeElapsedRef = useRef(0);
   const animatedRef = useRef<Set<number>>(new Set());
@@ -298,11 +328,14 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     setMessages(updated);
     const aIdx = updated.length;
     setMessages((p) => [...p, { role: 'assistant', content: '' }]);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: updated, problemTitle: problem.title, problemDescription: problem.description, code, language }),
+        signal: controller.signal,
       });
       const reader = res.body!.getReader();
       const dec = new TextDecoder();
@@ -314,7 +347,13 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
         setMessages((p) => { const n = [...p]; n[aIdx] = { role: 'assistant', content: acc }; return n; });
       }
       setMessages((p) => { const n = [...p]; n[aIdx] = { role: 'assistant', content: acc }; return n; });
+    } catch (err) {
+      const msg = err instanceof Error && err.name === 'AbortError'
+        ? '⚠ Response timed out. Please try again.'
+        : '⚠ Failed to get a response. Please try again.';
+      setMessages((p) => { const n = [...p]; n[aIdx] = { role: 'assistant', content: msg }; return n; });
     } finally {
+      clearTimeout(timeout);
       setIsStreaming(false);
     }
   }, [problem]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -332,17 +371,26 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     await sendMessage(msg, messages);
   };
 
-  const handleEndSession = useCallback(async () => {
-    if (sessionEnded) return;
-    setSessionEnded(true);
+  const fetchFeedback = useCallback(async (msgs: Message[], finalCode: string) => {
+    setFeedbackError(null);
     setLoadingFeedback(true);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, code, problemTitle: problem.title, timeElapsed: timeElapsedRef.current }),
+        body: JSON.stringify({ messages: msgs, code: finalCode, problemTitle: problem.title, timeElapsed: timeElapsedRef.current }),
+        signal: controller.signal,
       });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data: FeedbackData = await res.json();
+      if (typeof data.communicationScore !== 'number' || typeof data.problemSolvingScore !== 'number' || typeof data.codeQualityScore !== 'number') {
+        throw new Error('Invalid feedback structure');
+      }
+      data.communicationScore  = Math.max(1, Math.min(10, data.communicationScore));
+      data.problemSolvingScore = Math.max(1, Math.min(10, data.problemSolvingScore));
+      data.codeQualityScore    = Math.max(1, Math.min(10, data.codeQualityScore));
       setFeedback(data);
       const record: SessionRecord = {
         id: Date.now().toString(),
@@ -357,10 +405,24 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
         fullFeedback: data.closingNote,
       };
       saveSession(record);
+    } catch (err) {
+      const msg = err instanceof Error && err.name === 'AbortError'
+        ? 'Request timed out after 60 seconds. Your session was saved — try generating feedback again.'
+        : err instanceof Error ? err.message : 'Something went wrong generating feedback.';
+      setFeedbackError(msg);
     } finally {
+      clearTimeout(timeout);
       setLoadingFeedback(false);
     }
-  }, [sessionEnded, messages, code, problem]);
+  }, [problem]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleEndSession = useCallback(async () => {
+    if (sessionEnded) return;
+    setSessionEnded(true);
+    pendingMessagesRef.current = messages;
+    pendingCodeRef.current = code;
+    await fetchFeedback(messages, code);
+  }, [sessionEnded, messages, code, fetchFeedback]);
 
   const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
     isDragging.current = true;
@@ -389,7 +451,15 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const timerColor = timeLeft > 600 ? T.tertiary : timeLeft > 180 ? '#facc15' : T.error;
 
   if (sessionEnded) {
-    return <FeedbackScreen feedback={feedback} loading={loadingFeedback} onRestart={() => router.push('/problems')} />;
+    return (
+      <FeedbackScreen
+        feedback={feedback}
+        loading={loadingFeedback}
+        error={feedbackError}
+        onRestart={() => router.push('/problems')}
+        onRetry={() => fetchFeedback(pendingMessagesRef.current, pendingCodeRef.current)}
+      />
+    );
   }
 
   const diffColor = problem.difficulty === 'easy' ? T.tertiary : problem.difficulty === 'medium' ? '#facc15' : T.errorDim;
@@ -435,9 +505,21 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
               ))}
             </select>
           </div>
-          <button className="end-btn" onClick={handleEndSession} style={{ padding: '6px 14px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.error, background: `${T.error}18`, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
-            End Session
-          </button>
+          {showEndConfirm ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textSecond }}>End session?</span>
+              <button onClick={() => { setShowEndConfirm(false); handleEndSession(); }} style={{ padding: '5px 12px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, color: '#fff', background: T.errorDim, borderRadius: 4, border: 'none', cursor: 'pointer' }}>
+                Yes, end it
+              </button>
+              <button onClick={() => setShowEndConfirm(false)} style={{ padding: '5px 10px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.textMuted, background: T.surfaceHigh, borderRadius: 4, border: `1px solid ${T.outline}`, cursor: 'pointer' }}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button className="end-btn" onClick={() => setShowEndConfirm(true)} style={{ padding: '6px 14px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.error, background: `${T.error}18`, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
+              End Session
+            </button>
+          )}
         </div>
       </div>
 

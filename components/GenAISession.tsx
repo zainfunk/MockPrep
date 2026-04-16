@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@clerk/nextjs';
 import type { GenAIProblem } from '@/lib/genaiProblems';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
@@ -232,6 +233,7 @@ function GenAIFeedbackScreen({ feedback, loading, record }: {
 // ─── Main Session ─────────────────────────────────────────────────────────────
 
 export default function GenAISession({ problem }: { problem: GenAIProblem }) {
+  const { isSignedIn } = useAuth();
   const [language, setLanguage] = useState<'python' | 'javascript'>('python');
   const [code, setCode] = useState(problem.starterCode.python);
   const [messages, setMessages] = useState<Message[]>([]);
