@@ -303,8 +303,27 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [isRunning, setIsRunning] = useState(false);
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [outputOpen, setOutputOpen] = useState(false);
-  const [runsUsed, setRunsUsed] = useState(0);
   const MAX_RUNS = 5;
+  const RUNS_STORAGE_KEY = `placed_interview_runs_${problem.id}`;
+  const RUNS_SESSION_MS = 45 * 60 * 1000;
+  const [runsUsed, setRunsUsed] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const raw = localStorage.getItem(RUNS_STORAGE_KEY);
+      if (raw) {
+        const { ts, count } = JSON.parse(raw);
+        if (typeof ts === 'number' && typeof count === 'number' && Date.now() - ts < RUNS_SESSION_MS) {
+          return Math.min(count, MAX_RUNS);
+        }
+      }
+    } catch {}
+    return 0;
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (runsUsed === 0) return;
+    try { localStorage.setItem(RUNS_STORAGE_KEY, JSON.stringify({ ts: Date.now(), count: runsUsed })); } catch {}
+  }, [runsUsed, RUNS_STORAGE_KEY]);
   const [outputHeight, setOutputHeight] = useState(280);
   const isODragging = useRef(false);
   const dragStartOY = useRef(0);
