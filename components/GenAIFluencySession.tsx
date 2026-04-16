@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
 import { getRandomFluencyQuestions } from '@/data/genaiFluentQuestions';
 import type { FluencyQuestion } from '@/data/genaiFluentQuestions';
 
@@ -153,7 +152,6 @@ function ScoreBar({ score, max = 4 }: { score: number; max?: number }) {
 
 export default function GenAIFluencySession() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
 
   // questions selected on mount
   const [questions] = useState<FluencyQuestion[]>(() => getRandomFluencyQuestions(3));

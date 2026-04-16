@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { useAuth } from '@clerk/nextjs';
 import { Problem } from '@/lib/problems';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
@@ -281,7 +280,6 @@ function FeedbackScreen({ feedback, loading, error, onRestart, onRetry }: {
 
 export default function InterviewSession({ problem }: { problem: Problem }) {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [language, setLanguage] = useState<Language>('python');
@@ -305,6 +303,8 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [isRunning, setIsRunning] = useState(false);
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [outputOpen, setOutputOpen] = useState(false);
+  const [runsUsed, setRunsUsed] = useState(0);
+  const MAX_RUNS = 5;
   const pendingMessagesRef = useRef<Message[]>([]);
   const pendingCodeRef = useRef<string>('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -460,9 +460,15 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
 
   const handleRunCode = async () => {
     if (isRunning) return;
+    if (runsUsed >= MAX_RUNS) {
+      setOutputOpen(true);
+      setRunOutput({ stdout: null, stderr: `Run limit reached (${MAX_RUNS}/session). No runs remaining.`, compile_output: null, status: { description: 'Limit Reached' } });
+      return;
+    }
     setIsRunning(true);
     setOutputOpen(true);
     setRunOutput(null);
+    setRunsUsed((n) => n + 1);
     try {
       const res = await fetch('/api/run-code', {
         method: 'POST',
@@ -669,10 +675,10 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
               <button onClick={() => navigator.clipboard.writeText(code)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Copy</button>
               <button
                 onClick={handleRunCode}
-                disabled={isRunning}
-                style={{ padding: '5px 12px', fontSize: '0.6875rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.tertiary, background: `${T.tertiary}18`, borderRadius: 4, border: 'none', cursor: isRunning ? 'wait' : 'pointer', opacity: isRunning ? 0.5 : 1, transition: 'opacity 0.15s' }}
+                disabled={isRunning || runsUsed >= MAX_RUNS}
+                style={{ padding: '5px 12px', fontSize: '0.6875rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.tertiary, background: `${T.tertiary}18`, borderRadius: 4, border: 'none', cursor: isRunning ? 'wait' : runsUsed >= MAX_RUNS ? 'not-allowed' : 'pointer', opacity: isRunning || runsUsed >= MAX_RUNS ? 0.5 : 1, transition: 'opacity 0.15s' }}
               >
-                {isRunning ? 'Running…' : '▶ Run'}
+                {isRunning ? 'Running…' : `▶ Run (${MAX_RUNS - runsUsed}/${MAX_RUNS})`}
               </button>
             </div>
           </div>
