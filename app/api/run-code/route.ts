@@ -1,5 +1,23 @@
 const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com';
 
+const LANGUAGE_TO_JUDGE0: Record<string, number> = {
+  python: 71,
+  javascript: 63,
+  java: 62,
+  cpp: 54,
+  'c++': 54,
+  c: 50,
+  typescript: 74,
+  go: 60,
+  rust: 73,
+  ruby: 72,
+  csharp: 51,
+  'c#': 51,
+  kotlin: 78,
+  swift: 83,
+  php: 68,
+};
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -14,10 +32,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const { code, languageId } = await request.json();
+  const { code, language, stdin } = await request.json();
 
-  if (!code || !languageId) {
-    return Response.json({ error: 'Missing code or languageId' }, { status: 400 });
+  if (!code || !language) {
+    return Response.json({ error: 'Missing code or language' }, { status: 400 });
+  }
+
+  const languageId = LANGUAGE_TO_JUDGE0[String(language).toLowerCase()];
+  if (!languageId) {
+    return Response.json({ error: `Unsupported language: ${language}` }, { status: 400 });
   }
 
   const headers = {
@@ -26,13 +49,16 @@ export async function POST(request: Request) {
     'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
   };
 
-  // Submit
   let token: string;
   try {
     const submitRes = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ source_code: code, language_id: languageId }),
+      body: JSON.stringify({
+        source_code: code,
+        language_id: languageId,
+        stdin: stdin ?? '',
+      }),
     });
 
     if (!submitRes.ok) {
@@ -46,9 +72,8 @@ export async function POST(request: Request) {
     return Response.json({ error: `Failed to submit code: ${String(err)}` }, { status: 502 });
   }
 
-  // Poll up to 8 seconds
   let result: Record<string, unknown> = {};
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 10; i++) {
     await sleep(1000);
     try {
       const pollRes = await fetch(
@@ -57,7 +82,7 @@ export async function POST(request: Request) {
       );
       result = await pollRes.json();
       const statusId = (result.status as { id: number } | undefined)?.id ?? 0;
-      if (statusId > 2) break; // 1=In Queue, 2=Processing, >2=done
+      if (statusId > 2) break;
     } catch {
       // keep polling
     }

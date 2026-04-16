@@ -75,6 +75,13 @@ interface FeedbackData {
   closingNote: string;
 }
 
+interface RunOutput {
+  stdout: string | null;
+  stderr: string | null;
+  compile_output: string | null;
+  status: { description: string } | null;
+}
+
 interface SessionRecord {
   id: string;
   date: string;
@@ -295,6 +302,9 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
+  const [outputOpen, setOutputOpen] = useState(false);
   const pendingMessagesRef = useRef<Message[]>([]);
   const pendingCodeRef = useRef<string>('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -447,6 +457,26 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   }, [problemHeight]);
 
   const handleLanguageChange = (lang: Language) => { setLanguage(lang); setCode(STUBS[lang]); };
+
+  const handleRunCode = async () => {
+    if (isRunning) return;
+    setIsRunning(true);
+    setOutputOpen(true);
+    setRunOutput(null);
+    try {
+      const res = await fetch('/api/run-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, language }),
+      });
+      const data = await res.json();
+      setRunOutput(res.ok ? data : { stdout: null, stderr: data.error ?? 'Unknown error', compile_output: null, status: { description: 'Error' } });
+    } catch {
+      setRunOutput({ stdout: null, stderr: 'Network error.', compile_output: null, status: { description: 'Error' } });
+    } finally {
+      setIsRunning(false);
+    }
+  };
 
   const timerColor = timeLeft > 600 ? T.tertiary : timeLeft > 180 ? '#facc15' : T.error;
 
@@ -634,14 +664,21 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.primary} strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem', color: T.textPrimary }}>solution.{FILE_EXT[language]}</span>
             </div>
-            <div style={{ display: 'flex', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button onClick={() => setCode(STUBS[language])} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Reset</button>
               <button onClick={() => navigator.clipboard.writeText(code)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Copy</button>
+              <button
+                onClick={handleRunCode}
+                disabled={isRunning}
+                style={{ padding: '5px 12px', fontSize: '0.6875rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.tertiary, background: `${T.tertiary}18`, borderRadius: 4, border: 'none', cursor: isRunning ? 'wait' : 'pointer', opacity: isRunning ? 0.5 : 1, transition: 'opacity 0.15s' }}
+              >
+                {isRunning ? 'Running…' : '▶ Run'}
+              </button>
             </div>
           </div>
 
           {/* Monaco */}
-          <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
             <MonacoEditor
               height="100%"
               language={MONACO_LANGUAGE_MAP[language]}
@@ -665,6 +702,29 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
               }}
             />
           </div>
+
+          {/* Output panel */}
+          {outputOpen && (
+            <div style={{ height: 180, background: T.surfaceLow, borderTop: `1px solid ${T.outline}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+              <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', borderBottom: `1px solid ${T.outline}` }}>
+                <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Output</span>
+                <button onClick={() => setOutputOpen(false)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Close</button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', lineHeight: 1.6 }}>
+                {!runOutput ? (
+                  <div style={{ color: T.textMuted }}>{isRunning ? 'Running…' : ''}</div>
+                ) : (
+                  <>
+                    {runOutput.status && <div style={{ color: T.textMuted, marginBottom: 4 }}>[{runOutput.status.description}]</div>}
+                    {runOutput.compile_output && <div style={{ color: T.error, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.compile_output}</div>}
+                    {runOutput.stdout && <div style={{ color: T.tertiary, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.stdout}</div>}
+                    {runOutput.stderr && <div style={{ color: T.errorDim, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.stderr}</div>}
+                    {!runOutput.stdout && !runOutput.stderr && !runOutput.compile_output && <div style={{ color: T.textMuted }}>(no output)</div>}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

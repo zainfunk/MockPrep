@@ -346,7 +346,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       const res = await fetch('/api/run-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, languageId: problem.judgingLanguageIds[language] }),
+        body: JSON.stringify({ code, language }),
       });
       const data = await res.json();
       setRunOutput(res.ok ? data : { stdout: null, stderr: data.error ?? 'Unknown error', compile_output: null, status: { description: 'Error' }, time: null, memory: null });
