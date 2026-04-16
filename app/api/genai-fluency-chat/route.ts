@@ -1,6 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic();
+const MAX_BODY_BYTES = 150_000;
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -8,12 +12,28 @@ interface ChatMessage {
 }
 
 export async function POST(request: Request) {
-  const { question, category, history, message } = (await request.json()) as {
-    question: string;
-    category: string;
-    history: ChatMessage[];
-    message: string;
-  };
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const rl = rateLimit(`fluency-chat:${userId}`, 60, 60 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Chat rate limit reached. Try again in ${rl.retryAfter}s.` },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+    );
+  }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+
+  let parsed: { question?: string; category?: string; history?: ChatMessage[]; message?: string };
+  try { parsed = JSON.parse(raw); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+  const { question, category, history, message } = parsed;
+  if (typeof question !== 'string' || typeof category !== 'string' || typeof message !== 'string' || !Array.isArray(history)) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
 
   const systemPrompt = `You are a helpful interview coach assistant for a GenAI Fluency behavioral assessment. The candidate is currently answering this interview question:
 

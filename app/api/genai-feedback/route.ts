@@ -1,6 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic();
+const MAX_BODY_BYTES = 400_000;
 
 interface PromptEvent {
   userMessage: string;
@@ -9,6 +13,25 @@ interface PromptEvent {
 }
 
 export async function POST(request: Request) {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const rl = rateLimit(`genai-feedback:${userId}`, 30, 60 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Feedback rate limit reached. Try again in ${rl.retryAfter}s.` },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+    );
+  }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+
+  let parsed: Record<string, unknown>;
+  try { parsed = JSON.parse(raw); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+
   const {
     problemTitle,
     problemDescription,
@@ -20,7 +43,22 @@ export async function POST(request: Request) {
     codeModifiedFromAI,
     promptCount,
     duration,
-  } = await request.json();
+  } = parsed as {
+    problemTitle?: string;
+    problemDescription?: string;
+    promptEvents?: PromptEvent[];
+    finalCode?: string;
+    lastAiCodeBlock?: string;
+    ranCode?: boolean;
+    codeMatchesAI?: boolean;
+    codeModifiedFromAI?: boolean;
+    promptCount?: number;
+    duration?: number;
+  };
+
+  if (typeof problemTitle !== 'string' || !Array.isArray(promptEvents)) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
 
   const conversationText = (promptEvents as PromptEvent[])
     .map(

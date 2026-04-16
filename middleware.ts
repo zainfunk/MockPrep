@@ -4,13 +4,6 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/api/chat(.*)',
-  '/api/feedback(.*)',
-  '/api/genai-chat(.*)',
-  '/api/genai-feedback(.*)',
-  '/api/genai-fluency-feedback(.*)',
-  '/api/genai-fluency-chat(.*)',
-  '/api/run-code(.*)',
 ]);
 
 export default clerkMiddleware((auth, req) => {

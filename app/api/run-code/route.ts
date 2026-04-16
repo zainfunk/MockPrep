@@ -1,4 +1,10 @@
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
+
 const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com';
+const MAX_BODY_BYTES = 100_000; // 100 KB — plenty for even large code snippets
+const MAX_CODE_LENGTH = 50_000; // 50 KB of source code
 
 const LANGUAGE_TO_JUDGE0: Record<string, number> = {
   python: 71,
@@ -23,24 +29,59 @@ function sleep(ms: number) {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.JUDGE0_API_KEY;
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  // 30 runs per hour, 200 per day per user — covers normal practice with headroom
+  const hourly = rateLimit(`run-code:h:${userId}`, 30, 60 * 60 * 1000);
+  if (!hourly.ok) {
+    return NextResponse.json(
+      { error: `Code execution rate limit reached. Try again in ${hourly.retryAfter}s.` },
+      { status: 429, headers: { 'Retry-After': String(hourly.retryAfter) } }
+    );
+  }
+  const daily = rateLimit(`run-code:d:${userId}`, 200, 24 * 60 * 60 * 1000);
+  if (!daily.ok) {
+    return NextResponse.json(
+      { error: 'Daily code execution quota reached. Try again tomorrow.' },
+      { status: 429, headers: { 'Retry-After': String(daily.retryAfter) } }
+    );
+  }
+
+  const apiKey = process.env.JUDGE0_API_KEY;
   if (!apiKey) {
-    return Response.json(
-      { error: 'Code execution is not configured. Add JUDGE0_API_KEY to .env.local to enable it.' },
+    return NextResponse.json(
+      { error: 'Code execution is not configured.' },
       { status: 503 }
     );
   }
 
-  const { code, language, stdin } = await request.json();
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
 
+  let body: { code?: string; language?: string; stdin?: string };
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const { code, language, stdin } = body;
   if (!code || !language) {
-    return Response.json({ error: 'Missing code or language' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing code or language' }, { status: 400 });
+  }
+  if (typeof code !== 'string' || code.length > MAX_CODE_LENGTH) {
+    return NextResponse.json({ error: 'Code too long' }, { status: 413 });
+  }
+  if (typeof stdin !== 'undefined' && (typeof stdin !== 'string' || stdin.length > 10_000)) {
+    return NextResponse.json({ error: 'stdin too long' }, { status: 413 });
   }
 
   const languageId = LANGUAGE_TO_JUDGE0[String(language).toLowerCase()];
   if (!languageId) {
-    return Response.json({ error: `Unsupported language: ${language}` }, { status: 400 });
+    return NextResponse.json({ error: `Unsupported language: ${language}` }, { status: 400 });
   }
 
   const headers = {
@@ -54,22 +95,18 @@ export async function POST(request: Request) {
     const submitRes = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        source_code: code,
-        language_id: languageId,
-        stdin: stdin ?? '',
-      }),
+      body: JSON.stringify({ source_code: code, language_id: languageId, stdin: stdin ?? '' }),
     });
 
     if (!submitRes.ok) {
       const text = await submitRes.text();
-      return Response.json({ error: `Submission failed: ${text}` }, { status: 502 });
+      return NextResponse.json({ error: `Submission failed: ${text}` }, { status: 502 });
     }
 
     const submitData = await submitRes.json();
     token = submitData.token;
   } catch (err) {
-    return Response.json({ error: `Failed to submit code: ${String(err)}` }, { status: 502 });
+    return NextResponse.json({ error: `Failed to submit code: ${String(err)}` }, { status: 502 });
   }
 
   let result: Record<string, unknown> = {};
@@ -88,5 +125,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return Response.json(result);
+  return NextResponse.json(result);
 }

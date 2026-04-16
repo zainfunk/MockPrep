@@ -1,9 +1,40 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic();
+const MAX_BODY_BYTES = 200_000;
 
 export async function POST(request: Request) {
-  const { messages, problemTitle, problemDescription } = await request.json();
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const rl = rateLimit(`genai-chat:${userId}`, 60, 60 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Chat rate limit reached. Try again in ${rl.retryAfter}s.` },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+    );
+  }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+
+  let body: { messages?: unknown; problemTitle?: string; problemDescription?: string };
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const { messages, problemTitle, problemDescription } = body;
+
+  if (!Array.isArray(messages) || typeof problemTitle !== 'string' || typeof problemDescription !== 'string') {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
 
   const systemPrompt = `You are a helpful AI programming assistant. The user is working on a coding problem called "${problemTitle}".
 
@@ -28,7 +59,7 @@ Guidelines:
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         system: systemPrompt,
-        messages: messages,
+        messages: messages as Anthropic.MessageParam[],
         stream: true,
       });
 

@@ -1,6 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic();
+const MAX_BODY_BYTES = 300_000;
 
 interface QuestionInput {
   question: string;
@@ -46,10 +50,28 @@ function ratingFromScore(score: number): string {
 }
 
 export async function POST(request: Request) {
-  const { questions, duration } = (await request.json()) as {
-    questions: QuestionInput[];
-    duration: number;
-  };
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const rl = rateLimit(`fluency-feedback:${userId}`, 30, 60 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Feedback rate limit reached. Try again in ${rl.retryAfter}s.` },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+    );
+  }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+
+  let parsed: { questions?: QuestionInput[]; duration?: number };
+  try { parsed = JSON.parse(raw); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+  const { questions, duration } = parsed;
+  if (!Array.isArray(questions) || typeof duration !== 'number') {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
 
   const questionsText = questions
     .map(

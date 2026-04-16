@@ -1,9 +1,34 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic();
+const MAX_BODY_BYTES = 300_000;
 
 export async function POST(request: Request) {
-  const { messages, code, problemTitle, timeElapsed } = await request.json();
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const rl = rateLimit(`feedback:${userId}`, 30, 60 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Feedback rate limit reached. Try again in ${rl.retryAfter}s.` },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+    );
+  }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+
+  let parsed: { messages?: unknown; code?: string; problemTitle?: string; timeElapsed?: number };
+  try { parsed = JSON.parse(raw); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+  const { messages, code, problemTitle, timeElapsed } = parsed;
+  if (!Array.isArray(messages) || typeof problemTitle !== 'string' || typeof timeElapsed !== 'number') {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
 
   const conversationText = messages
     .map((m: { role: string; content: string }) => `${m.role.toUpperCase()}: ${m.content}`)
