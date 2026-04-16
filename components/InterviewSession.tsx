@@ -305,6 +305,10 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const [outputOpen, setOutputOpen] = useState(false);
   const [runsUsed, setRunsUsed] = useState(0);
   const MAX_RUNS = 5;
+  const [outputHeight, setOutputHeight] = useState(280);
+  const isODragging = useRef(false);
+  const dragStartOY = useRef(0);
+  const dragStartOHeight = useRef(280);
   const pendingMessagesRef = useRef<Message[]>([]);
   const pendingCodeRef = useRef<string>('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -457,6 +461,17 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   }, [problemHeight]);
 
   const handleLanguageChange = (lang: Language) => { setLanguage(lang); setCode(STUBS[lang]); };
+
+  const handleOutputDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    isODragging.current = true;
+    dragStartOY.current = e.clientY;
+    dragStartOHeight.current = outputHeight;
+    e.preventDefault();
+    const move = (ev: MouseEvent) => { if (!isODragging.current) return; setOutputHeight(Math.min(600, Math.max(80, dragStartOHeight.current - (ev.clientY - dragStartOY.current)))); };
+    const up = () => { isODragging.current = false; window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  }, [outputHeight]);
 
   const handleRunCode = async () => {
     if (isRunning) return;
@@ -711,12 +726,14 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
 
           {/* Output panel */}
           {outputOpen && (
-            <div style={{ height: 180, background: T.surfaceLow, borderTop: `1px solid ${T.outline}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-              <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', borderBottom: `1px solid ${T.outline}` }}>
-                <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Output</span>
-                <button onClick={() => setOutputOpen(false)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Close</button>
+            <>
+              <div className="vdiv" onMouseDown={handleOutputDividerMouseDown} style={{ height: 4, background: T.outline, cursor: 'row-resize', flexShrink: 0, transition: 'background 0.15s' }} />
+            <div style={{ height: outputHeight, background: T.surfaceLow, borderTop: `2px solid ${T.primary}40`, display: 'flex', flexDirection: 'column', flexShrink: 0, boxShadow: '0 -8px 24px rgba(0,0,0,0.3)' }}>
+              <div style={{ height: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', borderBottom: `1px solid ${T.outline}` }}>
+                <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontSize: '0.6875rem', fontWeight: 700, color: T.textPrimary, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Console Output</span>
+                <button onClick={() => setOutputOpen(false)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Close</button>
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', lineHeight: 1.6 }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', lineHeight: 1.6 }}>
                 {!runOutput ? (
                   <div style={{ color: T.textMuted }}>{isRunning ? 'Running…' : ''}</div>
                 ) : (
@@ -725,11 +742,16 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
                     {runOutput.compile_output && <div style={{ color: T.error, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.compile_output}</div>}
                     {runOutput.stdout && <div style={{ color: T.tertiary, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.stdout}</div>}
                     {runOutput.stderr && <div style={{ color: T.errorDim, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.stderr}</div>}
-                    {!runOutput.stdout && !runOutput.stderr && !runOutput.compile_output && <div style={{ color: T.textMuted }}>(no output)</div>}
+                    {!runOutput.stdout && !runOutput.stderr && !runOutput.compile_output && (
+                      <div style={{ color: T.textMuted, fontStyle: 'italic' }}>
+                        (no output — did you {language === 'python' ? 'call print() on your result' : language === 'javascript' ? 'console.log() your result' : 'print your result'}?)
+                      </div>
+                    )}
                   </>
                 )}
               </div>
             </div>
+            </>
           )}
         </div>
       </div>

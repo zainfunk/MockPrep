@@ -11,6 +11,22 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false 
 
 interface Message { role: 'user' | 'assistant'; content: string; }
 
+type Segment = { type: 'text'; content: string } | { type: 'code'; content: string; lang: string };
+
+function splitMessage(content: string): Segment[] {
+  const parts: Segment[] = [];
+  const regex = /```(\w*)\n?([\s\S]*?)```/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    if (match.index > lastIndex) parts.push({ type: 'text', content: content.slice(lastIndex, match.index) });
+    parts.push({ type: 'code', content: match[2], lang: match[1] || '' });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < content.length) parts.push({ type: 'text', content: content.slice(lastIndex) });
+  return parts;
+}
+
 interface PromptEvent { timestamp: number; userMessage: string; aiResponse: string; }
 
 interface RunOutput {
@@ -243,6 +259,10 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
   const [submitError, setSubmitError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [outputOpen, setOutputOpen] = useState(false);
+  const [outputHeight, setOutputHeight] = useState(280);
+  const isODragging = useRef(false);
+  const dragStartOY = useRef(0);
+  const dragStartOHeight = useRef(280);
   const [feedback, setFeedback] = useState<GenAIFeedbackData | null>(null);
   const [sessionRecord, setSessionRecord] = useState<GenAISessionRecord | null>(null);
   const [promptCount, setPromptCount] = useState(0);
@@ -295,6 +315,17 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
   }, [problemHeight]);
+
+  const handleOutputDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    isODragging.current = true;
+    dragStartOY.current = e.clientY;
+    dragStartOHeight.current = outputHeight;
+    e.preventDefault();
+    const move = (ev: MouseEvent) => { if (!isODragging.current) return; setOutputHeight(Math.min(600, Math.max(80, dragStartOHeight.current - (ev.clientY - dragStartOY.current)))); };
+    const up = () => { isODragging.current = false; window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  }, [outputHeight]);
 
   const sendMessage = useCallback(async () => {
     const trimmed = input.trim();
@@ -493,10 +524,35 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
                       <p style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: T.textPrimary, margin: 0 }}>{msg.content}</p>
                     </div>
                   ) : (
-                    <div className="chat-glass" style={{ borderRadius: '10px 10px 10px 2px', padding: '10px 14px', maxWidth: '90%', borderTop: `2px solid ${T.secondary}`, borderRight: `1px solid ${T.outline}`, borderBottom: `1px solid ${T.outline}`, borderLeft: `1px solid ${T.outline}` }}>
-                      <p style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: T.textPrimary, margin: 0, whiteSpace: 'pre-wrap' }}>
-                        {msg.content || (isStreaming && i === messages.length - 1 ? '▌' : '')}
-                      </p>
+                    <div className="chat-glass" style={{ borderRadius: '10px 10px 10px 2px', padding: '10px 14px', maxWidth: '90%', borderTop: `2px solid ${T.secondary}`, borderRight: `1px solid ${T.outline}`, borderBottom: `1px solid ${T.outline}`, borderLeft: `1px solid ${T.outline}`, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {!msg.content && isStreaming && i === messages.length - 1 ? (
+                        <p style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: T.textPrimary, margin: 0 }}>▌</p>
+                      ) : (
+                        splitMessage(msg.content).map((seg, si) => (
+                          seg.type === 'text' ? (
+                            seg.content.trim() && (
+                              <p key={si} style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: T.textPrimary, margin: 0, whiteSpace: 'pre-wrap' }}>{seg.content}</p>
+                            )
+                          ) : (
+                            <div key={si} style={{ background: T.surface, borderRadius: 6, border: `1px solid ${T.outline}`, overflow: 'hidden' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 10px', background: T.surfaceLow, borderBottom: `1px solid ${T.outline}` }}>
+                                <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{seg.lang || 'code'}</span>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                  <button
+                                    onClick={() => navigator.clipboard.writeText(seg.content)}
+                                    style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '2px 4px' }}
+                                  >Copy</button>
+                                  <button
+                                    onClick={() => { setCode(seg.content); hasRanCodeRef.current = false; }}
+                                    style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontSize: '0.625rem', fontWeight: 600, color: '#280067', background: T.secondary, border: 'none', borderRadius: 3, cursor: 'pointer', padding: '3px 8px' }}
+                                  >→ Insert into Editor</button>
+                                </div>
+                              </div>
+                              <pre style={{ margin: 0, padding: '10px 12px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', color: T.tertiary, overflowX: 'auto', lineHeight: 1.55 }}>{seg.content}</pre>
+                            </div>
+                          )
+                        ))
+                      )}
                     </div>
                   )}
                   <span style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', color: msg.role === 'user' ? T.textMuted : T.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -594,12 +650,14 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
 
           {/* Console output */}
           {outputOpen && (
-            <div style={{ borderTop: `1px solid ${T.outline}`, flexShrink: 0, background: T.surface, maxHeight: 180, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: '6px 14px', background: T.surfaceLow, borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.textMuted }}>Console Output</span>
+            <>
+              <div className="vdiv" onMouseDown={handleOutputDividerMouseDown} style={{ height: 4, background: T.outline, cursor: 'row-resize', flexShrink: 0, transition: 'background 0.15s' }} />
+            <div style={{ borderTop: `2px solid ${T.secondary}40`, flexShrink: 0, background: T.surface, height: outputHeight, display: 'flex', flexDirection: 'column', boxShadow: '0 -8px 24px rgba(0,0,0,0.3)' }}>
+              <div style={{ padding: '8px 14px', background: T.surfaceLow, borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.textPrimary }}>Console Output</span>
                 <button onClick={() => setOutputOpen(false)} style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5625rem', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer' }}>CLOSE</button>
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.6875rem' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', lineHeight: 1.6 }}>
                 {!runOutput ? (
                   <span style={{ color: T.textMuted }}>Running...</span>
                 ) : (
@@ -608,11 +666,17 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
                     {runOutput.compile_output && <div style={{ color: T.error, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.compile_output}</div>}
                     {runOutput.stdout && <div style={{ color: T.tertiary, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.stdout}</div>}
                     {runOutput.stderr && <div style={{ color: T.errorDim, whiteSpace: 'pre-wrap', marginBottom: 4 }}>{runOutput.stderr}</div>}
-                    {runOutput.time && <div style={{ color: T.textMuted }}>{runOutput.time}s{runOutput.memory ? ` · ${runOutput.memory}KB` : ''}</div>}
+                    {!runOutput.stdout && !runOutput.stderr && !runOutput.compile_output && (
+                      <div style={{ color: T.textMuted, fontStyle: 'italic' }}>
+                        (no output — did you {language === 'python' ? 'call print() on your result' : 'console.log() your result'}?)
+                      </div>
+                    )}
+                    {runOutput.time && <div style={{ color: T.textMuted, marginTop: 4 }}>{runOutput.time}s{runOutput.memory ? ` · ${runOutput.memory}KB` : ''}</div>}
                   </>
                 )}
               </div>
             </div>
+            </>
           )}
         </div>
       </div>
