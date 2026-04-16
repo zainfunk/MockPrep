@@ -10,7 +10,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains-mono' });
 
 export const metadata: Metadata = {
-  title: 'MockPrep - AI Mock Interviews',
+  title: 'Placed - AI Mock Interviews',
   description: 'Practice coding interviews with an AI interviewer',
 };
 

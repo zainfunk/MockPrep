@@ -396,10 +396,10 @@ export default function LandingPage() {
       <section className="border-t border-slate-200 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
-            <SectionLabel index="002" label="Why MockPrep" />
+            <SectionLabel index="002" label="Why Placed" />
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">The gap between practice and performance</h2>
             <p className="text-slate-500 text-lg max-w-xl">
-              Most platforms only test what you know. MockPrep tests how you think, how you communicate, and how well you work with AI — because all three matter now.
+              Most platforms only test what you know. Placed tests how you think, how you communicate, and how well you work with AI — because all three matter now.
             </p>
           </AnimateIn>
 
@@ -428,11 +428,11 @@ export default function LandingPage() {
                 </ul>
               </div>
 
-              {/* Right - MockPrep */}
+              {/* Right - Placed */}
               <div>
                 <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/40">
                   <span className="text-green-500/70 text-xs font-mono">+++</span>
-                  <span className="text-green-600/80 dark:text-green-400/70 text-xs font-mono">mock_prep.md</span>
+                  <span className="text-green-600/80 dark:text-green-400/70 text-xs font-mono">placed.md</span>
                 </div>
                 <ul className="p-6 space-y-3.5">
                   {[
@@ -627,7 +627,7 @@ export default function LandingPage() {
                     <div className="text-3xl font-bold text-slate-200 dark:text-slate-700/80 font-mono leading-none">{step}</div>
                   </div>
                   <div>
-                    <div className="text-[11px] text-green-600/60 dark:text-green-400/50 font-mono mb-2">$ mockprep {cmd}</div>
+                    <div className="text-[11px] text-green-600/60 dark:text-green-400/50 font-mono mb-2">$ placed {cmd}</div>
                     <h3 className="text-slate-800 dark:text-slate-100 font-semibold text-lg mb-2">{title}</h3>
                     <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
                   </div>
@@ -665,7 +665,7 @@ export default function LandingPage() {
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
       <footer className="border-t border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-slate-400 dark:text-slate-600 text-sm font-mono font-semibold">MockPrep</span>
+          <span className="text-slate-400 dark:text-slate-600 text-sm font-mono font-semibold">Placed</span>
           <div className="flex items-center gap-6 text-sm font-mono">
             <Link href="/problems" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">problems</Link>
             <Link href="/history" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">history</Link>

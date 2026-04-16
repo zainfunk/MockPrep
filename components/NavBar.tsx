@@ -29,7 +29,7 @@ export default function NavBar() {
         href="/"
         className="text-lg font-bold text-gray-900 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
       >
-        MockPrep
+        Placed
       </Link>
 
       {/* Right side nav */}

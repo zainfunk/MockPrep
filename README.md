@@ -1,4 +1,4 @@
-# MockPrep
+# Placed
 
 AI-powered mock technical interview app. Practice coding interviews with a live AI interviewer powered by Claude — not just problems in silence, but a real back-and-forth that mimics the experience of an actual technical round.
 
@@ -49,8 +49,8 @@ AI-powered mock technical interview app. Practice coding interviews with a live 
 
 1. Clone the repo and install dependencies:
    ```bash
-   git clone https://github.com/Funk0/MockPrep
-   cd MockPrep
+   git clone https://github.com/zainfunk/Placed
+   cd Placed
    npm install
    ```
 

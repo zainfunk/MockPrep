@@ -80,7 +80,7 @@ export default function SideNav() {
             </>
           ) : (
             <p style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.05em', color: T.textMuted, margin: 0 }}>
-              MOCKPREP
+              PLACED
             </p>
           )}
         </div>
@@ -130,7 +130,7 @@ export default function SideNav() {
         {/* Footer branding */}
         <div style={{ padding: '16px 24px', borderTop: `1px solid ${T.outline}` }}>
           <p style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: T.textMuted, margin: 0 }}>
-            © 2024 MockPrep
+            © 2024 Placed
           </p>
           <p style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.5rem', letterSpacing: '0.06em', color: `${T.textMuted}80`, marginTop: 2 }}>
             Built for Architects
