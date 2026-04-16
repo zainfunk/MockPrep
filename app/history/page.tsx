@@ -531,6 +531,10 @@ export default function HistoryPage() {
   const [codingOpen, setCodingOpen] = useState(true);
   const [genaiOpen, setGenaiOpen] = useState(true);
   const [fluencyOpen, setFluencyOpen] = useState(true);
+  const [codingShowAll, setCodingShowAll] = useState(false);
+  const [genaiShowAll, setGenaiShowAll] = useState(false);
+  const [fluencyShowAll, setFluencyShowAll] = useState(false);
+  const PREVIEW_COUNT = 3;
 
   useEffect(() => {
     if (!authLoaded || !isSignedIn) return;
@@ -815,9 +819,17 @@ export default function HistoryPage() {
                 </div>
                 {codingOpen && (
                   <div className="space-y-4">
-                    {sessions.map((session) => (
+                    {(codingShowAll ? sessions : sessions.slice(0, PREVIEW_COUNT)).map((session) => (
                       <SessionCard key={session.id} session={session} />
                     ))}
+                    {sessions.length > PREVIEW_COUNT && (
+                      <button
+                        onClick={() => setCodingShowAll((v) => !v)}
+                        className="w-full text-xs px-3 py-2 rounded border border-[#484849]/50 text-[#767576] hover:text-white hover:border-[#85adff]/50 font-headline transition-colors"
+                      >
+                        {codingShowAll ? 'Show fewer' : `Show all (${sessions.length})`}
+                      </button>
+                    )}
                   </div>
                 )}
               </section>
@@ -855,9 +867,17 @@ export default function HistoryPage() {
                 </div>
                 {genaiOpen && (
                   <div className="space-y-4">
-                    {genaiSessions.map((session) => (
+                    {(genaiShowAll ? genaiSessions : genaiSessions.slice(0, PREVIEW_COUNT)).map((session) => (
                       <GenAISessionCard key={session.id} session={session} />
                     ))}
+                    {genaiSessions.length > PREVIEW_COUNT && (
+                      <button
+                        onClick={() => setGenaiShowAll((v) => !v)}
+                        className="w-full text-xs px-3 py-2 rounded border border-[#484849]/50 text-[#767576] hover:text-white hover:border-[#ac8aff]/50 font-headline transition-colors"
+                      >
+                        {genaiShowAll ? 'Show fewer' : `Show all (${genaiSessions.length})`}
+                      </button>
+                    )}
                   </div>
                 )}
               </section>
@@ -899,9 +919,17 @@ export default function HistoryPage() {
                 </div>
                 {fluencyOpen && (
                   <div className="space-y-4">
-                    {fluencySessions.map((session) => (
+                    {(fluencyShowAll ? fluencySessions : fluencySessions.slice(0, PREVIEW_COUNT)).map((session) => (
                       <FluencySessionCard key={session.id} session={session} />
                     ))}
+                    {fluencySessions.length > PREVIEW_COUNT && (
+                      <button
+                        onClick={() => setFluencyShowAll((v) => !v)}
+                        className="w-full text-xs px-3 py-2 rounded border border-[#484849]/50 text-[#767576] hover:text-white hover:border-[#9bffce]/50 font-headline transition-colors"
+                      >
+                        {fluencyShowAll ? 'Show fewer' : `Show all (${fluencySessions.length})`}
+                      </button>
+                    )}
                   </div>
                 )}
               </section>
