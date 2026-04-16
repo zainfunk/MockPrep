@@ -79,9 +79,7 @@ export default function SideNav() {
               </p>
             </>
           ) : (
-            <p style={{ fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.05em', color: T.textMuted, margin: 0 }}>
-              PLACED
-            </p>
+            <img src="/placedlogo.png" alt="Placed" style={{ height: 22, width: 'auto', filter: 'invert(1)', opacity: 0.85 }} />
           )}
         </div>
 
