@@ -254,6 +254,27 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const MAX_RUNS = 5;
+  const RUNS_STORAGE_KEY = `placed_genai_runs_${problem.id}`;
+  const RUNS_SESSION_MS = 45 * 60 * 1000;
+  const [runsUsed, setRunsUsed] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const raw = localStorage.getItem(RUNS_STORAGE_KEY);
+      if (raw) {
+        const { ts, count } = JSON.parse(raw);
+        if (typeof ts === 'number' && typeof count === 'number' && Date.now() - ts < RUNS_SESSION_MS) {
+          return Math.min(count, MAX_RUNS);
+        }
+      }
+    } catch {}
+    return 0;
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (runsUsed === 0) return;
+    try { localStorage.setItem(RUNS_STORAGE_KEY, JSON.stringify({ ts: Date.now(), count: runsUsed })); } catch {}
+  }, [runsUsed, RUNS_STORAGE_KEY]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -367,10 +388,16 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
 
   const handleRunCode = async () => {
     if (isRunning) return;
+    if (runsUsed >= MAX_RUNS) {
+      setOutputOpen(true);
+      setRunOutput({ stdout: null, stderr: `Run limit reached (${MAX_RUNS}/session). No runs remaining.`, compile_output: null, status: { description: 'Limit Reached' }, time: null, memory: null });
+      return;
+    }
     setIsRunning(true);
     setOutputOpen(true);
     setRunOutput(null);
     hasRanCodeRef.current = true;
+    setRunsUsed((n) => n + 1);
     try {
       const res = await fetch('/api/run-code', {
         method: 'POST',
@@ -479,10 +506,10 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
           <button
             className="run-btn"
             onClick={handleRunCode}
-            disabled={isRunning}
-            style={{ padding: '6px 14px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.tertiary, background: `${T.tertiary}18`, borderRadius: 4, border: 'none', cursor: isRunning ? 'wait' : 'pointer', opacity: isRunning ? 0.5 : 1, transition: 'opacity 0.15s' }}
+            disabled={isRunning || runsUsed >= MAX_RUNS}
+            style={{ padding: '6px 14px', fontSize: '0.75rem', fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 600, color: T.tertiary, background: `${T.tertiary}18`, borderRadius: 4, border: 'none', cursor: isRunning ? 'wait' : runsUsed >= MAX_RUNS ? 'not-allowed' : 'pointer', opacity: isRunning || runsUsed >= MAX_RUNS ? 0.5 : 1, transition: 'opacity 0.15s' }}
           >
-            {isRunning ? 'Running…' : '▶ Run Code'}
+            {isRunning ? 'Running…' : `▶ Run (${MAX_RUNS - runsUsed}/${MAX_RUNS})`}
           </button>
           <button
             className="submit-btn"
