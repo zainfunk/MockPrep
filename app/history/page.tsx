@@ -710,7 +710,7 @@ export default function HistoryPage() {
     <main
       className="min-h-screen bg-[#0e0e0f] text-white"
       style={{
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, #262627 1px, transparent 1px)',
         backgroundSize: '24px 24px',
       }}
     >

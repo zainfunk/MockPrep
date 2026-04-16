@@ -277,20 +277,20 @@ function ProblemsPageInner() {
   return (
     <>
     <main
-      className="min-h-screen bg-[#0e0e0f] text-white pt-16"
+      className="min-h-screen bg-[#0e0e0f] text-white"
       style={{
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, #262627 1px, transparent 1px)',
         backgroundSize: '24px 24px',
       }}
     >
       {/* ── Sticky sub-header ── */}
       <header ref={headerRef} className="bg-[#0e0e0f] border-b border-white/5">
-        <div className="w-full px-6 md:px-10 xl:px-16 py-6">
+        <div className="w-full px-6 md:px-10 xl:px-16 pt-12 pb-6">
 
           {/* Title row */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-4xl font-headline font-bold tracking-tight mb-4 text-white">
+              <h1 className="text-5xl font-headline font-bold tracking-tighter mb-4 text-white">
                 Problem Library
               </h1>
               {/* Tab switcher */}
@@ -537,11 +537,11 @@ function ProblemsPageInner() {
                         type: 'coding',
                         href: `/interview/${problem.id}`,
                       })}
-                      className={`group relative flex flex-col text-left bg-[#1a191b] ${d.topBorder} p-6 rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)] cursor-pointer w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#85adff]`}
+                      className={`group relative flex flex-col text-left bg-[#131314] ${d.topBorder} p-6 rounded-xl transition-colors duration-200 hover:bg-[#1a191b] cursor-pointer w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#85adff]`}
                     >
                       {/* Number + badge row */}
                       <div className="flex justify-between items-start mb-4">
-                        <span className="font-mono text-[10px] text-[#484849]">
+                        <span className="font-mono text-xs text-[#484849]">
                           #{String(index + 1).padStart(2, '0')}
                         </span>
                         <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${d.badge}`}>
@@ -550,7 +550,7 @@ function ProblemsPageInner() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-base font-headline font-bold text-white mb-2 leading-tight group-hover:text-[#85adff] transition-colors">
+                      <h3 className="text-lg font-headline font-bold text-white mb-2 leading-tight group-hover:text-[#85adff] transition-colors">
                         {problem.title}
                       </h3>
 
@@ -624,10 +624,10 @@ function ProblemsPageInner() {
                         type: 'genai',
                         href: `/genai/${problem.id}`,
                       })}
-                      className={`group relative flex flex-col text-left bg-[#1a191b] ${d.topBorder} p-6 rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)] cursor-pointer w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ac8aff]`}
+                      className={`group relative flex flex-col text-left bg-[#131314] ${d.topBorder} p-6 rounded-xl transition-colors duration-200 hover:bg-[#1a191b] cursor-pointer w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ac8aff]`}
                     >
                       <div className="flex justify-between items-start mb-4">
-                        <span className="font-mono text-[10px] text-[#484849]">
+                        <span className="font-mono text-xs text-[#484849]">
                           #{String(index + 1).padStart(2, '0')}
                         </span>
                         <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${d.badge}`}>
@@ -635,7 +635,7 @@ function ProblemsPageInner() {
                         </span>
                       </div>
 
-                      <h3 className="text-base font-headline font-bold text-white mb-2 leading-tight group-hover:text-[#ac8aff] transition-colors">
+                      <h3 className="text-lg font-headline font-bold text-white mb-2 leading-tight group-hover:text-[#ac8aff] transition-colors">
                         {problem.title}
                       </h3>
 
