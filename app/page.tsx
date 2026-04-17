@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Space_Grotesk, JetBrains_Mono, Space_Mono } from 'next/font/google';
 import AnimateIn from '@/components/AnimateIn';
 import TypewriterWord from '@/components/TypewriterWord';
+import HeroShowcase from '@/components/HeroShowcase';
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 const jetbrainsMono = JetBrains_Mono({
@@ -43,6 +44,16 @@ function IconBarChart() {
   );
 }
 
+function IconArrow() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
 function IconClock() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
@@ -64,16 +75,6 @@ function IconLayers() {
   );
 }
 
-function IconArrow() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24"
-      fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
-
 function IconHistory() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
@@ -81,6 +82,27 @@ function IconHistory() {
       <path d="M3 3v5h5" />
       <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" />
       <polyline points="12 7 12 12 15 15" />
+    </svg>
+  );
+}
+
+function IconTerminal() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
+  );
+}
+
+function IconLightbulb() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21h6" />
+      <path d="M10 17.5h4" />
+      <path d="M12 3a6 6 0 0 0-4 10.5c.6.5 1 1.2 1 2V15h6v-.5c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" />
     </svg>
   );
 }
@@ -93,87 +115,6 @@ function SectionLabel({ index, label }: { index: string; label: string }) {
       <span className="text-slate-400 dark:text-slate-600 text-xs font-mono">{'// '}{index}</span>
       <div className="h-px w-6 bg-slate-300 dark:bg-slate-700" />
       <span className="text-slate-400 dark:text-slate-500 text-xs font-mono tracking-widest uppercase">{label}</span>
-    </div>
-  );
-}
-
-// ── Mock interview preview ─────────────────────────────────────────────────────
-
-function InterviewPreview() {
-  return (
-    <div className="relative w-full max-w-md mx-auto lg:mx-0 lg:ml-auto">
-      {/* Ambient glow */}
-      <div
-        aria-hidden
-        className="absolute -inset-6 rounded-2xl blur-3xl opacity-15 dark:opacity-15 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.5) 0%, transparent 70%)' }}
-      />
-      {/* Window */}
-      <div className="relative bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-xl dark:shadow-2xl">
-
-        {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-[#0e0e0f]/80">
-          <div className="flex gap-1.5 items-center">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">two_sum.py</span>
-            <span className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/30 text-green-600 dark:text-green-400 text-[10px] font-mono px-2 py-0.5 rounded-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 animate-pulse" />
-              LIVE
-            </span>
-          </div>
-          <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">38:14</span>
-        </div>
-
-        {/* Chat */}
-        <div className="p-5 space-y-4 text-sm">
-          <div className="space-y-1.5">
-            <span className="text-green-600 dark:text-green-400 text-xs font-mono">AI ▸</span>
-            <div className="ml-5 border-l-2 border-green-500/40 pl-3 py-2 text-slate-600 dark:text-slate-300 leading-relaxed">
-              Good start. Before writing code, what data structure are you thinking of using, and why?
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <span className="text-blue-600 dark:text-blue-400 text-xs font-mono">YOU ▸</span>
-            <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-2 text-slate-700 dark:text-slate-200 leading-relaxed">
-              I&apos;d use a hash map to store each number and its index as I iterate.
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <span className="text-green-600 dark:text-green-400 text-xs font-mono">AI ▸</span>
-            <div className="ml-5 border-l-2 border-green-500/40 pl-3 py-2 text-slate-600 dark:text-slate-300 leading-relaxed">
-              Correct. What&apos;s the time and space complexity of that approach?
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <span className="text-blue-600 dark:text-blue-400 text-xs font-mono">YOU ▸</span>
-            <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-3 flex items-center">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-bounce" style={{ animationDelay: '300ms' }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Score strip */}
-        <div className="border-t border-slate-200 dark:border-slate-700/50 px-5 py-3 bg-slate-100 dark:bg-[#0e0e0f]/70 flex items-center justify-between">
-          <span className="text-slate-400 dark:text-slate-600 text-[11px] font-mono">{'// session_score'}</span>
-          <div className="flex gap-4">
-            {[['comm', '8'], ['logic', '7'], ['code', '9']].map(([label, val]) => (
-              <div key={label} className="flex items-baseline gap-1">
-                <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">{label}:</span>
-                <span className="text-green-600 dark:text-green-400 text-sm font-semibold font-mono">{val}</span>
-                <span className="text-slate-300 dark:text-slate-700 text-[10px] font-mono">/10</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -239,17 +180,11 @@ export default function LandingPage() {
         {/* Bottom fade */}
         <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 hero-fade" />
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-28">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-14 pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
             {/* Left - text */}
             <div>
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 border border-green-500/30 bg-green-500/5 text-green-700 dark:text-green-400 text-xs font-mono px-3 py-1.5 rounded-sm mb-8">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 animate-pulse" />
-                {'// AI-POWERED MOCK INTERVIEWS'}
-              </div>
-
               <h1 className={`${spaceMono.className} text-4xl xl:text-5xl font-bold text-slate-900 dark:text-slate-50 leading-snug tracking-normal mb-6`}>
                 Simulated interviews for the{' '}
                 <span className="text-amber-500 dark:text-amber-400">next generation</span>
@@ -282,8 +217,207 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right - preview */}
-            <InterviewPreview />
+            {/* Right - showcase tabs */}
+            <HeroShowcase
+              items={[
+                {
+                  icon: <IconChat />,
+                  title: 'Live AI interviewer',
+                  accent: 'blue',
+                  filename: 'live_session.log',
+                  demo: (
+                    <div className="space-y-3.5 text-sm">
+                      <div>
+                        <span className="text-blue-600 dark:text-blue-400 text-xs font-mono">AI ▸</span>
+                        <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-1.5 text-slate-600 dark:text-slate-300 leading-relaxed">
+                          Walk me through your approach before writing any code.
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-slate-600 dark:text-slate-300 text-xs font-mono">YOU ▸</span>
+                        <div className="ml-5 border-l-2 border-slate-400/40 pl-3 py-1.5 text-slate-700 dark:text-slate-200 leading-relaxed">
+                          I&apos;d use two pointers — one at the start, one at the end.
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-blue-600 dark:text-blue-400 text-xs font-mono">AI ▸</span>
+                        <div className="ml-5 border-l-2 border-blue-500/40 pl-3 py-1.5 text-slate-600 dark:text-slate-300 leading-relaxed">
+                          What changes if the input isn&apos;t sorted?
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-slate-600 dark:text-slate-300 text-xs font-mono">YOU ▸</span>
+                        <div className="ml-5 border-l-2 border-slate-400/40 pl-3 py-2.5 flex items-center">
+                          <div className="flex gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  icon: <IconTerminal />,
+                  title: 'Traditional Coding',
+                  accent: 'cyan',
+                  filename: 'two_sum.py',
+                  demo: (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 tracking-wider">TRADITIONAL CODING</span>
+                        <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">20+ problems</span>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-mono text-[13px] text-slate-800 dark:text-slate-100">two_sum</span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-green-500/30 text-green-600 dark:text-green-400 bg-green-500/10 uppercase tracking-wider">easy</span>
+                      </div>
+
+                      <pre className="bg-slate-100 dark:bg-[#0e0e0f]/60 border border-slate-200 dark:border-slate-700/50 rounded-md p-3 text-slate-700 dark:text-slate-200 text-[12px] leading-relaxed font-mono overflow-x-auto">
+{`def two_sum(nums, target):
+    # return indices of two nums
+    # that sum to target`}
+                      </pre>
+
+                      <div className="mt-3 space-y-1 text-[12px] font-mono">
+                        <div className="text-slate-400 dark:text-slate-600 text-[10px] mb-1">{'// test cases'}</div>
+                        <div className="flex gap-2">
+                          <span className="text-cyan-600 dark:text-cyan-400 shrink-0">▸</span>
+                          <span className="text-slate-600 dark:text-slate-400">[2,7,11,15] t=9 <span className="text-slate-400 dark:text-slate-600">→</span> [0,1]</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-cyan-600 dark:text-cyan-400 shrink-0">▸</span>
+                          <span className="text-slate-600 dark:text-slate-400">[3,2,4] t=6 <span className="text-slate-400 dark:text-slate-600">→</span> [1,2]</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-cyan-600 dark:text-cyan-400 shrink-0">▸</span>
+                          <span className="text-slate-600 dark:text-slate-400">[3,3] t=6 <span className="text-slate-400 dark:text-slate-600">→</span> [0,1]</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50 flex items-center gap-2 text-[10px] font-mono flex-wrap">
+                        <span className="text-slate-400 dark:text-slate-600">{'// difficulty:'}</span>
+                        <span className="px-1.5 py-0.5 rounded-sm border border-green-500/30 text-green-600 dark:text-green-400 bg-green-500/10">easy</span>
+                        <span className="px-1.5 py-0.5 rounded-sm border border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10">medium</span>
+                        <span className="px-1.5 py-0.5 rounded-sm border border-rose-500/30 text-rose-500 dark:text-rose-400 bg-rose-500/10">hard</span>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  icon: <IconCode />,
+                  title: 'GenAI Coding',
+                  accent: 'green',
+                  filename: 'genai_review.py',
+                  demo: (
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-green-500/30 text-green-600 dark:text-green-400 bg-green-500/10">AI OUTPUT</span>
+                        <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">auto-generated</span>
+                      </div>
+                      <pre className="bg-slate-100 dark:bg-[#0e0e0f]/60 border border-slate-200 dark:border-slate-700/50 rounded-md p-3 text-slate-700 dark:text-slate-200 text-[12px] leading-relaxed font-mono overflow-x-auto">
+{`def average(nums):
+    return sum(nums) / len(nums)`}
+                      </pre>
+                      <div className="mt-4 space-y-2 text-[12px] font-mono">
+                        <div className="flex gap-2">
+                          <span className="text-amber-600 dark:text-amber-400 font-semibold shrink-0 w-12">ISSUE</span>
+                          <span className="text-slate-600 dark:text-slate-400">ZeroDivisionError on empty input</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-green-600 dark:text-green-400 font-semibold shrink-0 w-12">FIX</span>
+                          <span className="text-slate-600 dark:text-slate-400">guard len(nums) &gt; 0 before dividing</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-blue-600 dark:text-blue-400 font-semibold shrink-0 w-12">YOU</span>
+                          <span className="text-slate-600 dark:text-slate-400">explain the fix to the interviewer</span>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  icon: <IconLightbulb />,
+                  title: 'GenAI Fluency',
+                  accent: 'violet',
+                  filename: 'genai_fluency.interview',
+                  demo: (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-violet-500/30 text-violet-600 dark:text-violet-400 bg-violet-500/10 tracking-wider">BEHAVIORAL · STAR</span>
+                        <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">judgment_&amp;_risk</span>
+                      </div>
+
+                      <div className="space-y-3 text-sm mb-3">
+                        <div>
+                          <span className="text-violet-600 dark:text-violet-400 text-xs font-mono">AI ▸</span>
+                          <div className="ml-5 border-l-2 border-violet-500/40 pl-3 py-1.5 text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Tell me about a time you chose NOT to use an AI tool on a project. Why?
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-slate-600 dark:text-slate-300 text-xs font-mono">YOU ▸</span>
+                          <div className="ml-5 border-l-2 border-slate-400/40 pl-3 py-2 space-y-1 font-mono text-[12px]">
+                            <div className="flex gap-2"><span className="text-violet-600 dark:text-violet-400 font-semibold w-4 shrink-0">S</span><span className="text-slate-700 dark:text-slate-200">migrating auth in a billing service</span></div>
+                            <div className="flex gap-2"><span className="text-violet-600 dark:text-violet-400 font-semibold w-4 shrink-0">T</span><span className="text-slate-700 dark:text-slate-200">refactor without breaking prod</span></div>
+                            <div className="flex gap-2"><span className="text-violet-600 dark:text-violet-400 font-semibold w-4 shrink-0">A</span><span className="text-slate-700 dark:text-slate-200">skipped AI — code was security-critical</span></div>
+                            <div className="flex gap-2"><span className="text-violet-600 dark:text-violet-400 font-semibold w-4 shrink-0">R</span><span className="text-slate-500 dark:text-slate-500 italic">typing…</span></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-200 dark:border-slate-700/50 flex items-start gap-2 text-[11px] font-mono">
+                        <span className="text-violet-600 dark:text-violet-400 font-semibold shrink-0">EVAL</span>
+                        <span className="text-slate-500 dark:text-slate-400">judgment · risk awareness · communication</span>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  icon: <IconBarChart />,
+                  title: 'Honest scored feedback',
+                  accent: 'amber',
+                  filename: 'session_report.json',
+                  demo: (
+                    <div className="space-y-4">
+                      <div className="space-y-2.5">
+                        {[
+                          { label: 'communication', val: 8, bar: 80 },
+                          { label: 'problem_solving', val: 7, bar: 70 },
+                          { label: 'code_quality', val: 9, bar: 90 },
+                        ].map(({ label, val, bar }) => (
+                          <div key={label}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-slate-500 dark:text-slate-400 text-xs font-mono">{label}</span>
+                              <span className="font-mono">
+                                <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">{val}</span>
+                                <span className="text-slate-300 dark:text-slate-700 text-[11px]">/10</span>
+                              </span>
+                            </div>
+                            <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                              <div className="h-full bg-amber-500/60 rounded-full" style={{ width: `${bar}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="pt-3 border-t border-slate-200 dark:border-slate-700/50 space-y-1.5">
+                        <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">{'// key_moments'}</span>
+                        <div className="flex gap-2 text-[12px] font-mono">
+                          <span className="text-green-600 dark:text-green-400 font-semibold shrink-0">+</span>
+                          <span className="text-slate-600 dark:text-slate-400">caught an off-by-one edge case unprompted</span>
+                        </div>
+                        <div className="flex gap-2 text-[12px] font-mono">
+                          <span className="text-rose-500 dark:text-rose-400 font-semibold shrink-0">−</span>
+                          <span className="text-slate-600 dark:text-slate-400">skipped discussing time complexity</span>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
       </section>
