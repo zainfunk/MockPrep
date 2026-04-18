@@ -277,7 +277,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
   }, [runsUsed, RUNS_STORAGE_KEY]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [outputOpen, setOutputOpen] = useState(false);
   const [outputHeight, setOutputHeight] = useState(280);
@@ -426,7 +426,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       const res = await fetch('/api/genai-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problem: { title: problem.title, description: problem.description }, promptEvents: promptEventsRef.current, finalCode: code, lastAiCodeBlock, ranCode: hasRanCodeRef.current, codeMatchesAI, codeModifiedFromAI, promptCount: promptEventsRef.current.length, duration }),
+        body: JSON.stringify({ problemTitle: problem.title, problemDescription: problem.description, promptEvents: promptEventsRef.current, finalCode: code, lastAiCodeBlock, ranCode: hasRanCodeRef.current, codeMatchesAI, codeModifiedFromAI, promptCount: promptEventsRef.current.length, duration }),
       });
       const feedbackData: GenAIFeedbackData = await res.json();
       if (!res.ok) throw new Error((feedbackData as { error?: string }).error ?? 'Failed to get feedback.');
@@ -528,6 +528,17 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
           </button>
         </div>
       </div>
+
+      {submitError && (
+        <div style={{ background: `${T.errorDim}18`, borderBottom: `1px solid ${T.errorDim}40`, padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexShrink: 0 }}>
+          <span style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontSize: '0.8125rem', color: T.errorDim }}>
+            Submit failed: {submitError}
+          </span>
+          <button onClick={() => setSubmitError(null)} style={{ background: 'transparent', border: 'none', color: T.errorDim, cursor: 'pointer', fontSize: '0.75rem', padding: '2px 8px', opacity: 0.7 }}>
+            dismiss
+          </button>
+        </div>
+      )}
 
       {/* Split pane */}
       <div className="s-dot-grid" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
