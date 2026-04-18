@@ -721,6 +721,105 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── PRICING ───────────────────────────────────────────────────────── */}
+      <section className="border-t border-slate-200 dark:border-slate-800/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
+          <AnimateIn className="mb-12">
+            <SectionLabel index="004" label="Pricing" />
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">
+              Start free. <span className="text-blue-600 dark:text-blue-400">Upgrade</span> when you&apos;re ready.
+            </h2>
+            <p className="text-slate-500 text-lg max-w-xl">
+              Two plans, one product. Pick what matches how hard you&apos;re prepping — switch whenever.
+            </p>
+          </AnimateIn>
+
+          <AnimateIn delay={100}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+
+              {/* Free */}
+              <div className="h-full bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700/50 border-t-4 border-t-slate-400/50 rounded-lg p-8 flex flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                <div className="flex items-start justify-between mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-sm border border-slate-400/30 text-slate-500 dark:text-slate-400 bg-slate-500/5 tracking-wider">FREE</span>
+                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-600">[00]</span>
+                </div>
+                <h3 className="text-slate-900 dark:text-slate-50 text-2xl font-bold mb-1">Free</h3>
+                <p className="text-slate-500 text-sm mb-5">Try Placed, get a feel for it.</p>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-slate-900 dark:text-slate-50 font-mono">$0</span>
+                  <span className="text-slate-500 text-sm font-mono ml-1">/month</span>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {[
+                    { label: 'sessions_per_month', value: '2 sessions' },
+                    { label: 'interview_tracks', value: 'All 3 tracks' },
+                    { label: 'scored_feedback', value: 'Honest scored reports' },
+                    { label: 'session_history', value: 'Full history' },
+                  ].map(({ label, value }) => (
+                    <li key={label} className="flex items-start gap-3">
+                      <span className="text-slate-400 shrink-0 mt-1 font-mono text-xs select-none">▸</span>
+                      <div>
+                        <div className="text-slate-800 dark:text-slate-100 text-sm font-semibold">{value}</div>
+                        <div className="text-[10px] font-mono text-slate-400 dark:text-slate-600">{label}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/problems"
+                  className="mt-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold px-6 py-3 rounded-lg text-sm transition-colors cursor-pointer"
+                >
+                  Start free
+                  <IconArrow />
+                </Link>
+              </div>
+
+              {/* Pro */}
+              <div className="relative h-full bg-white dark:bg-[#1E293B] border border-blue-500/40 border-t-4 border-t-blue-500 rounded-lg p-8 flex flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(59,130,246,0.2)] dark:hover:shadow-[0_8px_32px_rgba(59,130,246,0.25)]">
+                <div className="absolute -top-3 right-6 rounded-full bg-blue-500 text-white text-[10px] font-mono px-3 py-1 tracking-wider uppercase shadow-lg shadow-blue-500/30">
+                  Recommended
+                </div>
+                <div className="flex items-start justify-between mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-sm border border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10 tracking-wider">PRO</span>
+                  <span className="text-[10px] font-mono text-blue-600/60 dark:text-blue-400/60">[01]</span>
+                </div>
+                <h3 className="text-slate-900 dark:text-slate-50 text-2xl font-bold mb-1">Pro</h3>
+                <p className="text-slate-500 text-sm mb-5">Practice like you mean it.</p>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-slate-900 dark:text-slate-50 font-mono">$19</span>
+                  <span className="text-slate-500 text-sm font-mono ml-1">/month</span>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {[
+                    { label: 'sessions_per_month', value: '20 sessions' },
+                    { label: 'interview_tracks', value: 'All 3 tracks' },
+                    { label: 'scored_feedback', value: 'Honest scored reports' },
+                    { label: 'session_history', value: 'Full history & exports' },
+                    { label: 'cancellation', value: 'Cancel anytime' },
+                  ].map(({ label, value }) => (
+                    <li key={label} className="flex items-start gap-3">
+                      <span className="text-blue-500/80 shrink-0 mt-1 font-mono text-xs select-none">▸</span>
+                      <div>
+                        <div className="text-slate-800 dark:text-slate-100 text-sm font-semibold">{value}</div>
+                        <div className="text-[10px] font-mono text-blue-600/70 dark:text-blue-400/70">{label}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/pricing"
+                  className="mt-auto btn-glow-blue inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors cursor-pointer"
+                >
+                  Upgrade to Pro
+                  <IconArrow />
+                </Link>
+              </div>
+
+            </div>
+          </AnimateIn>
+        </div>
+      </section>
+
       {/* ── BOTTOM CTA ────────────────────────────────────────────────────── */}
       <section className="border-t border-slate-200 dark:border-slate-800/60">
         <AnimateIn>

@@ -1,64 +1,48 @@
-import { auth, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { incrementMonthlyUsage, loadUserState } from '@/lib/subscription';
 
-interface DailyInterviewMeta {
-  date: string;
-  count: number;
-}
-
-const DAILY_LIMIT = 10;
-const UNLIMITED_EMAILS = ['funktastix0@gmail.com'];
-
-async function getTodayUsage(userId: string): Promise<{ used: number; date: string }> {
-  const client = await clerkClient();
-  const user = await client.users.getUser(userId);
-  const meta = user.privateMetadata as { dailyInterviews?: DailyInterviewMeta };
-  const today = new Date().toISOString().slice(0, 10);
-
-  if (!meta.dailyInterviews || meta.dailyInterviews.date !== today) {
-    return { used: 0, date: today };
-  }
-  return { used: meta.dailyInterviews.count, date: today };
-}
-
-async function isUnlimited(userId: string): Promise<boolean> {
-  const client = await clerkClient();
-  const user = await client.users.getUser(userId);
-  const email = user.emailAddresses?.[0]?.emailAddress ?? '';
-  return UNLIMITED_EMAILS.includes(email);
-}
-
-// GET /api/user/daily-limit — return current daily usage
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  if (await isUnlimited(userId)) {
-    return NextResponse.json({ used: 0, limit: 9999, remaining: 9999, date: new Date().toISOString().slice(0, 10) });
-  }
-
-  const { used, date } = await getTodayUsage(userId);
-  return NextResponse.json({ used, limit: DAILY_LIMIT, remaining: DAILY_LIMIT - used, date });
+  const state = await loadUserState(userId);
+  const used = state.unlimited ? 0 : state.usage.count;
+  const limit = state.limit;
+  return NextResponse.json({
+    used,
+    limit,
+    remaining: Math.max(limit - used, 0),
+    tier: state.tier,
+    period: state.usage.month,
+    unlimited: state.unlimited,
+    hasStripeCustomer: Boolean(state.subscription?.stripeCustomerId),
+  });
 }
 
-// POST /api/user/daily-limit — increment and deduct one interview
 export async function POST() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  if (await isUnlimited(userId)) {
-    return NextResponse.json({ used: 0, limit: 9999, remaining: 9999, date: new Date().toISOString().slice(0, 10) });
+  const state = await loadUserState(userId);
+  if (state.unlimited) {
+    return NextResponse.json({ used: 0, limit: 9999, remaining: 9999, tier: state.tier, period: state.usage.month, unlimited: true });
   }
 
-  const { used, date } = await getTodayUsage(userId);
-  const newCount = used + 1;
+  if (state.usage.count >= state.limit) {
+    return NextResponse.json(
+      { error: 'Monthly limit reached', used: state.usage.count, limit: state.limit, remaining: 0, tier: state.tier, period: state.usage.month, unlimited: false },
+      { status: 402 },
+    );
+  }
 
-  const client = await clerkClient();
-  await client.users.updateUserMetadata(userId, {
-    privateMetadata: {
-      dailyInterviews: { date, count: newCount },
-    },
+  const updated = await incrementMonthlyUsage(userId);
+  return NextResponse.json({
+    used: updated.count,
+    limit: state.limit,
+    remaining: Math.max(state.limit - updated.count, 0),
+    tier: state.tier,
+    period: updated.month,
+    unlimited: false,
   });
-
-  return NextResponse.json({ used: newCount, limit: DAILY_LIMIT, remaining: DAILY_LIMIT - newCount, date });
 }
