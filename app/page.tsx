@@ -174,13 +174,13 @@ export default function LandingPage() {
     <main className={`${spaceGrotesk.className} ${jetbrainsMono.variable} min-h-screen bg-slate-50 dark:bg-[#0e0e0f] text-slate-900 dark:text-slate-100`}>
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden lg:min-h-[calc(100vh-3.5rem)] lg:flex lg:items-center">
         {/* Dot grid */}
         <div aria-hidden className="pointer-events-none absolute inset-0 dot-grid" />
         {/* Bottom fade */}
         <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 hero-fade" />
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-12 pt-14 pb-28">
+        <div className="relative w-full max-w-7xl mx-auto px-6 lg:px-12 pt-14 pb-28 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
             {/* Left - text */}
