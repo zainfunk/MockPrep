@@ -187,7 +187,7 @@ export default function LandingPage() {
             <div>
               <h1 className={`${spaceMono.className} text-4xl xl:text-5xl font-bold text-slate-900 dark:text-slate-50 leading-snug tracking-normal mb-6`}>
                 Simulated interviews for the{' '}
-                <span className="text-amber-500 dark:text-amber-400">next generation</span>
+                <span className="text-purple-600 dark:text-purple-400">next generation</span>
                 {' '}
                 <span className="text-blue-600 dark:text-blue-400">of </span><TypewriterWord /><span className="text-blue-600 dark:text-blue-400">.</span>
               </h1>
@@ -208,7 +208,7 @@ export default function LandingPage() {
 
               {/* Stats */}
               <div className="flex gap-10 mt-12 pt-10 border-t border-slate-200 dark:border-slate-800">
-                {[['20+', 'problems'], ['3', 'difficulty_levels'], ['45m', 'timed_sessions']].map(([val, label]) => (
+                {[['100+', 'problems'], ['45m', 'timed_sessions'], ['3', 'interview_tracks']].map(([val, label]) => (
                   <div key={label}>
                     <div className="text-2xl font-bold text-slate-900 dark:text-slate-50 font-mono">{val}</div>
                     <div className="text-slate-400 dark:text-slate-600 text-xs mt-0.5 font-mono">{label}</div>
@@ -267,7 +267,7 @@ export default function LandingPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-3 flex-wrap">
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 tracking-wider">TRADITIONAL CODING</span>
-                        <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">20+ problems</span>
+                        <span className="text-slate-400 dark:text-slate-600 text-[10px] font-mono">65+ problems</span>
                       </div>
 
                       <div className="flex items-center justify-between mb-2">

@@ -73,7 +73,7 @@ export default function HeroShowcase({ items }: { items: ShowcaseItem[] }) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full max-w-lg mx-auto lg:mx-0 lg:ml-auto">
       {/* Ambient glow follows the active tab */}
       <div
         aria-hidden
@@ -102,7 +102,7 @@ export default function HeroShowcase({ items }: { items: ShowcaseItem[] }) {
         </div>
 
         {/* Body: vertical tab rail + content */}
-        <div className="flex min-h-[520px]">
+        <div className="flex min-h-[460px]">
           {/* Tab rail */}
           <div className="flex flex-col gap-2 p-3 border-r border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0e0e0f]/40">
             {items.map((it, i) => {
