@@ -446,7 +446,14 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       };
       const existing = JSON.parse(localStorage.getItem('genai_sessions') ?? '[]');
       localStorage.setItem('genai_sessions', JSON.stringify([record, ...existing]));
-      fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'genai', session: record }) }).catch(() => {});
+      fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'genai', session: record }) })
+        .then(async (r) => {
+          if (!r.ok) {
+            const body = await r.json().catch(() => ({}));
+            console.error('[GenAISession] /api/sessions POST failed:', r.status, body);
+          }
+        })
+        .catch((err) => console.error('[GenAISession] /api/sessions POST network error:', err));
       setSessionRecord(record);
       setFeedback(feedbackData);
     } catch (err) {

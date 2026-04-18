@@ -249,7 +249,7 @@ export default function GenAIFluencySession() {
 
       // Save session
       const record = {
-        id: String(Date.now()),
+        id: crypto.randomUUID(),
         date: new Date().toISOString(),
         duration,
         questions: questions.map((q, i) => ({
@@ -275,12 +275,18 @@ export default function GenAIFluencySession() {
         localStorage.setItem('fluency_sessions', JSON.stringify(existing));
       } catch {}
       try {
-        await fetch('/api/sessions', {
+        const res = await fetch('/api/sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'fluency', session: record }),
         });
-      } catch {}
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          console.error('[GenAIFluencySession] /api/sessions POST failed:', res.status, body);
+        }
+      } catch (err) {
+        console.error('[GenAIFluencySession] /api/sessions POST network error:', err);
+      }
 
       setPhase('feedback');
     } catch {

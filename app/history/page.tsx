@@ -582,7 +582,7 @@ export default function HistoryPage() {
           const mergedInterviews = [
             ...interviews,
             ...localInterviews.filter((s) => !supabaseIds.has(s.id)),
-          ].sort((a: SessionRecord, b: SessionRecord) => Number(b.id) - Number(a.id));
+          ].sort((a: SessionRecord, b: SessionRecord) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
           const genai = (data.genaiSessions ?? []).map((s: Record<string, unknown>) => ({
             id: s.id as string,
@@ -644,7 +644,7 @@ export default function HistoryPage() {
         })
         .catch(() => {
           // Supabase fetch failed — fall back to localStorage entirely
-          setSessions(localInterviews.sort((a, b) => Number(b.id) - Number(a.id)));
+          setSessions(localInterviews.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
           setGenaiSessions(localGenai.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
           setFluencySessions(localFluency.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
           setLoaded(true);
@@ -654,7 +654,7 @@ export default function HistoryPage() {
         const raw = localStorage.getItem('interview_sessions');
         if (raw) {
           const parsed = JSON.parse(raw) as SessionRecord[];
-          parsed.sort((a, b) => Number(b.id) - Number(a.id));
+          parsed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setSessions(parsed);
         }
       } catch {}

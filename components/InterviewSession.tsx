@@ -100,18 +100,28 @@ function formatDuration(seconds: number): string {
   return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
 }
 
-function saveSession(record: SessionRecord): void {
+async function saveSession(record: SessionRecord): Promise<void> {
   try {
     const raw = localStorage.getItem('interview_sessions');
     const existing: SessionRecord[] = raw ? (JSON.parse(raw) as SessionRecord[]) : [];
     existing.push(record);
     localStorage.setItem('interview_sessions', JSON.stringify(existing));
-  } catch { /* silent */ }
-  fetch('/api/sessions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'interview', session: record }),
-  }).catch(() => {});
+  } catch (err) {
+    console.error('[InterviewSession] localStorage save failed:', err);
+  }
+  try {
+    const res = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'interview', session: record }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      console.error('[InterviewSession] /api/sessions POST failed:', res.status, body);
+    }
+  } catch (err) {
+    console.error('[InterviewSession] /api/sessions POST network error:', err);
+  }
 }
 
 // ─── Score Ring ───────────────────────────────────────────────────────────────
@@ -426,7 +436,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
       data.codeQualityScore    = Math.max(1, Math.min(10, data.codeQualityScore));
       setFeedback(data);
       const record: SessionRecord = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         problemTitle: problem.title,
         difficulty: problem.difficulty,
