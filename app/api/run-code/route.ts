@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rateLimit';
+import { ensureInterviewQuota } from '@/lib/subscription';
 
 const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com';
 const MAX_BODY_BYTES = 100_000; // 100 KB — plenty for even large code snippets
@@ -31,6 +32,9 @@ function sleep(ms: number) {
 export async function POST(request: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const quota = await ensureInterviewQuota(userId);
+  if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
 
   // 30 runs per hour, 200 per day per user — covers normal practice with headroom
   const hourly = rateLimit(`run-code:h:${userId}`, 30, 60 * 60 * 1000);

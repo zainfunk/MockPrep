@@ -78,6 +78,8 @@ export default function PricingPage() {
   }
 
   const hasStripeSub = limit?.tier === 'pro' && limit?.hasStripeCustomer;
+  const hasStripeAccount = Boolean(limit?.hasStripeCustomer);
+  const showBillingFix = hasStripeAccount && !hasStripeSub && !limit?.unlimited;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-16">
@@ -136,13 +138,24 @@ export default function PricingPage() {
               {loading === 'portal' ? 'Opening…' : 'Manage subscription'}
             </button>
           ) : (
-            <button
-              onClick={handleUpgrade}
-              disabled={loading !== null}
-              className="w-full rounded-lg bg-gradient-to-br from-blue-400 to-blue-500 text-blue-950 font-semibold py-3 shadow-lg shadow-blue-500/20 transition hover:brightness-110 disabled:opacity-50"
-            >
-              {loading === 'checkout' ? 'Redirecting…' : 'Upgrade to Pro'}
-            </button>
+            <>
+              <button
+                onClick={handleUpgrade}
+                disabled={loading !== null}
+                className="w-full rounded-lg bg-gradient-to-br from-blue-400 to-blue-500 text-blue-950 font-semibold py-3 shadow-lg shadow-blue-500/20 transition hover:brightness-110 disabled:opacity-50"
+              >
+                {loading === 'checkout' ? 'Redirecting…' : 'Upgrade to Pro'}
+              </button>
+              {showBillingFix && (
+                <button
+                  onClick={handleManage}
+                  disabled={loading !== null}
+                  className="mt-2 w-full text-xs text-zinc-400 hover:text-zinc-200 underline underline-offset-4 disabled:opacity-50"
+                >
+                  {loading === 'portal' ? 'Opening…' : 'Manage billing (update card or view invoices)'}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
