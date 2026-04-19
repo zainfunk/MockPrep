@@ -624,12 +624,13 @@ export default function LandingPage() {
                   idx="04"
                   icon={<IconLayers />}
                   accent="cyan"
-                  title="Two Problem Tracks"
-                  description="20 curated coding problems for traditional interview prep, plus 10 GenAI Coding assessments built around scenarios where AI produces plausible-but-flawed output. Practice both, because both matter."
+                  title="Three Problem Tracks"
+                  description="Traditional coding problems for interview fundamentals, GenAI Coding scenarios where AI output looks right but isn't, and GenAI Fluency behavioral rounds that probe how you think about AI. Practice all three — modern interviews test every one."
                   extra={
                     <div className="flex gap-2 flex-wrap">
                       {[
                         { label: 'coding_problems', cls: 'border-cyan-500/25 text-cyan-600/80 dark:text-cyan-400/80' },
+                        { label: 'genai_coding', cls: 'border-green-500/25 text-green-600/80 dark:text-green-400/80' },
                         { label: 'genai_fluency', cls: 'border-violet-500/25 text-violet-600/80 dark:text-violet-400/80' },
                       ].map(({ label, cls }) => (
                         <span key={label} className={`text-[11px] font-mono border px-2 py-0.5 rounded-sm ${cls}`}>{label}</span>
