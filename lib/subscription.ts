@@ -95,6 +95,29 @@ export async function setSubscriptionByCustomerId(
   });
 }
 
+export interface QuotaResult {
+  ok: boolean;
+  status?: number;
+  error?: string;
+  used?: number;
+  limit?: number;
+}
+
+export async function ensureInterviewQuota(userId: string): Promise<QuotaResult> {
+  const state = await loadUserState(userId);
+  if (state.unlimited) return { ok: true };
+  if (state.usage.count >= state.limit) {
+    return {
+      ok: false,
+      status: 402,
+      error: 'Monthly session limit reached. Upgrade to Pro for 20 sessions per month.',
+      used: state.usage.count,
+      limit: state.limit,
+    };
+  }
+  return { ok: true, used: state.usage.count, limit: state.limit };
+}
+
 export async function setSubscriptionForUser(
   userId: string,
   sub: Partial<Subscription> & { tier: Tier },

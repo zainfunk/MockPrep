@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rateLimit';
+import { ensureInterviewQuota } from '@/lib/subscription';
 
 const client = new Anthropic();
 const MAX_BODY_BYTES = 300_000;
@@ -9,6 +10,9 @@ const MAX_BODY_BYTES = 300_000;
 export async function POST(request: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const quota = await ensureInterviewQuota(userId);
+  if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
 
   const rl = rateLimit(`feedback:${userId}`, 30, 60 * 60 * 1000);
   if (!rl.ok) {

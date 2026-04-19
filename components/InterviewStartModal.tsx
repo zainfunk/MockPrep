@@ -16,6 +16,8 @@ interface LimitData {
   used: number;
   limit: number;
   remaining: number;
+  tier?: 'free' | 'pro';
+  unlimited?: boolean;
 }
 
 type ModalState = 'loading' | 'ready' | 'submitting' | 'error';
@@ -106,10 +108,20 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
     if (!problem) return;
     setModalState('submitting');
     try {
-      await fetch('/api/user/daily-limit', { method: 'POST' });
+      const res = await fetch('/api/user/daily-limit', { method: 'POST' });
+      if (res.status === 402) {
+        const data = await res.json().catch(() => ({}));
+        setLimitData((prev) =>
+          prev ? { ...prev, used: data.used ?? prev.used, remaining: 0 } : prev,
+        );
+        setModalState('ready');
+        return;
+      }
     } catch {}
     router.push(problem.href);
   }
+
+  const atLimit = Boolean(limitData && !limitData.unlimited && limitData.remaining <= 0);
 
   const modal = (
     <div
@@ -160,7 +172,7 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
                   className="text-slate-400 font-bold uppercase tracking-widest block"
                   style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: '11px' }}
                 >
-                  Daily Session Capacity
+                  Monthly Session Capacity
                 </label>
 
                 {modalState === 'loading' && (
@@ -215,52 +227,68 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
             </div>
 
             {/* Limit warning */}
-            {(modalState === 'ready' || modalState === 'submitting') && limitData && limitData.remaining <= 0 && (
+            {(modalState === 'ready' || modalState === 'submitting') && atLimit && (
               <div className="flex items-start gap-2 text-amber-400 bg-amber-500/10 border border-amber-400/20 rounded-lg px-3 py-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
                 <span className="text-xs" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
-                  You&apos;ve used all {limitData.limit} interviews for today — you can still start this session.
+                  You&apos;ve used all {limitData!.limit} sessions this month. {limitData!.tier === 'pro' ? 'Resets next month.' : 'Upgrade to Pro for 20/month.'}
                 </span>
               </div>
             )}
 
             {/* "will count as" note */}
-            {afterUsed !== null && limitData && limitData.remaining > 0 && (
+            {afterUsed !== null && limitData && !atLimit && !limitData.unlimited && (
               <p className="text-zinc-500 text-xs" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
                 Starting will count as{' '}
-                <span className="text-zinc-300 font-semibold">{afterUsed}/{limitData.limit}</span> for today.
+                <span className="text-zinc-300 font-semibold">{afterUsed}/{limitData.limit}</span> this month.
               </p>
             )}
           </div>
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <button
-              type="button"
-              onClick={handleStart}
-              disabled={modalState === 'submitting' || modalState === 'loading'}
-              className={`flex-1 px-8 py-4 ${btnGradient} font-bold rounded-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed shadow-lg cursor-pointer`}
-              style={{ fontFamily: 'var(--font-space-grotesk)', letterSpacing: '0.05em' }}
-            >
-              {modalState === 'submitting' ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                  </svg>
-                  STARTING…
-                </>
-              ) : (
-                <>
-                  <span>START INTERVIEW</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                  </svg>
-                </>
-              )}
-            </button>
+            {atLimit && limitData?.tier !== 'pro' ? (
+              <button
+                type="button"
+                onClick={() => router.push('/pricing')}
+                className="flex-1 px-8 py-4 bg-gradient-to-br from-blue-400 to-blue-500 text-blue-950 font-bold rounded-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group shadow-lg shadow-blue-400/20 cursor-pointer"
+                style={{ fontFamily: 'var(--font-space-grotesk)', letterSpacing: '0.05em' }}
+              >
+                <span>UPGRADE TO PRO</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleStart}
+                disabled={modalState === 'submitting' || modalState === 'loading' || atLimit}
+                className={`flex-1 px-8 py-4 ${btnGradient} font-bold rounded-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed shadow-lg cursor-pointer`}
+                style={{ fontFamily: 'var(--font-space-grotesk)', letterSpacing: '0.05em' }}
+              >
+                {modalState === 'submitting' ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    STARTING…
+                  </>
+                ) : (
+                  <>
+                    <span>{atLimit ? 'LIMIT REACHED' : 'START INTERVIEW'}</span>
+                    {!atLimit && (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    )}
+                  </>
+                )}
+              </button>
+            )}
 
             <button
               type="button"
