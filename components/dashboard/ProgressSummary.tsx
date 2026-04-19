@@ -22,18 +22,18 @@ export function ProgressSummary({ attempted, completed, total }: ProgressSummary
         <div className="space-y-3 mb-5">
           <div>
             <div className="flex justify-between mb-1.5">
-              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Attempted</span>
-              <span className="text-xs tabular-nums" style={{ color: "var(--text-primary)" }}>{attempted} / {total}</span>
+              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Sessions completed</span>
+              <span className="text-xs tabular-nums" style={{ color: "var(--text-primary)" }}>{attempted}</span>
             </div>
-            <ProgressBar value={(attempted / total) * 100} color="var(--accent-blue)" />
+            <ProgressBar value={Math.min(100, (attempted / Math.max(total, 1)) * 100)} color="var(--accent-blue)" />
           </div>
 
           <div>
             <div className="flex justify-between mb-1.5">
-              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Completed</span>
+              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Problems practiced</span>
               <span className="text-xs tabular-nums" style={{ color: "var(--text-primary)" }}>{completed} / {total}</span>
             </div>
-            <ProgressBar value={(completed / total) * 100} color="var(--accent-green)" />
+            <ProgressBar value={(completed / Math.max(total, 1)) * 100} color="var(--accent-green)" />
           </div>
         </div>
 

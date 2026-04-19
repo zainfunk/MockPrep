@@ -97,6 +97,14 @@ export default function NavBar() {
             <span className="opacity-70">this mo</span>
           </Link>
         )}
+        {isSignedIn && (
+          <Link
+            href="/dashboard"
+            className="hidden sm:inline text-sm text-gray-300 hover:text-white transition-colors"
+          >
+            Dashboard
+          </Link>
+        )}
         <Link
           href="/pricing"
           className="text-sm text-gray-300 hover:text-white transition-colors"

@@ -20,7 +20,7 @@ export function SessionLimitWidget({ used, limit }: SessionLimitWidgetProps) {
     <Card>
       <CardContent className="pt-5">
         <p className="text-xs font-medium tracking-wide uppercase mb-4" style={{ color: "var(--text-tertiary)" }}>
-          Daily Sessions
+          Monthly Sessions
         </p>
         <div className="flex items-center gap-5">
           {/* Ring */}
@@ -51,7 +51,7 @@ export function SessionLimitWidget({ used, limit }: SessionLimitWidgetProps) {
               {remaining > 0 ? `${remaining} remaining` : "Limit reached"}
             </p>
             <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-              Resets at midnight
+              Resets on the 1st
             </p>
           </div>
         </div>
