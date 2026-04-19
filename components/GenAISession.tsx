@@ -362,7 +362,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       const res = await fetch('/api/genai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, problemTitle: problem.title, problemDescription: problem.description }),
+        body: JSON.stringify({ messages: newMessages, problemTitle: problem.title, problemDescription: problem.description, code, language }),
       });
       if (!res.body) throw new Error('No response body');
       const reader = res.body.getReader();

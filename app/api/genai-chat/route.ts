@@ -27,24 +27,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
   }
 
-  let body: { messages?: unknown; problemTitle?: string; problemDescription?: string };
+  let body: { messages?: unknown; problemTitle?: string; problemDescription?: string; code?: string; language?: string };
   try {
     body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { messages, problemTitle, problemDescription } = body;
+  const { messages, problemTitle, problemDescription, code, language } = body;
 
   if (!Array.isArray(messages) || typeof problemTitle !== 'string' || typeof problemDescription !== 'string') {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
+  const codeSection = code?.trim()
+    ? `\nThe user's current editor contents (${language ?? 'unknown'}):\n\`\`\`${language ?? ''}\n${code}\n\`\`\`\nYou can read this live — reference specific lines, variables, or bugs when it helps. If the code is just starter stubs, don't read into it.\n`
+    : '';
+
   const systemPrompt = `You are a helpful AI programming assistant. The user is working on a coding problem called "${problemTitle}".
 
 Problem description:
 ${problemDescription}
-
+${codeSection}
 Guidelines:
 - Be genuinely helpful — write code when asked, explain approaches clearly, and modify code on request
 - When you write code, always put it in a fenced code block (e.g. \`\`\`python ... \`\`\`)
