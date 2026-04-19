@@ -114,6 +114,7 @@ export default function PricingPage() {
             <li className="flex gap-2"><Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" /> 2 sessions per month</li>
             <li className="flex gap-2"><Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" /> All 3 interview types</li>
             <li className="flex gap-2"><Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" /> Session history</li>
+            <li className="flex gap-2 opacity-50 line-through decoration-zinc-600"><span className="w-4 h-4 shrink-0 mt-0.5 text-zinc-600">×</span> Filter problems by company</li>
           </ul>
           {!hasStripeSub && !limit?.unlimited && <div className="text-xs text-zinc-500 text-center">Your current plan</div>}
         </div>
@@ -127,6 +128,7 @@ export default function PricingPage() {
             <li className="flex gap-2"><Check className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" /> 20 sessions per month</li>
             <li className="flex gap-2"><Check className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" /> All 3 interview types</li>
             <li className="flex gap-2"><Check className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" /> Session history & exports</li>
+            <li className="flex gap-2"><Check className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" /> <span><strong>Filter problems by company</strong> — Google, Meta, Stripe, and more</span></li>
             <li className="flex gap-2"><Check className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" /> Cancel anytime</li>
           </ul>
           {hasStripeSub ? (

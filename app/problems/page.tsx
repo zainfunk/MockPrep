@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { problems } from '@/lib/problems';
 import type { Difficulty } from '@/lib/problems';
 import { genaiProblems } from '@/lib/genaiProblems';
@@ -226,6 +226,17 @@ function ProblemsPageInner() {
   const [showBackToTop, setShowBackToTop]           = useState(false);
   const [mounted, setMounted]                       = useState(false);
   const headerRef                                   = useRef<HTMLElement>(null);
+  const router                                      = useRouter();
+  const [canUseCompanyFilter, setCanUseCompanyFilter] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/user/daily-limit')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setCanUseCompanyFilter(data.tier === 'pro' || data.unlimited === true);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -387,9 +398,9 @@ function ProblemsPageInner() {
                 <select
                   value={selectedCompany}
                   onChange={(e) => setSelectedCompany(e.target.value)}
-                  disabled={!showCompanyTags}
+                  disabled={!showCompanyTags || !canUseCompanyFilter}
                   className={`appearance-none border text-xs font-headline rounded-lg pl-3 pr-8 py-2 focus:outline-none transition-colors ${
-                    showCompanyTags
+                    showCompanyTags && canUseCompanyFilter
                       ? 'bg-[#1a191b] border-white/10 text-[#adaaab] hover:border-white/20 focus:border-[#85adff]/50 cursor-pointer'
                       : 'bg-[#131314] border-white/5 text-[#484849] cursor-not-allowed'
                   }`}
@@ -402,17 +413,28 @@ function ProblemsPageInner() {
                 </span>
               </div>
 
-              {/* Company toggle */}
+              {/* Company toggle — Pro-gated */}
               <button
-                onClick={() => { setShowCompanyTags((v) => { if (v) setSelectedCompany(''); return !v; }); }}
+                onClick={() => {
+                  if (!canUseCompanyFilter) { router.push('/pricing'); return; }
+                  setShowCompanyTags((v) => { if (v) setSelectedCompany(''); return !v; });
+                }}
+                title={canUseCompanyFilter ? undefined : 'Pro feature — tap to upgrade'}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-headline transition-all cursor-pointer ${
-                  showCompanyTags
+                  !canUseCompanyFilter
+                    ? 'bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-400/30 text-amber-300 hover:border-amber-400/50'
+                    : showCompanyTags
                     ? 'bg-[#85adff]/10 border-[#85adff]/30 text-[#85adff]'
                     : 'bg-[#1a191b] border-white/10 text-[#adaaab] hover:border-white/20 hover:text-white'
                 }`}
               >
                 <IconFilter />
                 Companies
+                {!canUseCompanyFilter && (
+                  <span className="ml-0.5 text-[9px] font-bold tracking-widest bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded-sm">
+                    PRO
+                  </span>
+                )}
               </button>
 
               {/* Info tooltips */}

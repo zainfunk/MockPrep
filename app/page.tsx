@@ -702,15 +702,18 @@ export default function LandingPage() {
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {[
-                    { label: 'sessions_per_month', value: '2 sessions' },
-                    { label: 'interview_tracks', value: 'All 3 tracks' },
-                    { label: 'scored_feedback', value: 'Honest scored reports' },
-                    { label: 'session_history', value: 'Full history' },
-                  ].map(({ label, value }) => (
-                    <li key={label} className="flex items-start gap-3">
-                      <span className="text-slate-400 shrink-0 mt-1 font-mono text-xs select-none">▸</span>
+                    { label: 'sessions_per_month', value: '2 sessions', included: true },
+                    { label: 'interview_tracks', value: 'All 3 tracks', included: true },
+                    { label: 'scored_feedback', value: 'Honest scored reports', included: true },
+                    { label: 'session_history', value: 'Full history', included: true },
+                    { label: 'company_filter', value: 'Filter problems by company', included: false },
+                  ].map(({ label, value, included }) => (
+                    <li key={label} className={`flex items-start gap-3 ${included ? '' : 'opacity-40'}`}>
+                      <span className={`shrink-0 mt-1 font-mono text-xs select-none ${included ? 'text-slate-400' : 'text-slate-500 line-through decoration-slate-500'}`}>
+                        {included ? '▸' : '×'}
+                      </span>
                       <div>
-                        <div className="text-slate-800 dark:text-slate-100 text-sm font-semibold">{value}</div>
+                        <div className={`text-sm font-semibold ${included ? 'text-slate-800 dark:text-slate-100' : 'text-slate-500 dark:text-slate-500 line-through'}`}>{value}</div>
                         <div className="text-[10px] font-mono text-slate-400 dark:text-slate-600">{label}</div>
                       </div>
                     </li>
@@ -746,6 +749,7 @@ export default function LandingPage() {
                     { label: 'interview_tracks', value: 'All 3 tracks' },
                     { label: 'scored_feedback', value: 'Honest scored reports' },
                     { label: 'session_history', value: 'Full history & exports' },
+                    { label: 'company_filter', value: 'Filter problems by company (Google, Meta, …)' },
                     { label: 'cancellation', value: 'Cancel anytime' },
                   ].map(({ label, value }) => (
                     <li key={label} className="flex items-start gap-3">
