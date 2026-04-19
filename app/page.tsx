@@ -671,61 +671,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section className="border-t border-slate-200 dark:border-slate-800/60 bg-slate-100/60 dark:bg-[#1E293B]/20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
-          <AnimateIn className="mb-12">
-            <SectionLabel index="003" label="Workflow" />
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50">How it works</h2>
-          </AnimateIn>
-
-          <AnimateIn delay={100}>
-            <div className="border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden">
-              {[
-                {
-                  step: '01',
-                  cmd: '--pick-problem',
-                  title: 'Pick a problem',
-                  desc: 'Choose from two tracks: traditional coding problems for interview fundamentals, or GenAI Coding assessments to practice working with AI the way the job actually requires.',
-                },
-                {
-                  step: '02',
-                  cmd: '--start-interview',
-                  title: 'Interview live',
-                  desc: 'Walk the AI through your thinking out loud, write your solution in the editor, and respond to follow-up questions in real time.',
-                },
-                {
-                  step: '03',
-                  cmd: '--view-report',
-                  title: 'Get your report',
-                  desc: 'Receive a scored breakdown of your performance with specific, actionable improvements to work on next session.',
-                },
-              ].map(({ step, cmd, title, desc }, i) => (
-                <div
-                  key={step}
-                  className={`flex items-start gap-8 px-8 py-10 bg-white dark:bg-[#1E293B] ${i > 0 ? 'border-t border-slate-200 dark:border-slate-700/50' : ''}`}
-                >
-                  <div className="shrink-0 w-10 text-center">
-                    <div className="text-[10px] text-slate-400 dark:text-slate-600 font-mono mb-1">step</div>
-                    <div className="text-3xl font-bold text-slate-200 dark:text-slate-700/80 font-mono leading-none">{step}</div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] text-green-600/60 dark:text-green-400/50 font-mono mb-2">$ placed {cmd}</div>
-                    <h3 className="text-slate-800 dark:text-slate-100 font-semibold text-lg mb-2">{title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </AnimateIn>
-        </div>
-      </section>
-
       {/* ── PRICING ───────────────────────────────────────────────────────── */}
       <section className="border-t border-slate-200 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
           <AnimateIn className="mb-12">
-            <SectionLabel index="004" label="Pricing" />
+            <SectionLabel index="003" label="Pricing" />
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">
               Start free. <span className="text-blue-600 dark:text-blue-400">Upgrade</span> when you&apos;re ready.
             </h2>
