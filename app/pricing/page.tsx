@@ -62,7 +62,7 @@ export default function PricingPage() {
     <div className="mx-auto max-w-5xl px-6 py-16">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight mb-3">Pricing</h1>
-        <p className="text-zinc-400">Start free. Upgrade when you're ready to practice at scale.</p>
+        <p className="text-zinc-400">Start free. Upgrade when you&apos;re ready to practice at scale.</p>
         {status === 'success' && (
           <div className="mt-4 inline-block rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 text-emerald-300 text-sm">
             Welcome to Pro! Your subscription is active.
