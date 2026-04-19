@@ -4,6 +4,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Problem } from '@/lib/problems';
+import {
+  saveSession as persistSession,
+  loadSession as loadPersistedSession,
+  clearSession as clearPersistedSession,
+} from '@/lib/sessionPersistence';
+
+interface PersistedCodingSession {
+  messages: Message[];
+  code: string;
+  language: Language;
+  timeElapsed: number;
+}
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -290,11 +302,18 @@ function FeedbackScreen({ feedback, loading, error, onRestart, onRetry }: {
 
 export default function InterviewSession({ problem }: { problem: Problem }) {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const persisted = typeof window !== 'undefined'
+    ? loadPersistedSession<PersistedCodingSession>('coding', problem.id)
+    : null;
+  const [messages, setMessages] = useState<Message[]>(persisted?.messages ?? []);
   const [input, setInput] = useState('');
-  const [language, setLanguage] = useState<Language>('python');
-  const [code, setCode] = useState(STUBS.python);
-  const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
+  const [language, setLanguage] = useState<Language>(persisted?.language ?? 'python');
+  const [code, setCode] = useState(persisted?.code ?? STUBS.python);
+  const [timeLeft, setTimeLeft] = useState(
+    persisted && typeof persisted.timeElapsed === 'number'
+      ? Math.max(0, TOTAL_SECONDS - persisted.timeElapsed)
+      : TOTAL_SECONDS,
+  );
   const [chatWidth, setChatWidth] = useState(340);
   const [problemHeight, setProblemHeight] = useState(220);
   const isDragging = useRef(false);
@@ -304,7 +323,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const dragStartY = useRef(0);
   const dragStartHeight = useRef(220);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionStarted, setSessionStarted] = useState(Boolean(persisted && (persisted.messages?.length ?? 0) > 0));
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
@@ -341,12 +360,25 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const pendingMessagesRef = useRef<Message[]>([]);
   const pendingCodeRef = useRef<string>('');
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const timeElapsedRef = useRef(0);
+  const timeElapsedRef = useRef(persisted?.timeElapsed ?? 0);
   const animatedRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (sessionEnded) return;
+    const handle = setTimeout(() => {
+      persistSession<PersistedCodingSession>('coding', problem.id, {
+        messages,
+        code,
+        language,
+        timeElapsed: timeElapsedRef.current,
+      });
+    }, 500);
+    return () => clearTimeout(handle);
+  }, [messages, code, language, sessionEnded, problem.id]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
@@ -448,6 +480,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
         fullFeedback: data.closingNote,
       };
       saveSession(record);
+      clearPersistedSession('coding', problem.id);
     } catch (err) {
       const msg = err instanceof Error && err.name === 'AbortError'
         ? 'Request timed out after 60 seconds. Your session was saved — try generating feedback again.'

@@ -4,6 +4,18 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GenAIProblem } from '@/lib/genaiProblems';
+import {
+  saveSession as persistSession,
+  loadSession as loadPersistedSession,
+  clearSession as clearPersistedSession,
+} from '@/lib/sessionPersistence';
+
+interface PersistedGenAISession {
+  messages: Message[];
+  code: string;
+  language: 'python' | 'javascript';
+  timeElapsed: number;
+}
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -248,9 +260,12 @@ function GenAIFeedbackScreen({ feedback, loading, record }: {
 // ─── Main Session ─────────────────────────────────────────────────────────────
 
 export default function GenAISession({ problem }: { problem: GenAIProblem }) {
-  const [language, setLanguage] = useState<'python' | 'javascript'>('python');
-  const [code, setCode] = useState(problem.starterCode.python);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const persisted = typeof window !== 'undefined'
+    ? loadPersistedSession<PersistedGenAISession>('genai', problem.id)
+    : null;
+  const [language, setLanguage] = useState<'python' | 'javascript'>(persisted?.language ?? 'python');
+  const [code, setCode] = useState(persisted?.code ?? problem.starterCode.python);
+  const [messages, setMessages] = useState<Message[]>(persisted?.messages ?? []);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -301,14 +316,27 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
   const promptEventsRef = useRef<PromptEvent[]>([]);
   const lastAiCodeBlockRef = useRef<string | null>(null);
   const hasRanCodeRef = useRef(false);
-  const sessionStartTimeRef = useRef(Date.now());
-  const timeElapsedRef = useRef(0);
+  const sessionStartTimeRef = useRef(Date.now() - (persisted?.timeElapsed ?? 0) * 1000);
+  const timeElapsedRef = useRef(persisted?.timeElapsed ?? 0);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const animatedRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (feedback) return;
+    const handle = setTimeout(() => {
+      persistSession<PersistedGenAISession>('genai', problem.id, {
+        messages,
+        code,
+        language,
+        timeElapsed: timeElapsedRef.current,
+      });
+    }, 500);
+    return () => clearTimeout(handle);
+  }, [messages, code, language, feedback, problem.id]);
 
   const handleLanguageChange = (lang: 'python' | 'javascript') => {
     setLanguage(lang);
@@ -446,6 +474,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       };
       const existing = JSON.parse(localStorage.getItem('genai_sessions') ?? '[]');
       localStorage.setItem('genai_sessions', JSON.stringify([record, ...existing]));
+      clearPersistedSession('genai', problem.id);
       fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'genai', session: record }) })
         .then(async (r) => {
           if (!r.ok) {

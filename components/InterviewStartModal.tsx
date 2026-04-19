@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
+import { hasSavedSession } from '@/lib/sessionPersistence';
 
 export interface ModalProblem {
   id: string;
@@ -37,12 +38,16 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
   const router = useRouter();
   const [modalState, setModalState] = useState<ModalState>('loading');
   const [limitData, setLimitData] = useState<LimitData | null>(null);
+  const [isResume, setIsResume] = useState(false);
 
   useEffect(() => {
     if (!problem) return;
 
     setModalState('loading');
     setLimitData(null);
+
+    const persistKey = problem.type === 'coding' ? 'coding' : problem.type === 'genai' ? 'genai' : null;
+    setIsResume(persistKey ? hasSavedSession(persistKey, problem.id) : false);
 
     let cancelled = false;
 
@@ -107,6 +112,10 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
   async function handleStart() {
     if (!problem) return;
     setModalState('submitting');
+    if (isResume) {
+      router.push(problem.href);
+      return;
+    }
     try {
       const res = await fetch('/api/user/daily-limit', { method: 'POST' });
       if (res.status === 402) {
@@ -239,10 +248,15 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
             )}
 
             {/* "will count as" note */}
-            {afterUsed !== null && limitData && !atLimit && !limitData.unlimited && (
+            {afterUsed !== null && limitData && !atLimit && !limitData.unlimited && !isResume && (
               <p className="text-zinc-500 text-xs" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
                 Starting will count as{' '}
                 <span className="text-zinc-300 font-semibold">{afterUsed}/{limitData.limit}</span> this month.
+              </p>
+            )}
+            {isResume && !atLimit && (
+              <p className="text-emerald-400/90 text-xs" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
+                You have a session in progress — resuming won&apos;t count against your quota.
               </p>
             )}
           </div>
@@ -279,7 +293,7 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
                   </>
                 ) : (
                   <>
-                    <span>{atLimit ? 'LIMIT REACHED' : 'START INTERVIEW'}</span>
+                    <span>{atLimit ? 'LIMIT REACHED' : isResume ? 'RESUME INTERVIEW' : 'START INTERVIEW'}</span>
                     {!atLimit && (
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
