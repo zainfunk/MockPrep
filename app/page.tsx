@@ -799,9 +799,13 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="text-slate-400 dark:text-slate-600 text-sm font-mono font-semibold">Placed</span>
-          <div className="flex items-center gap-6 text-sm font-mono">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-mono justify-center">
             <Link href="/problems" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">problems</Link>
             <Link href="/history" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">history</Link>
+            <Link href="/pricing" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">pricing</Link>
+            <Link href="/terms" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">terms</Link>
+            <Link href="/privacy" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">privacy</Link>
+            <Link href="/refund-policy" className="text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors">refunds</Link>
           </div>
         </div>
       </footer>
