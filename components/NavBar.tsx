@@ -8,6 +8,9 @@ interface LimitSnapshot {
   tier?: 'free' | 'pro';
   hasStripeCustomer?: boolean;
   unlimited?: boolean;
+  used?: number;
+  limit?: number;
+  remaining?: number;
 }
 
 function CreditCardIcon() {
@@ -57,6 +60,18 @@ export default function NavBar() {
   }
 
   const showManage = Boolean(snapshot?.hasStripeCustomer);
+  const showChip =
+    isSignedIn &&
+    snapshot &&
+    !snapshot.unlimited &&
+    typeof snapshot.used === 'number' &&
+    typeof snapshot.limit === 'number';
+  const atLimit = showChip && (snapshot!.remaining ?? 0) <= 0;
+  const chipColor = atLimit
+    ? 'bg-amber-500/15 border-amber-400/40 text-amber-200 hover:bg-amber-500/25'
+    : snapshot?.tier === 'pro'
+    ? 'bg-blue-500/10 border-blue-400/30 text-blue-200 hover:bg-blue-500/20'
+    : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700';
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 bg-black border-b border-gray-800 flex items-center justify-between px-6">
@@ -72,6 +87,16 @@ export default function NavBar() {
 
       {/* Right side nav */}
       <div className="flex items-center gap-4">
+        {showChip && (
+          <Link
+            href="/pricing"
+            title={`${snapshot!.used}/${snapshot!.limit} sessions this month`}
+            className={`hidden sm:inline-flex items-center gap-1.5 border rounded-full px-2.5 py-0.5 text-xs font-mono transition-colors ${chipColor}`}
+          >
+            <span className="font-semibold">{snapshot!.used}/{snapshot!.limit}</span>
+            <span className="opacity-70">this mo</span>
+          </Link>
+        )}
         <Link
           href="/pricing"
           className="text-sm text-gray-300 hover:text-white transition-colors"

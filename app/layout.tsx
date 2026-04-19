@@ -4,6 +4,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import NavBar from '@/components/NavBar';
 import AppShell from '@/components/AppShell';
+import PaymentStatusBanner from '@/components/PaymentStatusBanner';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
@@ -36,6 +37,7 @@ export default function RootLayout({
         </head>
         <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.className} pt-14`}>
           <NavBar />
+          <PaymentStatusBanner />
           <AppShell>{children}</AppShell>
         </body>
       </html>

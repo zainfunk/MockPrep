@@ -17,6 +17,8 @@ export async function GET() {
     period: state.usage.month,
     unlimited: state.unlimited,
     hasStripeCustomer: Boolean(state.subscription?.stripeCustomerId),
+    subscriptionStatus: state.subscription?.status ?? null,
+    cancelAtPeriodEnd: state.subscription?.cancelAtPeriodEnd ?? false,
   });
 }
 
