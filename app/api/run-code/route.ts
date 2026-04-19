@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rateLimit';
-import { ensureInterviewQuota } from '@/lib/subscription';
+import { claimInterviewSession } from '@/lib/subscription';
 
 const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com';
 const MAX_BODY_BYTES = 100_000; // 100 KB — plenty for even large code snippets
@@ -33,9 +33,6 @@ export async function POST(request: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const quota = await ensureInterviewQuota(userId);
-  if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
-
   // 30 runs per hour, 200 per day per user — covers normal practice with headroom
   const hourly = rateLimit(`run-code:h:${userId}`, 30, 60 * 60 * 1000);
   if (!hourly.ok) {
@@ -65,14 +62,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
   }
 
-  let body: { code?: string; language?: string; stdin?: string };
+  let body: { sessionId?: string; code?: string; language?: string; stdin?: string };
   try {
     body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { code, language, stdin } = body;
+  const { sessionId, code, language, stdin } = body;
+
+  const quota = await claimInterviewSession(userId, sessionId);
+  if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
   if (!code || !language) {
     return NextResponse.json({ error: 'Missing code or language' }, { status: 400 });
   }
@@ -103,14 +103,16 @@ export async function POST(request: Request) {
     });
 
     if (!submitRes.ok) {
-      const text = await submitRes.text();
-      return NextResponse.json({ error: `Submission failed: ${text}` }, { status: 502 });
+      const text = await submitRes.text().catch(() => '');
+      console.error('[run-code] Judge0 submission failed:', submitRes.status, text);
+      return NextResponse.json({ error: 'Code execution service returned an error.' }, { status: 502 });
     }
 
     const submitData = await submitRes.json();
     token = submitData.token;
   } catch (err) {
-    return NextResponse.json({ error: `Failed to submit code: ${String(err)}` }, { status: 502 });
+    console.error('[run-code] Judge0 submit exception:', err);
+    return NextResponse.json({ error: 'Failed to submit code to execution service.' }, { status: 502 });
   }
 
   let result: Record<string, unknown> = {};

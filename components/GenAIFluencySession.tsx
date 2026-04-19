@@ -154,6 +154,11 @@ export default function GenAIFluencySession() {
   const router = useRouter();
 
   // questions selected on mount
+  const sessionIdRef = useRef<string>(
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
   const [questions] = useState<FluencyQuestion[]>(() => getRandomFluencyQuestions(3));
   const [responses, setResponses] = useState<string[]>(['', '', '']);
   const [currentQ, setCurrentQ] = useState(0);
@@ -202,6 +207,7 @@ export default function GenAIFluencySession() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          sessionId: sessionIdRef.current,
           question: q.question,
           category: q.category,
           history: chatHistory,
@@ -234,6 +240,7 @@ export default function GenAIFluencySession() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          sessionId: sessionIdRef.current,
           questions: questions.map((q, i) => ({
             question: q.question,
             category: q.category,

@@ -11,6 +11,7 @@ import {
 } from '@/lib/sessionPersistence';
 
 interface PersistedCodingSession {
+  sessionId: string;
   messages: Message[];
   code: string;
   language: Language;
@@ -305,6 +306,10 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const persisted = typeof window !== 'undefined'
     ? loadPersistedSession<PersistedCodingSession>('coding', problem.id)
     : null;
+  const sessionIdRef = useRef<string>(
+    persisted?.sessionId ??
+    (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`),
+  );
   const [messages, setMessages] = useState<Message[]>(persisted?.messages ?? []);
   const [input, setInput] = useState('');
   const [language, setLanguage] = useState<Language>(persisted?.language ?? 'python');
@@ -381,6 +386,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
     if (sessionEnded) return;
     const handle = setTimeout(() => {
       persistSession<PersistedCodingSession>('coding', problem.id, {
+        sessionId: sessionIdRef.current,
         messages,
         code,
         language,
@@ -419,7 +425,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: updated, problemTitle: problem.title, problemDescription: problem.description, code, language }),
+        body: JSON.stringify({ sessionId: sessionIdRef.current, messages: updated, problemTitle: problem.title, problemDescription: problem.description, code, language }),
         signal: controller.signal,
       });
       const reader = res.body!.getReader();
@@ -465,7 +471,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: msgs, code: finalCode, problemTitle: problem.title, timeElapsed: timeElapsedRef.current }),
+        body: JSON.stringify({ sessionId: sessionIdRef.current, messages: msgs, code: finalCode, problemTitle: problem.title, timeElapsed: timeElapsedRef.current }),
         signal: controller.signal,
       });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
@@ -560,7 +566,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
       const res = await fetch('/api/run-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, language }),
+        body: JSON.stringify({ sessionId: sessionIdRef.current, code, language }),
       });
       const data = await res.json();
       setRunOutput(res.ok ? data : { stdout: null, stderr: data.error ?? 'Unknown error', compile_output: null, status: { description: 'Error' } });

@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rateLimit';
-import { ensureInterviewQuota } from '@/lib/subscription';
+import { claimInterviewSession } from '@/lib/subscription';
 
 const client = new Anthropic();
 const MAX_BODY_BYTES = 300_000;
@@ -54,9 +54,6 @@ export async function POST(request: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const quota = await ensureInterviewQuota(userId);
-  if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
-
   const rl = rateLimit(`fluency-feedback:${userId}`, 30, 60 * 60 * 1000);
   if (!rl.ok) {
     return NextResponse.json(
@@ -70,12 +67,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
   }
 
-  let parsed: { questions?: QuestionInput[]; duration?: number };
+  let parsed: { sessionId?: string; questions?: QuestionInput[]; duration?: number };
   try { parsed = JSON.parse(raw); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
-  const { questions, duration } = parsed;
+  const { sessionId, questions, duration } = parsed;
   if (!Array.isArray(questions) || typeof duration !== 'number') {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
+
+  const quota = await claimInterviewSession(userId, sessionId);
+  if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
 
   const questionsText = questions
     .map(

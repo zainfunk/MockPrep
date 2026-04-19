@@ -120,21 +120,9 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
   async function handleStart() {
     if (!problem) return;
     setModalState('submitting');
-    if (isResume) {
-      router.push(problem.href);
-      return;
-    }
-    try {
-      const res = await fetch('/api/user/daily-limit', { method: 'POST' });
-      if (res.status === 402) {
-        const data = await res.json().catch(() => ({}));
-        setLimitData((prev) =>
-          prev ? { ...prev, used: data.used ?? prev.used, remaining: 0 } : prev,
-        );
-        setModalState('ready');
-        return;
-      }
-    } catch {}
+    // Quota is now enforced server-side on the interview's first chat/feedback/run-code
+    // call, keyed by a session UUID. No client-side increment needed — if the user is
+    // already at their limit, the interview page will surface a 402 from the server.
     router.push(problem.href);
   }
 

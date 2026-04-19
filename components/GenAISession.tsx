@@ -11,6 +11,7 @@ import {
 } from '@/lib/sessionPersistence';
 
 interface PersistedGenAISession {
+  sessionId: string;
   messages: Message[];
   code: string;
   language: 'python' | 'javascript';
@@ -263,6 +264,10 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
   const persisted = typeof window !== 'undefined'
     ? loadPersistedSession<PersistedGenAISession>('genai', problem.id)
     : null;
+  const sessionIdRef = useRef<string>(
+    persisted?.sessionId ??
+    (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`),
+  );
   const [language, setLanguage] = useState<'python' | 'javascript'>(persisted?.language ?? 'python');
   const [code, setCode] = useState(persisted?.code ?? problem.starterCode.python);
   const [messages, setMessages] = useState<Message[]>(persisted?.messages ?? []);
@@ -339,6 +344,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
     if (feedback) return;
     const handle = setTimeout(() => {
       persistSession<PersistedGenAISession>('genai', problem.id, {
+        sessionId: sessionIdRef.current,
         messages,
         code,
         language,
@@ -400,7 +406,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       const res = await fetch('/api/genai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, problemTitle: problem.title, problemDescription: problem.description, code, language }),
+        body: JSON.stringify({ sessionId: sessionIdRef.current, messages: newMessages, problemTitle: problem.title, problemDescription: problem.description, code, language }),
       });
       if (!res.body) throw new Error('No response body');
       const reader = res.body.getReader();
@@ -440,7 +446,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       const res = await fetch('/api/run-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, language }),
+        body: JSON.stringify({ sessionId: sessionIdRef.current, code, language }),
       });
       const data = await res.json();
       setRunOutput(res.ok ? data : { stdout: null, stderr: data.error ?? 'Unknown error', compile_output: null, status: { description: 'Error' }, time: null, memory: null });
@@ -464,7 +470,7 @@ export default function GenAISession({ problem }: { problem: GenAIProblem }) {
       const res = await fetch('/api/genai-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problemTitle: problem.title, problemDescription: problem.description, promptEvents: promptEventsRef.current, finalCode: code, lastAiCodeBlock, ranCode: hasRanCodeRef.current, codeMatchesAI, codeModifiedFromAI, promptCount: promptEventsRef.current.length, duration }),
+        body: JSON.stringify({ sessionId: sessionIdRef.current, problemTitle: problem.title, problemDescription: problem.description, promptEvents: promptEventsRef.current, finalCode: code, lastAiCodeBlock, ranCode: hasRanCodeRef.current, codeMatchesAI, codeModifiedFromAI, promptCount: promptEventsRef.current.length, duration }),
       });
       const feedbackData: GenAIFeedbackData = await res.json();
       if (!res.ok) throw new Error((feedbackData as { error?: string }).error ?? 'Failed to get feedback.');
