@@ -3,11 +3,29 @@
 import { useState, useMemo, useEffect, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { problems } from '@/lib/problems';
 import type { Difficulty } from '@/lib/problems';
-import { genaiProblems } from '@/lib/genaiProblems';
 import { FLUENCY_CATEGORIES } from '@/data/genaiFluentQuestions';
 import InterviewStartModal, { type ModalProblem } from '@/components/InterviewStartModal';
+
+interface CatalogCodingProblem {
+  id: string;
+  title: string;
+  difficulty: Difficulty;
+  category: string;
+  description: string;
+  companies?: string[];
+}
+
+interface CatalogGenAIProblem {
+  id: string;
+  title: string;
+  difficulty: Difficulty;
+  category: string;
+  description: string;
+}
+
+const EMPTY_CODING: CatalogCodingProblem[] = [];
+const EMPTY_GENAI: CatalogGenAIProblem[] = [];
 
 // ── Popularity order (lower = shown first when no filter active) ──────────────
 // Ranked by real-world interview frequency / cultural prominence
@@ -227,13 +245,25 @@ function ProblemsPageInner() {
   const [mounted, setMounted]                       = useState(false);
   const headerRef                                   = useRef<HTMLElement>(null);
   const router                                      = useRouter();
-  const [canUseCompanyFilter, setCanUseCompanyFilter] = useState(false);
+  const [catalog, setCatalog] = useState<{ coding: CatalogCodingProblem[]; genai: CatalogGenAIProblem[]; canUseCompanyFilter: boolean }>({
+    coding: EMPTY_CODING,
+    genai: EMPTY_GENAI,
+    canUseCompanyFilter: false,
+  });
+  const canUseCompanyFilter = catalog.canUseCompanyFilter;
+  const problems = catalog.coding;
+  const genaiProblems = catalog.genai;
 
   useEffect(() => {
-    fetch('/api/user/daily-limit')
+    fetch('/api/problems/catalog')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (data) setCanUseCompanyFilter(data.tier === 'pro' || data.unlimited === true);
+        if (!data) return;
+        setCatalog({
+          coding: Array.isArray(data.coding) ? data.coding : EMPTY_CODING,
+          genai: Array.isArray(data.genai) ? data.genai : EMPTY_GENAI,
+          canUseCompanyFilter: Boolean(data.canUseCompanyFilter),
+        });
       })
       .catch(() => {});
   }, []);
@@ -250,9 +280,9 @@ function ProblemsPageInner() {
     return () => observer.disconnect();
   }, []);
 
-  const categories = useMemo(() => Array.from(new Set(problems.map((p) => p.category))).sort(), []);
-  const companies  = useMemo(() => Array.from(new Set(problems.flatMap((p) => p.companies ?? []))).sort(), []);
-  const genaiCategories = useMemo(() => Array.from(new Set(genaiProblems.map((p) => p.category))).sort(), []);
+  const categories = useMemo(() => Array.from(new Set(problems.map((p) => p.category))).sort(), [problems]);
+  const companies  = useMemo(() => Array.from(new Set(problems.flatMap((p) => p.companies ?? []))).sort(), [problems]);
+  const genaiCategories = useMemo(() => Array.from(new Set(genaiProblems.map((p) => p.category))).sort(), [genaiProblems]);
 
   const filtered = useMemo(() => {
     const result = problems.filter((p) => {
@@ -265,7 +295,7 @@ function ProblemsPageInner() {
     return result.sort(
       (a, b) => (POPULARITY_ORDER[a.id] ?? 999) - (POPULARITY_ORDER[b.id] ?? 999)
     );
-  }, [selectedDifficulty, selectedCategory, selectedCompany]);
+  }, [problems, selectedDifficulty, selectedCategory, selectedCompany]);
 
   const filteredGenai = useMemo(() => genaiProblems
     .filter((p) => {
@@ -274,7 +304,7 @@ function ProblemsPageInner() {
       return true;
     })
     .sort((a, b) => ({ easy: 0, medium: 1, hard: 2 }[a.difficulty] - { easy: 0, medium: 1, hard: 2 }[b.difficulty])),
-  [genaiDifficulty, genaiCategory]);
+  [genaiProblems, genaiDifficulty, genaiCategory]);
 
   const isCodingFiltered = selectedDifficulty || selectedCategory || selectedCompany;
   const isGenaiFiltered  = genaiDifficulty || genaiCategory;

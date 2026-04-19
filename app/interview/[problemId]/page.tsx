@@ -15,5 +15,9 @@ export default async function InterviewPage({
   const problem = getProblemById(problemId);
   if (!problem) notFound();
 
-  return <InterviewSession problem={problem} />;
+  // Never ship company tags to the client — they're a Pro-gated dimension
+  // exposed only through /api/problems/catalog for Pro accounts.
+  const { companies: _omit, ...safeProblem } = problem;
+  void _omit;
+  return <InterviewSession problem={safeProblem} />;
 }

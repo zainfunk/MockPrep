@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { Problem } from '@/lib/problems';
+import type { Problem } from '@/lib/problems';
 import {
   saveSession as persistSession,
   loadSession as loadPersistedSession,

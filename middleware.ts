@@ -9,6 +9,7 @@ const isPublicRoute = createRouteMatcher([
   '/privacy',
   '/refund-policy',
   '/api/stripe/webhook',
+  '/api/problems/catalog',
 ]);
 
 export default clerkMiddleware((auth, req) => {
