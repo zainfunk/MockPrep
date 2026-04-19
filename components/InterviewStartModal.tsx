@@ -39,6 +39,14 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
   const [modalState, setModalState] = useState<ModalState>('loading');
   const [limitData, setLimitData] = useState<LimitData | null>(null);
   const [isResume, setIsResume] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     if (!problem) return;
@@ -260,6 +268,21 @@ export default function InterviewStartModal({ problem, onClose }: Props) {
               </p>
             )}
           </div>
+
+          {/* Mobile warning */}
+          {isMobile && !atLimit && (
+            <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-400/30 rounded-lg px-4 py-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0 mt-0.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <div className="text-xs leading-relaxed" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
+                <div className="text-amber-200 font-semibold mb-1">Desktop is strongly recommended</div>
+                <div className="text-amber-200/80">
+                  Mobile gives you a swipeable view of the chat, problem, and editor, but typing code on a phone is painful. This session will {isResume ? 'resume without counting against your quota' : <>still count as <span className="text-amber-100 font-semibold">{afterUsed}/{limitData?.limit}</span> this month</>}.
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4 pt-2">

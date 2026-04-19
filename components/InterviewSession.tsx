@@ -363,6 +363,16 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
   const timeElapsedRef = useRef(persisted?.timeElapsed ?? 0);
   const animatedRef = useRef<Set<number>>(new Set());
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeMobilePane, setActiveMobilePane] = useState<'problem' | 'chat' | 'code'>('chat');
+  const mobileScrollRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const check = () => setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -636,11 +646,75 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
         </div>
       </div>
 
+      {/* Mobile tab bar */}
+      {isMobile && (
+        <div style={{ display: 'flex', borderBottom: `1px solid ${T.outline}`, background: T.surfaceLow, flexShrink: 0 }}>
+          {(['problem', 'chat', 'code'] as const).map((pane) => (
+            <button
+              key={pane}
+              onClick={() => {
+                setActiveMobilePane(pane);
+                const scroller = mobileScrollRef.current;
+                if (!scroller) return;
+                const idx = pane === 'problem' ? 0 : pane === 'chat' ? 1 : 2;
+                scroller.scrollTo({ left: scroller.clientWidth * idx, behavior: 'smooth' });
+              }}
+              style={{
+                flex: 1,
+                padding: '10px 0',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeMobilePane === pane ? `2px solid ${T.primary}` : '2px solid transparent',
+                color: activeMobilePane === pane ? T.textPrimary : T.textMuted,
+                fontFamily: 'var(--font-space-grotesk), sans-serif',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+            >
+              {pane}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Split pane */}
-      <div className="s-dot-grid" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div
+        ref={mobileScrollRef}
+        className="s-dot-grid"
+        onScroll={() => {
+          if (!isMobile) return;
+          const scroller = mobileScrollRef.current;
+          if (!scroller) return;
+          const idx = Math.round(scroller.scrollLeft / scroller.clientWidth);
+          const next = idx === 0 ? 'problem' : idx === 1 ? 'chat' : 'code';
+          setActiveMobilePane((prev) => (prev === next ? prev : next));
+        }}
+        style={{
+          flex: 1,
+          display: 'flex',
+          overflow: isMobile ? 'auto hidden' : 'hidden',
+          scrollSnapType: isMobile ? 'x mandatory' : undefined,
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
 
         {/* Chat */}
-        <div style={{ width: chatWidth, flexShrink: 0, display: 'flex', flexDirection: 'column', background: T.surfaceLow, borderRight: `1px solid ${T.outline}` }}>
+        <div style={{
+          width: isMobile ? '100vw' : chatWidth,
+          minWidth: isMobile ? '100vw' : undefined,
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          background: T.surfaceLow,
+          borderRight: isMobile ? 'none' : `1px solid ${T.outline}`,
+          scrollSnapAlign: isMobile ? 'start' : undefined,
+          scrollSnapStop: isMobile ? 'always' : undefined,
+          order: isMobile ? 2 : 1,
+        }}>
           <div style={{ padding: '13px 18px', borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 7, height: 7, borderRadius: '50%', background: T.tertiary, boxShadow: `0 0 8px ${T.tertiary}` }} />
@@ -706,14 +780,26 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
           </div>
         </div>
 
-        {/* Horizontal drag */}
-        <div className="hdiv" onMouseDown={handleDividerMouseDown} style={{ width: 3, background: T.outline, cursor: 'col-resize', flexShrink: 0, transition: 'background 0.15s' }} />
+        {/* Horizontal drag — desktop only */}
+        {!isMobile && <div className="hdiv" onMouseDown={handleDividerMouseDown} style={{ width: 3, background: T.outline, cursor: 'col-resize', flexShrink: 0, transition: 'background 0.15s' }} />}
 
-        {/* Right: problem + editor */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Right: problem + editor.  On mobile, `display: contents` hoists the
+            problem and editor panes to be direct siblings of the chat so they
+            become independent scroll-snap targets. */}
+        <div style={isMobile
+          ? { display: 'contents' }
+          : { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }
+        }>
 
           {/* Problem */}
-          <div style={{ height: problemHeight, overflowY: 'auto', padding: '16px 20px', flexShrink: 0, background: T.surfaceLow }}>
+          <div style={{
+            ...(isMobile
+              ? { width: '100vw', minWidth: '100vw', flexShrink: 0, display: 'flex', flexDirection: 'column', scrollSnapAlign: 'start', scrollSnapStop: 'always', order: 1 }
+              : { height: problemHeight, flexShrink: 0 }),
+            overflowY: 'auto',
+            padding: '16px 20px',
+            background: T.surfaceLow,
+          }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <h2 style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', fontWeight: 700, fontSize: '0.9375rem', color: T.textPrimary, margin: 0 }}>{problem.title}</h2>
               <span style={{ padding: '2px 7px', borderRadius: 4, fontSize: '0.5625rem', fontFamily: 'var(--font-jetbrains-mono), monospace', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', background: diffBg, color: diffColor, border: `1px solid ${diffBorder}` }}>{problem.difficulty}</span>
@@ -738,8 +824,16 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
             </div>
           </div>
 
-          {/* Vertical drag */}
-          <div className="vdiv" onMouseDown={handleVerticalDividerMouseDown} style={{ height: 3, background: T.outline, cursor: 'row-resize', flexShrink: 0, transition: 'background 0.15s' }} />
+          {/* Vertical drag — desktop only */}
+          {!isMobile && <div className="vdiv" onMouseDown={handleVerticalDividerMouseDown} style={{ height: 3, background: T.outline, cursor: 'row-resize', flexShrink: 0, transition: 'background 0.15s' }} />}
+
+          {/* Editor group — on mobile becomes a single 100vw scroll-snap pane.
+              On desktop, `display: contents` means toolbar/Monaco/output stay
+              direct children of the right-pane column. */}
+          <div style={isMobile
+            ? { width: '100vw', minWidth: '100vw', flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', scrollSnapAlign: 'start', scrollSnapStop: 'always', order: 3 }
+            : { display: 'contents' }
+          }>
 
           {/* IDE toolbar */}
           <div style={{ height: 40, background: T.surfaceLow, borderBottom: `1px solid ${T.outline}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', flexShrink: 0 }}>
@@ -815,6 +909,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
             </div>
             </>
           )}
+          </div>{/* end editor group */}
         </div>
       </div>
     </div>
