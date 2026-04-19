@@ -656,7 +656,7 @@ export default function InterviewSession({ problem }: { problem: Problem }) {
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 placeholder="Discuss approach or ask a question..."
                 disabled={isStreaming}
-                rows={3}
+                rows={6}
                 style={{ width: '100%', background: T.surface, border: `1px solid ${T.outline}`, borderRadius: 8, padding: '10px 44px 10px 12px', fontFamily: 'var(--font-jetbrains-mono), monospace', fontSize: '0.8rem', color: T.textPrimary, outline: 'none', resize: 'none', boxSizing: 'border-box', opacity: isStreaming ? 0.5 : 1, lineHeight: 1.5 }}
               />
               <button
