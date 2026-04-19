@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { Difficulty } from '@/lib/problems';
 import { FLUENCY_CATEGORIES } from '@/data/genaiFluentQuestions';
 import InterviewStartModal, { type ModalProblem } from '@/components/InterviewStartModal';
+import ResumeBanner from '@/components/ResumeBanner';
 
 interface CatalogCodingProblem {
   id: string;
@@ -284,6 +285,13 @@ function ProblemsPageInner() {
   const companies  = useMemo(() => Array.from(new Set(problems.flatMap((p) => p.companies ?? []))).sort(), [problems]);
   const genaiCategories = useMemo(() => Array.from(new Set(genaiProblems.map((p) => p.category))).sort(), [genaiProblems]);
 
+  const resumeLookup = useMemo(() => {
+    const lookup: Record<string, { id: string; title: string; type: 'coding' | 'genai' }> = {};
+    for (const p of problems) lookup[`coding:${p.id}`] = { id: p.id, title: p.title, type: 'coding' };
+    for (const p of genaiProblems) lookup[`genai:${p.id}`] = { id: p.id, title: p.title, type: 'genai' };
+    return lookup;
+  }, [problems, genaiProblems]);
+
   const filtered = useMemo(() => {
     const result = problems.filter((p) => {
       if (selectedDifficulty && p.difficulty !== selectedDifficulty) return false;
@@ -327,6 +335,8 @@ function ProblemsPageInner() {
       {/* ── Sticky sub-header ── */}
       <header ref={headerRef} className="bg-[#0e0e0f] border-b border-white/5">
         <div className="w-full px-6 md:px-10 xl:px-16 pt-12 pb-6">
+
+          <ResumeBanner problemLookup={resumeLookup} />
 
           {/* Title row */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">

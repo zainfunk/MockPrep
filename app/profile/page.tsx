@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth, SignInButton, useUser } from '@clerk/nextjs';
+import ProfilePlanCard from '@/components/ProfilePlanCard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface SessionRecord {
@@ -407,6 +408,8 @@ export default function ProfilePage() {
             Practice <IcoArrow />
           </Link>
         </header>
+
+        <ProfilePlanCard />
 
         {noData ? (
           <div className="flex flex-col items-center justify-center py-32">

@@ -18,15 +18,6 @@ const T = {
 
 const NAV_ITEMS = [
   {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" />
-      </svg>
-    ),
-  },
-  {
     label: 'Practice',
     href: '/problems',
     icon: (
