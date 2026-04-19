@@ -22,11 +22,32 @@ export default function PricingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/user/daily-limit')
-      .then((res) => (res.ok ? res.json() : null))
-      .then(setLimit)
-      .catch(() => setLimit(null));
-  }, []);
+    let cancelled = false;
+    const shouldPoll = status === 'success';
+    const maxAttempts = shouldPoll ? 8 : 1;
+    let attempts = 0;
+
+    async function fetchLimit(): Promise<void> {
+      attempts += 1;
+      try {
+        const res = await fetch('/api/user/daily-limit', { cache: 'no-store' });
+        const data: LimitData | null = res.ok ? await res.json() : null;
+        if (cancelled) return;
+        setLimit(data);
+        const tierResolved = data?.tier === 'pro' || data?.unlimited;
+        if (shouldPoll && !tierResolved && attempts < maxAttempts) {
+          setTimeout(fetchLimit, 1200);
+        }
+      } catch {
+        if (!cancelled && shouldPoll && attempts < maxAttempts) {
+          setTimeout(fetchLimit, 1200);
+        }
+      }
+    }
+
+    fetchLimit();
+    return () => { cancelled = true; };
+  }, [status]);
 
   async function handleUpgrade() {
     setLoading('checkout');
